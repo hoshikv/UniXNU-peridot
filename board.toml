@@ -49,6 +49,7 @@ roots = []
 config = "peridot"
 dsc = "Platforms/Xiaomi/peridotPkg/peridot.dsc"
 fd = "Build/peridotPkg/{target}_CLANGPDB/FV/PERIDOT_UEFI.fd"
+preflight = ["scripts/apply-peridot-firmware.py"]
 submodules = ["Common/Mu", "Common/Mu_OEM_Sample", "Silicium-ACPI", "Silicon/Silicium/OpensslPkg/Library/OpensslLib/openssl"]
 packages = [
   "{uefi}",
