@@ -13,7 +13,7 @@
 | [Xiaomi Redmi K40 \(alioth, M2012K11AC\) \(songchiyu\)](/zh/devices/alioth-songchiyu) | SM8250 | 2 | 记录待补齐 | [songchiyu/UniXNU-alioth](https://github.com/songchiyu/UniXNU-alioth) |
 | [Xiaomi Redmi K40 \(alioth, M2012K11AC\) \(yang232138\)](/zh/devices/alioth-yang232138) | SM8250 | 2 | 记录待补齐 | [yang232138/UniXNU-alioth](https://github.com/yang232138/UniXNU-alioth) |
 | [Redmi Note 14 Pro+ 5G（amethyst）](/zh/devices/amethyst) | SM7635 | 2 | 记录待补齐 | [andr0d1v/UniXNU-amethyst](https://github.com/andr0d1v/UniXNU-amethyst) |
-| [Xiaomi Redmi Note 14 Pro+ 5G \(BluedMC-Amethyst\)](/zh/devices/amethyst-bluedmc-amethyst) | SM7635 | 2 | 记录待补齐 | [BluedMC-Amethyst/UniXNU-amethyst](https://github.com/BluedMC-Amethyst/UniXNU-amethyst) |
+| [Xiaomi Redmi Note 14 Pro+ 5G \(BluedMC-Amethyst\) \(IOS4Amethyst\)](/zh/devices/amethyst-bluedmc-amethyst) | SM7635 | 2 | 记录待补齐 | [IOS4Amethyst/UniXNU-amethyst](https://github.com/IOS4Amethyst/UniXNU-amethyst) |
 | [Nothing Phone \(3a\)（asteroids）](/zh/devices/asteroids) | SM7635 | 2 | 适配记录 | [rootstockos/UniXNU-asteroids](https://github.com/rootstockos/UniXNU-asteroids) |
 | [BBK/EEBBK A2, X2 and X2P tablet \(ums512\_1h190, Unisoc T610 / UMS512 SharkL5Pro\)](/zh/devices/bbk-a2) | UMS512 | 2 | 记录待补齐 | [woshimaniubi8/unixnu-eebbk-a2_x2-ums512](https://github.com/woshimaniubi8/unixnu-eebbk-a2_x2-ums512) |
 | [Brave Ark 平板（braveark）](/zh/devices/braveark) | SM8635 | 1 | 设备说明 | [tattwamashi/UniXNU-braveark](https://github.com/tattwamashi/UniXNU-braveark) |
@@ -65,6 +65,7 @@
 | [OnePlus 7 Pro（guacamole）](/zh/devices/guacamole) | SM8150 | 1 | 设备说明 | [wochgn/UniXNU-guacamole](https://github.com/wochgn/UniXNU-guacamole) |
 | [摩托罗拉 Moto G9 Play（guamp）](/zh/devices/guamp) | SM6115 | 1 | 设备说明 | [itsChris122/UniXNU-guamp](https://github.com/itsChris122/UniXNU-guamp) |
 | [Redmi K40 Pro（haydn）](/zh/devices/haydn) | SM8350 | 1 | 设备说明 | [xiaomi-haydn-dev/UniXNU-haydn](https://github.com/xiaomi-haydn-dev/UniXNU-haydn) |
+| [Xiaomi Redmi K40 Pro / K40 Pro+ / Mi 11i \(haydn\), SM8350 \(iamOJZ\)](/zh/devices/haydn-iamojz) | SM8350 | 2 | 记录待补齐 | [iamOJZ/UniXNU-haydn](https://github.com/iamOJZ/UniXNU-haydn) |
 | [Xiaomi K40 Pro \(xiaomi-haydn-dev\)](/zh/devices/haydn-xiaomi-haydn-dev) | SM8350 | 1 | 仓库链接 | [xiaomi-haydn-dev/UniXNU-haydn4](https://github.com/xiaomi-haydn-dev/UniXNU-haydn4) |
 | [三星 Galaxy S7 Edge（hero2lte）](/zh/devices/hero2lte) | Exynos 8890 | 2 | 适配记录 | [DokuroMitsukai/UniXNU-hero2lte](https://github.com/DokuroMitsukai/UniXNU-hero2lte) |
 | [小米 14（houji）](/zh/devices/houji) | SM8650 | 1 | 设备说明 | [lonzzi/UniXNU-houji](https://github.com/lonzzi/UniXNU-houji) |
@@ -91,7 +92,10 @@
 | [POCO X7 / Redmi Note 14 Pro 5G（malachite）](/zh/devices/malachite) | MT6878 | 1 | 设备说明 | [ghidgdsr/uefi-malachite](https://github.com/ghidgdsr/uefi-malachite) |
 | [Redmi Note 12 Turbo / POCO F5（marble）](/zh/devices/marble) | SM7475 | 2 | 适配记录 | [sing0626/UniXNU-marble](https://github.com/sing0626/UniXNU-marble) |
 | [Redmi Note 9（merlinx）](/zh/devices/merlinx) | MT6768 | 1 | 设备说明 | [Dracen-W/UniXNU-merlinx](https://github.com/Dracen-W/UniXNU-merlinx) |
-| [Redmi K60 \(mondrian/SM8475\): UniXNU UEFI bring-up](/zh/devices/mondrian) | SM8475 | 1 | 仓库链接 | [Emilelu/UniXNU-mondrian](https://github.com/Emilelu/UniXNU-mondrian) |
+| [LG G8X ThinQ \(LM-G850, mh2lm\)](/zh/devices/mh2lm) | SM8150 | 1 | 仓库链接 | [shenli99/UniXNU-mh2lm](https://github.com/shenli99/UniXNU-mh2lm) |
+| [Redmi K60 \(mondrian/SM8475\): UniXNU UEFI bring-up](/zh/devices/mondrian) | SM8475 | 2 | 适配记录 | [Emilelu/UniXNU-mondrian](https://github.com/Emilelu/UniXNU-mondrian) |
+| [Redmi K60 \(mondrian/SM8475\): UniXNU UEFI bring-up \(wohusaixing\)](/zh/devices/mondrian-wohusaixing) | SM8475 | 2 | 适配记录 | [wohusaixing/UniXNU-mondrian](https://github.com/wohusaixing/UniXNU-mondrian) |
+| [Xiaomi Redmi K40S \(munch, 22021211RC\)](/zh/devices/munch) | SM8250 | 2 | 适配记录 | [WuBarlynn/unixnu-munch](https://github.com/WuBarlynn/unixnu-munch) |
 | [Redmi K90 Pro Max / Poco F8 Ultra（myron）](/zh/devices/myron) | SM8850 | 1 | 设备说明 | [zg7681/UniXNU-myron](https://github.com/zg7681/UniXNU-myron) |
 | [小米平板 5（nabu）](/zh/devices/nabu) | SM8150 | 1 | 设备说明 | [Lux12138/unixnu-nabu](https://github.com/Lux12138/unixnu-nabu) |
 | [Xiaomi Pad 5 \(3214791900-del\)](/zh/devices/nabu-3214791900-del) | SM8150 | 1 | 仓库链接 | [3214791900-del/unixnu-nabu-build](https://github.com/3214791900-del/unixnu-nabu-build) |
@@ -108,6 +112,7 @@
 | [小米 17 Pro（pandora）](/zh/devices/pandora) | SM8850 | 1 | 设备说明 | [ShueiTsuki/data-a-live](https://github.com/ShueiTsuki/data-a-live) |
 | [Sony Xperia 1 II（pdx203）](/zh/devices/pdx203) | SM8250 | 1 | 设备说明 | [chardidathing/UniXNU-pdx203](https://github.com/chardidathing/UniXNU-pdx203) |
 | [Redmi Turbo 3 / Poco F6（peridot）](/zh/devices/peridot) | SM8635 | 1 | 设备说明 | [kvfsrl/UniXNU-peridot](https://github.com/kvfsrl/UniXNU-peridot) |
+| [Xiaomi Poco F6 / Redmi Turbo 3 \(hoshikv\)](/zh/devices/peridot-hoshikv) | SM8635 | 1 | 仓库链接 | [hoshikv/UniXNU-peridot](https://github.com/hoshikv/UniXNU-peridot) |
 | [Poco F6 / Redmi Turbo 3 \(wzy114514sb\)](/zh/devices/peridot-wzy114514sb) | SM8635 | 2 | 记录待补齐 | [wzy114514sb/UniXNU-peridot](https://github.com/wzy114514sb/UniXNU-peridot) |
 | [OPPO Find X7 Ultra（PHY120）](/zh/devices/phy120) | SM8650 | 1 | 设备说明 | [peiyuesheng666/UniXNU-PHY120](https://github.com/peiyuesheng666/UniXNU-PHY120) |
 | [小米平板 8 Pro（piano）](/zh/devices/piano) | SM8750 | 1 | 设备说明 | [code002-2/UniXNU-piano](https://github.com/code002-2/UniXNU-piano) |
@@ -120,7 +125,8 @@
 | [Xiaomi Pad 6 \(xVanTuring\)](/zh/devices/pipa-xvanturing) | SM8250 | 1 | 仓库链接 | [xVanTuring/UniXNU-pipa](https://github.com/xVanTuring/UniXNU-pipa) |
 | [小米 MIX 2S（polaris）](/zh/devices/polaris) | SDM845 | 1 | 设备说明 | [luuu20309/UniXNU-polaris](https://github.com/luuu20309/UniXNU-polaris) |
 | [Xiaomi Mi MIX 2S \(PuszekReksio\)](/zh/devices/polaris-puszekreksio) | SDM845 | 1 | 仓库链接 | [PuszekReksio/UniXNU-judyln](https://github.com/PuszekReksio/UniXNU-judyln) |
-| [Nothing Phone \(2\)（pong）](/zh/devices/pong) | SM8475 | 1 | 设备说明 | [Chengdong-Yu/UniXNU-pong](https://github.com/Chengdong-Yu/UniXNU-pong) |
+| [Nothing Phone \(2\)（pong）](/zh/devices/pong) | SM8475 | 2 | 适配记录 | [Chengdong-Yu/UniXNU-pong](https://github.com/Chengdong-Yu/UniXNU-pong) |
+| [Nothing Phone \(2\): UniXNU UEFI bring-up \(hxzbaka\)](/zh/devices/pong-hxzbaka) | SM8475 | 1 | 仓库链接 | [hxzbaka/UniXNU-pong](https://github.com/hxzbaka/UniXNU-pong) |
 | [Nothing Phone \(2\): UniXNU UEFI bring-up \(Y3d4\)](/zh/devices/pong-y3d4) | SM8475 | 1 | 仓库链接 | [Y3d4/UniXNU-pong-clean](https://github.com/Y3d4/UniXNU-pong-clean) |
 | [Galaxy Z Fold3（q2q）](/zh/devices/q2q) | SM8350 | 1 | 设备说明 | [agcarbajo/UniXNU-q2q](https://github.com/agcarbajo/UniXNU-q2q) |
 | [QEMU virt](/zh/devices/qemu) | QEMU virt | 1 | 设备说明 | [xVanTuring/UniXNU-qemu](https://github.com/xVanTuring/UniXNU-qemu) |
@@ -140,7 +146,7 @@
 | [sheng 上的 macOS](/zh/devices/sheng-macos) | SM8550 | 1 | 设备说明 | [CrossDarwin/macOS-ForSheng](https://github.com/CrossDarwin/macOS-ForSheng) |
 | [Xiaomi Pad 6S Pro \(TheArchitectEngineer\)](/zh/devices/sheng-thearchitectengineer) | SM8550 | 2 | 适配记录 | [TheArchitectEngineer/UniXNU-sheng](https://github.com/TheArchitectEngineer/UniXNU-sheng) |
 | [Xiaomi Pad 6S Pro \(yuyaukong\)](/zh/devices/sheng-yuyaukong) | SM8550 | 1 | 仓库链接 | [yuyaukong/UniXNU-sheng](https://github.com/yuyaukong/UniXNU-sheng) |
-| [Xiaomi 14 Pro 23116PN5BC](/zh/devices/shennong) | SM8650 | 1 | 仓库链接 | [YX2748198202-lab/UniXNU-shennong](https://github.com/YX2748198202-lab/UniXNU-shennong) |
+| [Xiaomi 14 Pro 23116PN5BC](/zh/devices/shennong) | SM8650 | 2 | 记录待补齐 | [YX2748198202-lab/UniXNU-shennong](https://github.com/YX2748198202-lab/UniXNU-shennong) |
 | [小米 8 SE（sirius）](/zh/devices/sirius) | SDM710 | 2 | 适配记录 | [57UU/UniXNU-sirius](https://github.com/57UU/UniXNU-sirius) |
 | [Xiaomi Mi 8 SE \(HuajiFruit\)](/zh/devices/sirius-huajifruit) | SDM710 | 2 | 适配记录 | [HuajiFruit/UniXNU-sirius](https://github.com/HuajiFruit/UniXNU-sirius) |
 | [Xiaomi Mi 8 SE \(Yooglery\)](/zh/devices/sirius-yooglery) | SDM710 | 2 | 适配记录 | [Yooglery/UniXNU-sirius](https://github.com/Yooglery/UniXNU-sirius) |
@@ -165,8 +171,10 @@
 | [Unisoc 设备](/zh/devices/unisoc) | Unisoc | 1 | 设备说明 | [hxzbaka/UniXNU-Unisoc](https://github.com/hxzbaka/UniXNU-Unisoc) |
 | [unixnu-build](/zh/devices/unixnu-build) | build tree | 1 | 设备说明 | [iskssksjjsjjzjs/unixnu-build](https://github.com/iskssksjjsjjzjs/unixnu-build) |
 | [Redmi K70（vermeer）](/zh/devices/vermeer) | SM8550 | 1 | 设备说明 | [mansar1337/UniXNU-vermeer](https://github.com/mansar1337/UniXNU-vermeer) |
+| [Redmi K70 \(ahzcpp\)](/zh/devices/vermeer-ahzcpp) | SM8550 | 2 | 记录待补齐 | [ahzcpp/UniXNU-vermeer](https://github.com/ahzcpp/UniXNU-vermeer) |
 | [Redmi K70 \(xyyyds0106\)](/zh/devices/vermeer-xyyyds0106) | SM8550 | 1 | 仓库链接 | [xyyyds0106/UniXNU-vermeer](https://github.com/xyyyds0106/UniXNU-vermeer) |
 | [Redmi K70 \(yyx2025\)](/zh/devices/vermeer-yyx2025) | SM8550 | 1 | 仓库链接 | [yyx2025/UniXNU-vermeer](https://github.com/yyx2025/UniXNU-vermeer) |
+| [Xiaomi Mi 6X \(2018\)](/zh/devices/wayne) | SDM660 | 1 | 仓库链接 | [gs240333/UniXNU-wayne](https://github.com/gs240333/UniXNU-wayne) |
 | [OPPO Find X9（x9）](/zh/devices/x9) | MT6993 | 1 | 设备说明 | [tosasitill/unixnu_x9](https://github.com/tosasitill/unixnu_x9) |
 | [Microsoft Surface Duo 2（zeta）](/zh/devices/zeta) | SM8350 | 1 | 设备说明 | [none24smu/UniXNU-zeta](https://github.com/none24smu/UniXNU-zeta) |
 | [Redmi K80（zorn）](/zh/devices/zorn) | SM8650 | 1 | 设备说明 | [kerrinz/UniXNU-zorn](https://github.com/kerrinz/UniXNU-zorn) |

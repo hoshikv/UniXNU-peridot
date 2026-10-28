@@ -4,9 +4,9 @@
 
 <div v-pre>
 
-OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs the whole of kernel\_bootstrap, starts the scheduler and its first thread, and enters bsd\_init, where platform\_stall\_panic\_or\_spin parks on a wfe loop.
+OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs the whole of kernel\_bootstrap, starts the scheduler and its first thread, and with PE\_init\_iokit, initialize\_screen, kperf\_init\_early, ml\_wait\_max\_cpus and platform\_stall\_panic\_or\_spin skipped it stops after PE\_init\_iokit and before bsd\_init. A 32-checkpoint flag log is implemented, but the DRAM flag page does not survive the reset; the pram mailbox is the next measurement.
 
-Source record: [porting.toml](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/porting.toml), `df632146f1cfa4b65d10d79cef34910aa091964e`.
+Source record: [porting.toml](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/porting.toml), `5ba9d471c59a893ef40868190d73d88edb1af453`.
 
 This page is generated from the device record.
 
@@ -58,6 +58,7 @@ Components: `ArmDTPlatform`, `ArmCpu`, `SoftwareAES`, `XnuPrelink`, `DarwinBoot`
 - Two inputs are not in any repository and must be captured per handset: the live device tree from /sys/firmware/fdt and the kernel built on a macOS runner. proprietary-files.txt names both with their hashes and consumers.
 - Every change to a file an area owns has to update that area findings or evidence in the same commit; the catalog workflow fails otherwise and names the path.
 - The device summary is what the generated page shows first, so it has to name the current stage rather than the first blocker found.
+- The README status table names the current PE\_init\_iokit to bsd\_init gap and links the 32-checkpoint capture in docs/log-capture.md.
 
 ### Completion criteria
 
@@ -73,8 +74,8 @@ Components: `ArmDTPlatform`, `ArmCpu`, `SoftwareAES`, `XnuPrelink`, `DarwinBoot`
 
 ### Evidence
 
-- `source`: [Format 2 board description with the SM8250 SoC feed and the five components above.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/board.toml)
-- `source`: [Thirteen areas with measured facts; python3 scripts/porting-record.py check --device ../UniXNU-kebab passes.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/porting.toml)
+- `source`: [Format 2 board description with the SM8250 SoC feed and the five components above.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/board.toml)
+- `source`: [Thirteen areas with measured facts; python3 scripts/porting-record.py check --device ../UniXNU-kebab passes.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/porting.toml)
 
 ## Firmware and boot {#firmware}
 
@@ -92,6 +93,7 @@ Components: `DarwinBoot`.
 
 - FD\_BASE 0x9FC00000, FD\_SIZE 0x4600000 \(3 MiB firmware volume plus a raw payload region at 0x00300000\)
 - UFSDxe removed from DXE.inc; SEC disables the APSS watchdog at 0x17C10008
+- ScmDxeLA and SdccDxe are included; TzDxeLA is commented out
 - Framebuffer PCDs 1080x2400x32
 - unixnu bootimg passes the live DTB; ABL refuses images without the splash region node
 
@@ -107,6 +109,8 @@ Components: `DarwinBoot`.
 - A payload file inside the firmware volume is impossible: the FFS size field is 24 bits, so the 64 MiB payload is a raw FDF region instead.
 - FrameBufferSerialPortLib handled newline and carriage return but ignored form feed, so DarwinBoot's clear screen did nothing and the left half of every log line was cut off.
 - The payload builder injects the nodes XNU looks up by property \(gic with interrupt-controller master, a one-cell redistributor stride, virtual-timer-intid, a timer node, pram and the panic log size\); without them the kernel stops before PE\_init\_platform returns.
+- KebabBootLog reads the 32 checkpoint bytes at 0xB9000010, prints the set list and clears the flags; CacheMaintenanceLib flushes the clear.
+- The current firmware has SCM and SDCC but no UFS block device: UFSDxe is removed for the vendor assert, TzDxeLA is disabled and SdccDxe does not replace UFS.
 
 ### Completion criteria
 
@@ -122,7 +126,7 @@ Components: `DarwinBoot`.
 
 ### Evidence
 
-- `device`: [UniXNU menu on the KB2000 panel listing the payload entry, keys working, full firmware and DarwinBoot log readable.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/docs/bring-up.md)
+- `device`: [UniXNU menu on the KB2000 panel listing the payload entry, keys working, full firmware and DarwinBoot log readable.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
   Command: <code>fastboot flash boot_a out/darwin-boot.img; fastboot reboot</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## CPU and interrupts {#cpu}
@@ -148,6 +152,7 @@ Components: `ArmCpu`.
 - Install the kernel entry probe with entry\_probe\_reset\_delay and a symbol to bisect
 - Read the stage bars: blue is kernel entry with the MMU off, magenta is just before the MMU is on
 - A reboot six seconds after the bars proves the probe point was reached
+- Run scripts/patch-xnu-log-probe.py on a private kernel copy, build the payload and read the 32 flags in KebabBootLog
 
 ### Development findings
 
@@ -156,6 +161,10 @@ Components: `ArmCpu`.
 - \_machine\_startup is four instructions and tail-branches into \_kernel\_bootstrap, so a probe placed after that call can never fire; earlier readings of it measured nothing.
 - \_arm\_init calls PE\_init\_platform twice and kernel\_startup\_initialize\_upto is called once per init stage, so a probe needs entry\_probe\_reset\_occurrence when the call appears more than once.
 - The kernel clears the screen when it creates the console, so a black panel after the stage bars does not mean the kernel died.
+- The kernel removes its identity map in arm\_vm\_init and the physical aperture starts at gPhysBase. The ring is below both window configurations' kernel base, so the stub uses ml\_phys\_write\_byte, which maps the unmanaged page through the uncached CPU copy window instead of phystokv.
+- A call-site stub can save x0-x8 and LR, call ml\_phys\_write\_byte, restore and tail-call the original callee, so arguments and return address are unchanged.
+- The 32 calls between PE\_init\_iokit and the first bsd\_init locks name the gap: the last set byte is the call entered, and the next unset byte is the callee that did not return.
+- The 4 GiB window loads the kernel at physical 0x20007C000 \(base A, measured by a temporary DarwinBoot colour band\). A one-stub BSS write at 0x7B281B0, dc cvac and PSCI reset reboots, but the next reader still sees no prefix, so normal DRAM does not carry the flag across the reset; pram 0x17F00FE0 is the persistent page.
 
 ### Completion criteria
 
@@ -167,12 +176,13 @@ Components: `ArmCpu`.
 
 ### Next action
 
-- Add the missing device tree details \_machine\_conf reads, then repeat the reset probe at \_ml\_get\_topology\_info and \_cpu\_machine\_init.
+- Confirm the pram one-stub at 0x17F00FE0 \(out/prammap-boot.img\), then move the 32 checkpoint bytes from the ring to pram and read last/next in KebabBootLog.
 
 ### Evidence
 
-- `device`: [Reboot six seconds after the stage bars with the probe after the MMU enable; no reboot with the probe after \_machine\_conf, so the kernel reached \_machine\_startup and stopped inside it.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/docs/bring-up.md)
+- `device`: [Reboot six seconds after the stage bars with the probe after the MMU enable; no reboot with the probe after \_machine\_conf, so the kernel reached \_machine\_startup and stopped inside it.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
   Command: <code>flash the reset-probe image and observe the panel</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
+- `source`: [Resolves 32 call sites, verifies every original bl, places 80-byte stubs in \_\_TEXT\_EXEC padding and checks each branch.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/scripts/patch-xnu-log-probe.py)
 
 ## Memory and DMA {#memory}
 
@@ -199,6 +209,9 @@ Components: `ArmDTPlatform`.
 
 - The kernel first-fit allocated at 0x7D000 and faulted during relocation; loading above 0x40000000 moved it to DRAM.
 - A 256 MiB window leaves too little room in arm\_vm\_init's early I/O page-table reservation for the 0x2300000-byte framebuffer region; only after the window became 3 GiB did the kernel reach the MMU enable and \_machine\_startup.
+- The physical aperture starts at gPhysBase and maps upward, so the 0xB9000000 ring has no phystokv mapping. ml\_phys\_write\_data falls back to the uncached CPU copy window for this unmanaged page, which is how the stage-1 stub writes it.
+- The 4 GiB test window put the kernel physical base at 0x20007C000, measured by a temporary DarwinBoot colour band; the 3 GiB build's 0xC007C000 is not the current local base.
+- Normal DRAM does not carry the checkpoint flags across the reset: the 0xB9000010 ring, 0xC0001000/0x200001000 and a real \_\_DATA BSS page all lose the byte after a reboot. The pram page at 0x17F00FE0 is the reset-persistent page; UEFI must map it before it can read the flags.
 
 ### Completion criteria
 
@@ -214,7 +227,7 @@ Components: `ArmDTPlatform`.
 
 ### Evidence
 
-- `device`: [DarwinBoot reports the kernel at physical 0xC007C000 inside the 3 GiB window, and the kernel reaches the MMU enable.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/docs/bring-up.md)
+- `device`: [DarwinBoot reports the kernel at physical 0xC007C000 inside the 3 GiB window, and the kernel reaches the MMU enable.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
   Command: <code>flash the entry-probe image and read the DarwinBoot physical base line</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## Storage and root {#storage}
@@ -238,6 +251,7 @@ Components: `ArmDTPlatform`.
 
 - The vendor UEFI UFS driver asserts in UFS.c and must stay out of the firmware image.
 - With no block device, the firmware cannot expose the root volume and the kernel cannot mount anything.
+- DXE.inc includes ScmDxeLA and SdccDxe, comments out UFSDxe and TzDxeLA. The phone has no SD slot, so SDCC does not replace UFS; the missing UFS block device is still what blocks userdata/root.
 
 ### Completion criteria
 
@@ -294,7 +308,7 @@ Components: `ArmDTPlatform`.
 
 ### Evidence
 
-- `device`: [Menu, firmware log and DarwinBoot log render at 1080x2400 with correct geometry.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/docs/bring-up.md)
+- `device`: [Menu, firmware log and DarwinBoot log render at 1080x2400 with correct geometry.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
   Command: <code>boot the firmware and read the panel</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## Input {#input}
@@ -332,7 +346,7 @@ Components: `ArmDTPlatform`.
 
 ### Evidence
 
-- `device`: [Menu selection and confirmation work with the physical keys.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/docs/bring-up.md)
+- `device`: [Menu selection and confirmation work with the physical keys.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
   Command: <code>boot the firmware and press volume and power</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## GPU {#gpu}
@@ -507,6 +521,7 @@ Components: `XnuPrelink`, `DarwinBoot`.
 - The payload cannot be an FFS file, and RamDiskDxe refused the buffer with EFI\_INVALID\_PARAMETER, so KebabRamDisk publishes the region as a BlockIo device with a device path for PartitionDxe.
 - unixnu bootimg needs the patched mkbootimg call that passes the DTB for header version 2.
 - The payload builder now injects the device tree nodes XNU looks up by property, and scripts/patch-func-ret.py replaces a single kernel function with a ret when one call has to be skipped without a kernel rebuild.
+- The exported firmware patch keeps every edited firmware file, including the two kebab drivers and the BootShim, so the tree can be rebuilt from the patch alone.
 
 ### Completion criteria
 
@@ -522,7 +537,7 @@ Components: `XnuPrelink`, `DarwinBoot`.
 
 ### Evidence
 
-- `device`: [The image boots to the menu, the payload volume mounts and the kernel entry bar appears after the DarwinBoot hand-off.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/docs/bring-up.md)
+- `device`: [The image boots to the menu, the payload volume mounts and the kernel entry bar appears after the DarwinBoot hand-off.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
   Command: <code>fastboot flash boot_a out/probe-final-boot.img; fastboot reboot</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## Diagnostics {#diagnostics}
@@ -551,6 +566,9 @@ Components: `DarwinBoot`.
 - Stage bars mark kernel entry and the point just before the MMU is on; a timed reset is the only signal available once the kernel runs without a console.
 - A probe registered after the exit-boot-services notifications proved those notifications never returned; skipping them made the hand-off complete.
 - Probes can mislead: an inline-assembly probe hardcoded to an identity mapping crashes after arm\_vm\_init closes that mapping and looks like a kernel hang.
+- A checkpoint ring at 0xB9000000 and a BSS probe were tried. A one-stub BSS write + dc cvac + PSCI reset reboots, but the next reader still reads no prefix, so normal DRAM does not carry the flag across the reset; the 0xB9000010, 0xC0001000 and 0x200001000 probes behaved the same way.
+- pram 0x17F00FE0 is the panic-log page that survives the reset. UEFI leaves it unmapped; a reader that adds it to the GCD and sets it uncached with gDS-&gt;AddMemorySpace and gDS-&gt;SetMemorySpaceAttributes was built, together with a one-stub ml\_phys\_write\_byte\(0x17F00FE0,1\) + reset image \(out/prammap-boot.img\).
+- Do not clear the flag page from the firmware: pram may be read-only to UEFI and the kernel clears its own BSS. The prefix check must accept only the value 1, not any non-zero byte.
 
 ### Completion criteria
 
@@ -558,15 +576,15 @@ Components: `DarwinBoot`.
 
 ### Current limits
 
-- No USB or storage log transport; every observation needs a photograph of the panel.
+- No USB or storage log transport yet; the RAM ring did not survive the reset in the 2026-10-28 test; the pram reader mapping is the current work.
 
 ### Next action
 
-- Add a log transport or copy the panic log into /pram once the kernel panics with a console available.
+- Boot out/prammap-boot.img and read the pram one-stub: if it reports last=0, move the 32 checkpoint bytes to pram.
 
 ### Evidence
 
-- `device`: [Seventeen exit-boot-services notifications, a hung notification phase and a passing hand-off after skipping them; kernel entry, MMU enable and \_machine\_startup all confirmed by bars and timed resets.](https://github.com/stevedang67889/UniXNU-kebab/blob/df632146f1cfa4b65d10d79cef34910aa091964e/docs/bring-up.md)
+- `device`: [Seventeen exit-boot-services notifications, a hung notification phase and a passing hand-off after skipping them; kernel entry, MMU enable and \_machine\_startup all confirmed by bars and timed resets.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
   Command: <code>flash each bisect image and photograph the panel</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 </div>

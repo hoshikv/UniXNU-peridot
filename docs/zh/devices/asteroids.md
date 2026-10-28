@@ -6,7 +6,7 @@
 
 Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UFS userdata partition, with shared SM7635 support and board-owned storage, GPU, input and power integration. Bring-up runs as numbered staged tests; their results are in docs/asteroids-gpu-gen8.md and docs/asteroids-touch.md of rootstockos/iosonandng.
 
-源记录: [porting.toml](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/porting.toml), `2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b`.
+源记录: [porting.toml](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/porting.toml), `fa01edb96274e710efc109650b6b82a7fc56ad32`.
 
 本页按设备记录自动生成。
 
@@ -22,7 +22,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 | [GPU](#gpu) | `implemented` |
 | [clock](#clock) | `device-verified` |
 | [网络](#network) | `planned` |
-| [音频](#audio) | `planned` |
+| [音频](#audio) | `implemented` |
 | [电源](#power) | `implemented` |
 | [镜像组装](#packaging) | `implemented` |
 | [诊断](#diagnostics) | `implemented` |
@@ -56,6 +56,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T40a \(2026-10-27\): every fork has one working branch, asteroids \(former branches are archive/\* tags\); drivers/ArmDTPlatform became the submodule fork rootstockos/ArmDTPlatform; the record check runs rootstockos/UniXNU's workflow and catalog, since UniXNU main's catalog does not know Sm7635Platform or QcomPmicRtc.
 - T40c \(2026-10-27\): build tag T40; the GPU governor and fence spin are board defaults \(see gpu\).
 - T40d \(2026-10-27\): sheng-lite=1 as on sheng; sheng-disable-jobs keeps only bluetoothd and coreduetd \(the lite list holds the XPC wait cycle\). The kernel from fork asteroids-dev 0d215db carries native-union-root-checkdirs.patch: the SystemOS union over / no longer leaves the OS root one usecount short \(T40c's shutdown panic in vnode\_rele\_ext\).
+- T50: board.toml kernel\_args gain sheng-dpu-scanout=2, sheng-dpu-linux=1 and sheng-audio=1.
 
 ### 完成条件
 
@@ -71,7 +72,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Format 2 board configuration with the SM7635 SoC and 21H461 OS profiles.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/board.toml)
+- `source`: [Format 2 board configuration with the SM7635 SoC and 21H461 OS profiles.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
 
 ## 固件与启动 {#firmware}
 
@@ -111,7 +112,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [\[bootimg\] and \[firmware\] select uefi-asteroids and the payload in the kernel image.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/board.toml)
+- `source`: [\[bootimg\] and \[firmware\] select uefi-asteroids and the payload in the kernel image.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
 
 ## CPU 与中断 {#cpu}
 
@@ -152,7 +153,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [EPSS CPU governor with touch boost and frame floor.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/package/CpuFreqProbe.cpp)
+- `source`: [EPSS CPU governor with touch boost and frame floor.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/CpuFreqProbe.cpp)
 
 ## 内存与 DMA {#memory}
 
@@ -189,7 +190,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Memory node for the XNU window's DRAM bank.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/dts/asteroids.dts)
+- `source`: [Memory node for the XNU window's DRAM bank.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/dts/asteroids.dts)
 
 ## 存储与根卷 {#storage}
 
@@ -229,7 +230,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T29 booted iPadOS 17.7.11 from the UFS root with persistent Data to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/board.toml)
+- `device`: [T29 booted iPadOS 17.7.11 from the UFS root with persistent Data to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t29-boot.img</code>. Revision: `adf900cf453a6b318864913757f588c9f661596f`.
 
 ## 显示 {#display}
@@ -257,6 +258,19 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - The CPU copy \(143-285 ms a frame\) mapped the surfaces cacheable without invalidation and showed stale patches; the GPU copy removes both.
 - GopFramebuffer 33e941a's direct scanout needs ShengUfs's display SMMU window \(native\_ufs\_dpu\_map\); our NativeUfs fork has none, so package/LegacyDisplayStubs.c supplies weak zero stand-ins that keep it off.
 - T40c \(2026-10-27\): BootProgress.c's cpu0\_park defaults off \(see cpu\).
+- T40k-T42 \(2026-10-27\): zero copy on the 3a. NativeUfs sheng-dpu-linux=1 sets the display bank up as Linux does: CBA2R and CBAR written \(the apps SMMU is qcom,virt-smmu and the hypervisor attaches the bank on that write\), TCR2 with the ASID size and SEP, cached inner-shareable walks with T0SZ 28, TTBR0 with an ASID. The bank then took stage 1 without a fault \(T40k\), where every earlier setup faulted at level 0, even with blocks lacking the access flag \(T40i-af\). T41: 1018 direct flips, 4.4 ms mean latch, once startDirect waited for the bank \(40 ms\); frames showed half drawn \(the wallpaper without the app\), so T42 flips only once the GPU's completed fence reaches the newest fence submitted at the swap.
+- T42 \(2026-10-28\): the GPU wait never ran \(0 of 1272 flips\), yet opening apps still alternated the new frame with the wallpaper alone. The original completion \(IOMobileFramebufferLegacy slot 295, its body at 0xfffffff00578a96c in 21H461\) clears the current swap and releases its surfaces, and it ran as soon as a swap latched: the compositor got back the surface still on screen and drew its next frame over it. T43: sheng-dpu-hold=&lt;ms&gt; keeps the shown swap current until the next latch \(or &lt;ms&gt; without a new swap\) and only then completes it; \[direct scanout\] held / timed out count the two.
+- T44: \[direct scanout\] adds frame gaps \(flip to flip: up to 17, 25, 34, 50, 100 ms, longer, the longest under a second\), to measure the frame rate opening an app reaches under blur.
+- T43-copy \(2026-10-28\): copy mode felt slower and choppier than older builds. Its log \(25 minutes\) shows the copy path as before: 5310 GPU copies, none failed, no CPU throttling. The session was heavier, though: two wallpaper renderers \(PosterBoard, CollectionsPoster\) on the GPU, 691 MB of GPU memory against 345-582 MB, and seven times the time freeing it. Every counter covers the whole boot. T46: the \[frames\] row counts frames shown by copy and by flip and the gaps between them \(T44's flip-only histogram moved there\).
+- T46 \(2026-10-28\): zero copy with the end-of-submission GPU cache flush still alternated the new frame with the wallpaper alone. 1102 flips in 78 s: 68 % of the gaps 17 ms or less, 17 % up to 25 ms, 3 % over 50 ms. T47 reverts the guesses that did not fix it: the GPU wait \(904bccf\) and the frame hold \(8393a37\) in GopFramebuffer \(d4f7b59, the direct path is a5fc6bf's again\), keeping the frame counting.
+- T47 review \(2026-10-28\): T42's flip wait never waited. It found the GPU's fence page through NativeAdreno's native\_adreno\_fence\_phys, which only NativeAdreno's service sets; this board attaches the ring in GpuPowerProbe, so it stayed 0 \(no \[fence page\] row in any log\) and gpuCaughtUp\(\) always answered done. 'No flip waited for the GPU' therefore says nothing. T48: sheng-dpu-probe=1 samples what the display fetches \(4 x 4 luminance grid through an uncached mapping\) at the flip, the latch, each refresh tick and when the surface leaves, with the real fences \(GpuPowerProbe native\_gpu\_fences\); sheng-dpu-flipdelay=&lt;us&gt; and sheng-dpu-gpuwait=1 test late GPU work. T47-copy: copy mode is GPU-bound \(23 % of frames within 17 ms against 68 % with zero copy; 435 of 1507 busy windows at the ceiling\).
+- T49: \[mic peaks\] \(the capture's peak per second and its start time\) and BTN taps=.
+- T49-probe/T49-gpuwait \(2026-10-28\): the flicker's cause is flipping to frames the GPU has not finished. With the probe, 663 of 703 flips found GPU work outstanding and 277 surfaces changed between flip and latch \(222 more before leaving the screen, none on a refresh tick while shown\). Waiting for every submission made before the flip \(the real fences from GpuPowerProbe\) gave 0, 0 and 0 over 821 flips, 691 waits over 1 ms, longest 23.6 ms, and no visible flicker; smoothness felt like copy mode. T50 makes it the default: board.toml sets sheng-dpu-scanout=2 and sheng-dpu-linux=1, GopFramebuffer waits unless sheng-dpu-gpuwait=0.
+- T51: \[frame time\] splits each frame into compositor time, swap to screen and flip to latch; \[frames\] gains a 9 ms \(120 Hz\) bucket. The panel is advertised as 24-120 Hz \(sheng-vsync=120\).
+- T51: per frame, compositor time had a wide spread, swap to screen 8-12 ms \(the GPU\), flip to latch 4.5 ms mean; they run in series because the compositor starts the next frame only when the swap completes. T52: sheng-dpu-early-done=1 completes a direct swap when its flip is programmed.
+- T53: the boot log gains \[gpu work\] \(BootLog.c\), the GPU work per submission by render passes against its GPU time.
+- T54: the boot log gains \[gpu sysmem why\]; \[gpu work\] drops the draw count.
+- T55: the boot log gains \[gpu ops\] \(GPU time per kind of work\).
 
 ### 完成条件
 
@@ -272,7 +286,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T34b: GPU copy to the panel, no tearing or stale patches, stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/board.toml)
+- `device`: [T34b: GPU copy to the panel, no tearing or stale patches, stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## 输入 {#input}
@@ -298,6 +312,9 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - Touch is polled; stage 2's RPMh votes need a completion check.
 - Every button constant equals sheng's \(SPMI arbiter v7 at the same addresses, same PPIDs\).
 - TouchState.cpp's placeholder button sink is gone: ButtonProbe.cpp owns native\_buttons\_set\_sink.
+- T47 \(2026-10-28\): quick button clicks did not register, a slightly longer hold did: the thread reads the levels when it wakes, and a short press is up again by then. T49: with sheng-buttons-taps=1 the interrupt handler records which buttons fired, and one that is up again without a reported press is reported as a 30 ms tap; BTN taps= counts them.
+- T49-gpuwait: quick taps still did not register although every edge raised an interrupt and a report \(45 of 45, taps=0\): the driver saw them and iOS ignored them. T50: sheng-buttons-hold-ms=&lt;ms&gt; delays a release until the press has lasted that long.
+- T51: 4 button interrupts, 4 reports, with sheng-buttons-hold-ms=80; whether quick taps were tried is unknown.
 
 ### 完成条件
 
@@ -313,7 +330,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [Touch input works on the desktop \(stage 6\).](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/package/AsteroidsTouchProbe.cpp)
+- `device`: [Touch input works on the desktop \(stage 6\).](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/AsteroidsTouchProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## GPU {#gpu}
@@ -343,6 +360,28 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T40b \(2026-10-27\): drivers/Adreno740 is UniXNU Adreno740 main \(5c8c145\) merged into our gen8 fork \(rootstockos/NativeAdreno asteroids 60f16a6\): ABI v2 \(128 buffers per submission\), no full GPU TLB flush per submission, owned and exclusive imports mapped without alias scans. The board's GPU probe keeps its ABI structures and native\_adreno\_publish signature; it passes no GMU AHB fence status to the ring \(the new optional fence\_cookie/fence\_status\), so WPTR writes stay unchecked as before.
 - T40c \(2026-10-27\): sheng's GPU governor is on by default in board.toml \(sheng-gpu-dcvs=1\) with the 3a's range: floor level 6 \(763 MHz, the former fixed level; sheng's floor 3 is 510 MHz here and held every frame in T39b\), ceiling level 7 \(895 MHz; no GPU thermal throttle yet\). Fence waits spin \(sheng-gpu-irq=0\) as a board default.
 - T40d \(2026-10-27\): IO coherence. Nothing here set native\_adreno\_io\_coherent, so the merged driver cleaned and invalidated every imported page around every submission \(T40c log: 18 s and 361 GiB of maintenance for about 3000 submissions\). GpuPowerProbe now runs UniXNU-sheng's coherenceProbe \(08cde20\) before publishing: a kernel page mapped write-back inner-shareable, GPU reads of CPU-dirty lines and CPU reads of GPU writes both proved against DRAM; only then is it on \(sheng-gpu-coherent=0 skips it\). The driver keeps GPU-written imports non-coherent \(myron 5bbeb3b\). Turnip's 1 ms waits \(pandora 6265e2d\) were already fixed upstream \(100 ms slices in turnip-darwin-kmd.patch\); kern.maxvnodes is 66560 from upstream's iPadOS profile.
+- T44: \[gpu load\] counts the dcvs thread's 16 ms windows with work by busy share \(under 25, 50, 85 %, 85 % or more, and those at the ceiling, where the GPU was the limit at the highest level allowed\) and the longest fully busy run, to tell a GPU-bound frame from one held up elsewhere.
+- T43 \(2026-10-28\): zero copy still alternated the new frame with the wallpaper alone with the shown swap held \(586 held to the next latch, 44 by timeout; held swaps also slowed animations, so the compositor waits on the completion\), and no flip ever waited for the GPU. The ring flushes the GPU caches \(CACHE\_FLUSH7, CACHE\_INVALIDATE7\) only in the prologue of the next submission, so a finished frame's last passes reach memory late: the GPU copy read them through those caches, the display fetches memory. T45: sheng-gpu-endflush=1 \(NativeAdreno\) adds CACHE\_FLUSH7 and CP\_WAIT\_FOR\_IDLE before each framed fence.
+- T45 \(first build, 2026-10-28\): sheng-gpu-endflush never took effect: this board attaches the ring in package/GpuPowerProbe.cpp \(gRing\), not in NativeAdreno's service, where the boot argument was read. T45b sets it on gRing.
+- T46: the GPU was the limit at times while opening apps: of 1098 windows with work, 117 were 85 % busy or more, 111 of them at the ceiling \(level 7\), the longest fully busy run 149 ms. T47 reverts the end flush and the published fence in NativeAdreno \(cd2bbe5, the ring is 1139088's again\) and its setting in GpuPowerProbe.
+- T48: GpuPowerProbe exports native\_gpu\_fences \(the ring's submissions and the fence page's completed timestamp\) for the display probe.
+- T49-gpuwait \(2026-10-28\): scrolling and app opening keep the GPU at its ceiling. 511 of 1075 waited-on fences stayed pending 8 ms or more \(121 for 16-32 ms\); per-submission cache maintenance cleaned 65 GiB in 114 s \(3.6 s of CPU\); clients made 198049 fence waits, 99 % timing out at once. T51 measures it: GPU time per submission from the submit hook \(NativeAdreno native\_adreno\_ring\_hook\) and the fence interrupt, with GPU idle and queued time; maintenance bytes by kind of buffer; the timeouts clients ask for.
+- T51 \(first build\): the board's declaration of NativeAdreno's ring hook carried weak\_import inside an extern "C" block, which makes it a definition; it is now a plain declaration, set unconditionally \(the driver always provides it\).
+- T51 \(2026-10-28\): 1979 frames in 118 s, 48 % 17-25 ms apart, 7 % within 9 ms. Swap to GPU done was 8-12 ms for 1180 frames. Per-submission maintenance cleaned 126 GiB \(7.0 s of CPU\), nearly all read-only imports \(127722 MiB counted\): every submission cleaned every client's imports, since the VM is shared. Clients made 573185 zero-timeout fence polls \(about 4900 per second\); the big cores ran 67 % busy. \[gpu time\] stayed empty: its fences were only taken from the GPU interrupt, and the board runs sheng-gpu-irq=0. T52: sheng-gpu-own-maint=1 \(NativeAdreno per-client maintenance\), GPU timing also from the display's flip wait and the governor tick.
+- T52 \(2026-10-28\): GPU time per submission, now measured: mean 13.6 ms at level 7 \(n=1035; 371 between 17 and 25 ms\), 9.0 ms with the GPU held at level 9 \(n=1095\), so the time scales with the clock and its bandwidth vote: the GPU does too much work per frame rather than stalling. Per-client maintenance changed nothing \(55 MiB per submission\): the compositor submits nearly everything and owns the imports it cleans. sheng-gpu-irq=1 cut clients' fence polls from 573185 to 13707. T53: the asteroids Turnip patch \(UniXNU patches/mesa/turnip-asteroids-stats.patch\) counts each submission's passes, system-memory passes, blits, draws and render area; \[gpu work\] ties them to GPU time.
+- T53 \(2026-10-28\): with Turnip's counts, 5535 of 7713 render passes \(72 %\) ran in system memory rather than GMEM, and submissions with such a pass took 7.4 of the 12.3 s of GPU time \(60 %\); 26153 blits, copies and clears \(about 20 per submission\); 585 single-pass submissions averaged 8.9 ms of GPU time. The draw count read 0 throughout. T54: the reason for each system-memory pass \(tile memory too small, feedback loop, too many tiles without HW binning, autotune and so on\) per submission, tied to GPU time; asteroids-tu-debug=&lt;flags&gt; in the boot arguments adds Turnip debug flags \(gmem, sysmem\) for one boot.
+- T54 \(first add-on build\): Turnip with the reason counts compiled; the plugin failed because setTurnipDebug sat inside the publish-only namespace while one caller is outside it. It now sits before that block.
+- T54 \(2026-10-28\): every system-memory pass was Turnip's autotune choice \(586 submissions, 6.6 of 10.8 s of GPU time\); nothing forced it. Forcing GMEM \(asteroids-tu-debug=gmem\) put every pass in GMEM and rendered correctly, but GPU time per submission only went from 11.0 to 10.5 ms \(single-pass submissions 11.4 to 9.8 ms\): where the passes render is not what costs. The Reduce Transparency test could not run \(Settings crashes opening Accessibility: Preferences sig 11 at PC 0\). T55: GPU timestamps around each pass, blit, copy, resolve and clear give GPU time per kind \(turnip-asteroids-timing.patch, \[gpu ops\]\).
+- T55 \(2026-10-28\): stuck at the Apple logo. Not a GPU hang \(47 submissions in 100 s, the GPU idle\): the wallpaper poster extensions \(AegirPoster, KaleidoscopePoster\) asked for Metal 12 times each and AegirPoster aborted \(signal 6\) on every launch, which no earlier boot showed; \[gpu ops\] collected 14 command buffers and 41 timing brackets that never ran. T56: the brackets are inert unless TU\_DW\_TIME is set, which the plugin does only in the render server with asteroids-tu-time=1.
+- Correction to T55: AegirPoster aborted 5 times in T49-gpuwait too, which booted normally, so the poster crashes are an older bug and not why T55 stayed at the Apple logo. What T55 changed is the timing brackets in every process, the render server included, which made only 47 submissions in 100 s with 41 brackets never written. T56 \(timing off\) and T56-time \(timing in the render server only\) separate the two.
+- T55-T56 \(2026-10-28\): the cause of T55's hang was the timing stamps, not the posters: fence 52, the render server's first frame, never completed \(51 written\), so every later frame waited and PosterBoard's open was refused once the driver stopped taking clients. T56 \(brackets inert\) booted normally with 913 submissions. T57: the stamps copy the always-on counter with CP\_REG\_TO\_MEM \(as Turnip's autotune does, which runs on every boot here\), the end stamp after a wait for idle; asteroids-tu-time=passes times render passes only.
+- T57 \(2026-10-28\): t57-passes hung the same way: fence 55 never completed \(54 written\), and \[gpu ops\] showed 10 command buffers whose 10 brackets were never written. Both stamp methods wrote into the command buffer's sub-stream memory, which Turnip allocates GPU read-only unless marked writeable, and the Darwin backend maps it with read-only permission. T58: the slots come from the sub stream's GPU-writable memory \(tu\_cs\_set\_writeable around the allocation, as Turnip does for GPU-written clear data\).
+- T58 \(2026-10-28\): t58-passes booted \(1033 submissions\): the stamps work once their slots are GPU-writable, confirming T55 and T57 hung on writes to read-only command memory. GPU time per submission 10.2 ms mean; timed render passes took 8.0 of its 10.6 s: 1692 GMEM passes 7.2 s \(4.3 ms each\), 4031 system-memory passes 0.8 s \(0.2 ms each, the autotune's small ones\). Untimed in this mode: 19239 blits and the rest \(2.5 s\); a pass's start stamp does not wait for idle, so blits still running when the next pass starts count toward that pass. t58-all brackets the blits too.
+- T58-all \(2026-10-28\): with everything bracketed \(998 submissions, 10.5 s of GPU time, 9.8 s inside brackets\): 1636 GMEM passes 7.2 s \(4.4 ms each, unchanged from t58-passes, so no blit time had leaked into them\), 4897 system-memory passes 0.9 s \(0.19 ms\), 20876 copies 1.7 s \(0.08 ms\), 509 clears and 8 blits negligible, no resolves. GMEM passes are 68 % of GPU time.
+- T59: asteroids-tu-time=tiles splits each GMEM pass into stages: begin with binning \(to after tu6\_tile\_render\_begin\), the first subpass's loads and clears \(a stamp in draw\_cs under the GMEM render-mode condition\), draws and stores per tile, summed on the GPU with CP\_MEM\_TO\_MEM as the occlusion queries accumulate, and the pass's end; with tile counts, tile size, render area, HW binning and attachments loaded and stored. The totals reach NativeAdreno as SetMetadata tagged TILE \(native\_adreno\_tiletime\) and the log as \[gpu tiles\].
+- T59 \(2026-10-28\): t59-tiles booted. 1849 GMEM passes, 8.2 s \(the per-tile stamps add about 1 s over T58\): begin with binning 0.35 s, loads and clears 1.14 s, draws 4.99 s, stores 1.24 s, between tiles 0.50 s, end 0.01 s. 64 tiles per pass \(max 85\) of about 33K pixels for about 2.0 MP of render area: the A810's GMEM is 576 KiB \(NativeAdreno profile 0x90000\), so a full-screen pass is cut into many small bins; HW binning ran in 1499 passes; about one attachment loaded and one stored per pass. Per pixel, these passes ran at about 0.46 MP/ms against about 1 MP/ms for the autotune's system-memory passes \(0.22 MP each\).
+- T59-sysmem \(2026-10-28\): every pass forced to system memory \(asteroids-tu-debug=sysmem\): 5900 passes, 7.3 s; 746 submissions, 13.0 ms of GPU time each. GPU time per megapixel of render area was the same as with the autotune's mix \(9677 ms / 4593 MP = 2.1 ms/MP; t58-all 10546 / 5017 = 2.1\): the large passes cost about 2.1 ms/MP in either mode, so tiling is not what makes them slow; their per-pixel work is.
+- T60: \[gpu frags\] splits timed passes into large \(1 MP of render area or more\) and small, and takes each pass's draw count and samples passed from the autotune's finished entries \(its BANDWIDTH metric\), so samples per pixel of render area gives overdraw. The turnip-asteroids-stats draw counter had never been sent \(the submit word has no bits left\), which is why the draw count read 0. The totals reach NativeAdreno as SetMetadata tagged FRAG \(native\_adreno\_fragstats\).
 
 ### 完成条件
 
@@ -358,7 +397,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [GPU compositing and the GPU panel copy run stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/package/GpuPowerProbe.cpp)
+- `device`: [GPU compositing and the GPU panel copy run stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/GpuPowerProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## clock {#clock}
@@ -399,7 +438,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T39e: the time set in Settings survived a restart; Settings &gt; Date &amp; Time opens.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/board.toml)
+- `device`: [T39e: the time set in Settings survived a restart; Settings &gt; Date &amp; Time opens.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t39e-boot.img</code>. Revision: `e4d1092cc3d051617ee88858b153ed2ba0d456fd`.
 
 ## 网络 {#network}
@@ -440,24 +479,41 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ## 音频 {#audio}
 
-`planned`
+`implemented`
 
 ### 硬件与依赖
 
-- The audio DSP and its firmware; sheng's ADSP, GLINK and QRTR stack is the reference.
+- The audio DSP and its firmware; sheng's ADSP, GLINK, QRTR, GPR and AudioReach stack is the reference.
+- The 3a's amplifier settings container \(vendor/firmware/tfa98xx.cnt, proprietary-files.txt\), turned into build/asteroids-tfa/AsteroidsTfaConfig.h by scripts/prepare-asteroids-tfa.py.
 
 ### 配置
 
-- None yet.
+- sheng-audio takes bits \(sheng-adsp=2 is required, the default\): any nonzero value serves the audio service, 2 plays a 1.5 s 750 Hz test tone at boot, 8 runs the lock sound test.
+- sheng-audio-pa moves the DSP period buffer \(default 0xe6200000, the splash region's tail\); sheng-audio-tone-ms and sheng-audio-atten set the tone.
+- asteroids-audio-i2s = interface \| data lines &lt;&lt; 8 \| bits &lt;&lt; 16 \(default primary MI2S, SD1, 32-bit: the amplifiers take their data on gpio17\); asteroids-audio-prm bits \(default 3\): 1 LPASS core vote, 2 MI2S bit clock request.
+- asteroids-mic=&lt;stage&gt; \(default 0, with sheng-audio\) brings up the WCD9378 microphone path in stages: 1 rails \(ldob7, ldob8\) and codec reset \(gpio162\), 2 PRM votes and VA/TX core clocks, 3 LPI SoundWire pins and VA/TX macro clocks, 4 VA SoundWire master \(0x33b0000, v1.7\) and enumeration, 5 codec init \(SCP setup, io\_init, SDCA class load\), 6 capture path \(ports, micbias 1, SmartMIC0 sequencer, TX decimator 0\), 7 DSP capture graphs and a 2 s capture test, 8 capture for the plug-in. asteroids-mic-port = sample interval \| offset1 &lt;&lt; 8 \| lane &lt;&lt; 16 \(default 1 \| 1 &lt;&lt; 8\). asteroids-mic-mux=1 switches the VA macro to its own core clock \(0x3420000 = 1\) as the vendor clock manager does \(default off\).
+- The GPU addon carries sheng's audio server plug-in as audio/ShengAudio.driver \(scripts/build-asteroids-metal-plugin.py builds it with scripts/build-sheng-audio-hal.py unless --no-audio, and adds its CDHash to the owner trust module\); patches/xnu/zzyd-board-audio-addon-mount.patch mounts audio/ over /System/Library/Audio/Plug-Ins/HAL.
 
 ### 操作步骤
 
-- Boot the ADSP from its firmware partition as sheng does.
+- Read the \[audio\] and \[amps\] rows: stage, DSP status, amplifiers found \(amps=3: both\), clocks stable \(lock=\), errors, SMMU result, I2C engine, PRM results \(bus= second word\), I2C failures.
+- Run scripts/check-audioreach-host.py after changing the graph commands.
 
 ### 开发经验
 
-- No audio path yet.
 - T38 ports sheng's audio DSP bring-up \(AdspProbe.cpp, sheng-adsp=1 survey, 2 start\) with the 3a's IPCC \(0x405000\), carveouts \(0x99300000, 0x99280000\) and crash-reason partition; the firmware comes from modem\_a \(LUN 4\) through NativeUfs's native\_ufs\_part\_find/read \(rootstockos/NativeUfs efa8271, from UniXNU's ShengUfs\).
+- T41: speakers are two NXP TFA9873 \(P 0x34 slot 0, S 0x35 slot 1\) on QUPv3 wrapper 1 SE6 \(SE13, 0x898000, gpio59/60\), reset gpio141/142 \(active high\), fed by primary MI2S \(gpio15-18, function 2\) as two 32-bit slots at 48 kHz. The container carries no amplifier firmware \(a dummy patch\), only bitfield settings.
+- T41: the microphone is AMIC1 of a WCD9378 \(mixer\_paths handset-mic: ADC1, MIC BIAS1 by the card routing, ADC\_LP, volume 6\) on the VA macro's SoundWire master; the handset mic back end is CODEC\_DMA-LPAIF\_RXTX-TX-3 as on sheng. The codec register recipe is the July 2026 LKML WCD9378 TX driver \(v2, paged SDCA registers, built-in power sequencers\); the master is v1.7 \(apps command FIFO at 0x31c\).
+- T41: package/AsteroidsAudioProbe.cpp is sheng's AudioProbe.cpp with the 3a's board steps and the TFA9873 programs \(AsteroidsTfa9873.c\) in place of the CS35L43's; the speaker device runs 32-bit while the stream stays 16-bit \(the playback converter widens it\). The amplifiers power up after the graphs start, since they wait for the bit clock. No microphone path.
+- T40k \(2026-10-27\): the speaker path ran end to end \(DSP graphs, the service, the plug-in, a 48 kHz stream without gaps; both TFA9873 rev B found, clocks and PLL locked\) but was silent: on I2S0 SD0 the amplifiers got the clocks and no data. T40k-spk-sd1 \(asteroids-audio-i2s=0x200200\) played the boot tone and iOS sound through both speakers: the amplifiers take their data on SD1 \(gpio17\), the default since T41.
+- T41: TFA9873 STATUS0 bits 1, 2 and 4 \(DCOCPOK, OTDS, UVDS\) are ok flags in NXP's field list, not alarms; \[audio\] err= counts real alarms only \(OCDS, MANALARM, NOCLK, TDMERR or a missing ok flag\).
+- T41, T41-mux: mic stage 4 fails. The rails are voted, the PRM grants the macro and codec votes and the VA/TX core clocks, the LPI pins and macro clocks are set \(VA SWR\_CONTROL 1\) and the master \(v1.7\) keeps its settings, but COMP\_STATUS never shows the link up, no interrupt fires and no device attaches. With asteroids-mic-mux=1 \(the VA clock source switch\) the master's registers read back 0, so the switch stays off. T42 adds \[mic extra\]: the codec reset pin read back, COMP\_STATUS over time and, with asteroids-mic-pmic=1, the codec's LDOs from the PMIC.
+- T42 \(2026-10-28\): the codec reset pin read back GPIO\_IN\_OUT 2 \(output high, pad low\): gpio162 is a TLMM eGPIO \(132-166, recovery's pinmux egpio group\) and the probe left EGPIO\_ENABLE \(bit 12\) clear, so the pad was not the TLMM's and the WCD9378 stayed in reset \(link 0x40002 throughout, no slave\). T43 sets the bit. The amplifier resets \(gpio141/142\) have the same flaw but are active high, so a pad left low releases them. Recovery's device tree: the codec rails are RPMh ldob7 \(rxtx, io; already on for the eUSB2 repeater\) and ldob8 \(buck, on demand\), micbias bobb1; SID 1 0x146 has no APID and 0x147 is not an LDO, so the T42 PMIC read can show nothing.
+- T43: with EGPIO\_ENABLE the codec reset reads back 3 \(pad high\), yet the VA master's link stays 0x40002 from 1 ms to the end and no slave attaches: the master itself does not run the bus. Next: its clock \(the VA macro's SoundWire clock and the 19.2 MHz VA core clock through the PRM\).
+- T46 \(2026-10-28\): the mic rows are the same in T42, T43, T46 and T46-copy: rails voted, PRM grants all four requests, LPI pins function 1, VA SWR\_CONTROL 1, reset now high, yet COMP\_STATUS 0x40002 from 1 ms to the end \(bit 0, the frame generator, never set\), interrupt status 0, no slave. Against mainline's qcom\_swrm\_init \(drivers/soundwire/qcom.c\) the probe missed the v1.7 step: SWRM\_LINK\_MANAGER\_EE \(0x018\) = 1 for the CPU, then MCP\_BUS\_CTRL = CLK\_START &lt;&lt; EE\_CPU \(4\); it wrote 2, EE 0's clock start. T47 follows mainline's order and values. Recovery's DT has no swrm-hctl or EE property for this master.
+- T47-mic7 \(2026-10-28\): every mic stage ran \(st=70\): bus up \(COMP\_STATUS 0x100001\), the WCD9378 TX device enumerated as device 1 \(id 0x01170223, the DT's wcd9378-tx-slave\), the codec set up, the SmartMIC0 sequencer at PS0, TX decimator 0, the DSP's capture graphs; 200 of 200 periods came back. The level was near silence: peak 34 of 32767, mean under 1, 18559 non-zero samples. The vendor's handset-mic path records AMIC1 \(ADC1, SWR\_MIC0\) and AMIC3 \(ADC2, SWR\_MIC4\) at ADC volume 6; the probe takes AMIC1 only. T49: asteroids-mic-capture-s=&lt;s&gt; \(up to 30\) and a \[mic peaks\] row with the peak of each second.
+- T50: sheng-audio=1 \(speakers for iOS, no boot test tone\) is a board default.
+- T51: the 20-second capture came back complete \(2000 of 2000 periods\) but silent: peak 33 in the first second, exactly 0 in the next 19. The mic path delivers no codec data.
 
 ### 完成条件
 
@@ -465,15 +521,19 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 当前范围
 
-- No audio.
+- The microphone does not work yet: stage 4 \(SoundWire enumeration\) fails, so the plug-in's input stream stays silent.
+- The master's port timing is not taken from the vendor driver \(not in the published tree\): asteroids-mic-port tunes it.
 
 ### 下一步
 
-- Port the ADSP start after the battery work.
+- Boot T42 with asteroids-mic=4 and asteroids-mic-pmic=1 and read \[mic extra\]: whether the codec's LDOs are on and its reset is released tells whether stage 4 waits on the codec's power or on the bus.
 
 ### 证据
 
-按下一步操作收集证据。
+- `host`: [PASS: 207 AudioReach packet checks, including the 3a's primary MI2S port and the 32-bit speaker device format.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/scripts/check-audioreach-host.py)
+  Command: <code>python3 scripts/check-audioreach-host.py</code>. Revision: `b1621b32a2513ba8e2c4c599d4f4baf602a7369a`.
+- `device`: [T40k-spk-sd1: the boot tone and iOS sounds played through both speakers; \[amps\] showed the boost converters active and \[audio-io\] 8.3 M frames without gaps in 494 s.](https://github.com/rootstockos/UniXNU-asteroids/commit/b1621b32a2513ba8e2c4c599d4f4baf602a7369a)
+  Command: <code>fastboot boot with boot args sheng-audio=3 asteroids-audio-i2s=0x200200 sheng-audio-tone-ms=4000</code>. Revision: `49ec1ccb18fd6b7ddd23b25b2c4ae96cd084ad1a`.
 
 ## 电源 {#power}
 
@@ -512,7 +572,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T29: with the stand-in, SpringBoard boots to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/package/KeyStoreProbe.cpp)
+- `device`: [T29: with the stand-in, SpringBoard boots to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/KeyStoreProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t29-boot.img</code>. Revision: `adf900cf453a6b318864913757f588c9f661596f`.
 
 ## 镜像组装 {#packaging}
@@ -549,7 +609,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Board patch series after the arch, SoC and OS series.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/patches/xnu/series)
+- `source`: [Board patch series after the arch, SoC and OS series.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/patches/xnu/series)
 
 ## 诊断 {#diagnostics}
 
@@ -571,6 +631,16 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 - Never boot a test without on-screen diagnostics: T24b had none and taught nothing.
 - T37 adds sheng's UFS diagnostic log \(BootLog.c, sheng-log=1\) through NativeUfs's log window \(the last 32 MiB of userdata\), with weak stand-ins \(BootLogStandins.c\) for the 104 references to probes this board does not build; scripts/pull-asteroids-log.py copies the window from recovery over adb and decodes it with sheng's read-sheng-log.py --decode. The unified log on Data cannot tell boots apart \(one boot UUID and clock base for every boot\).
+- T43: \[direct scanout\] adds held / timed out \(sheng-dpu-hold\).
+- T44: \[direct scanout\] frame gaps and the \[gpu load\] row \(BootLog.c, native\_gpu\_windows with a BootLogStandins.c stand-in\).
+- T46: \[frames\] \(native\_legacy\_frames\) replaces T44's frame gaps in \[direct scanout\].
+- T47: \[direct scanout\] loses the GPU wait and hold counters with the code they counted.
+- T48: \[dpu probe\] counters and up to 24 \[dpu probe n\] rows \(slot, flags, fences, flip/latch/leave signatures\).
+- T49: \[mic peaks\] \(the capture's peak per second and its start time\) and BTN taps=.
+- T51: \[frame time\], \[gpu time\], \[gpu maint\] and \[fence asked\] rows; \[frames\] buckets 9/17/25/34/50 ms.
+- T53: \[gpu work\] \(passes, system-memory passes, blits, draws, render area per submission against GPU time\).
+- T54: \[gpu sysmem why\] \(system-memory pass reasons against GPU time\).
+- T55: \[gpu ops\] \(GPU time per pass kind, blit, copy, resolve and clear, from Turnip's timestamp brackets\).
 
 ### 完成条件
 
@@ -586,6 +656,6 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Live page and banner rows.](https://github.com/rootstockos/UniXNU-asteroids/blob/2b7e5f9bc7ca01eaa1f36f44b0de3485e5998b6b/package/BootProgress.c)
+- `source`: [Live page and banner rows.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/BootProgress.c)
 
 </div>
