@@ -125,24 +125,32 @@ def cpu_compatible(reg):
     return b'arm,armv8\0'
 
 
+def cpu_cluster(reg):
+    if reg < 0x300:
+        return 0, ord('E'), reg >> 8
+    if reg < 0x700:
+        return 1, ord('P'), (reg >> 8) - 3
+    return 2, ord('P'), (reg >> 8) - 7
+
+
 def cpu_nodes(cpu_regs):
     nodes = []
     for index, reg in enumerate(cpu_regs):
+        cluster, cluster_type, cluster_core = cpu_cluster(reg)
         nodes.append(node('cpu%d' % index, [
             ('state', b'running\0' if index == 0 else b'waiting\0'),
             ('reg', struct.pack('<I', reg)),
             ('device_type', b'cpu\0'),
             ('compatible', cpu_compatible(reg)),
             ('timebase-frequency', struct.pack('<I', TIMEBASE)),
-            # The logical id of the core and the cluster it belongs to.  One
-            # homogeneous cluster: the board DT numbers the cores by affinity
-            # only, and the topology follows the affinity value.
+            # The logical id of the core and its cluster, matching the three
+            # clusters of the board DT: A520 (E), A720 (P) and X4 (P).
             ('cpu-id', struct.pack('<I', index)),
-            ('cluster-id', struct.pack('<I', 0)),
-            ('cluster-type', struct.pack('<I', 0)),
-            ('die-cluster-id', struct.pack('<I', 0)),
-            ('cluster-core-id', struct.pack('<I', index)),
-            ('l2-cache-id', struct.pack('<I', index)),
+            ('cluster-id', struct.pack('<I', cluster)),
+            ('cluster-type', struct.pack('<I', cluster_type)),
+            ('die-cluster-id', struct.pack('<I', cluster)),
+            ('cluster-core-id', struct.pack('<I', cluster_core)),
+            ('l2-cache-id', struct.pack('<I', cluster)),
             ('l3-cache-id', struct.pack('<I', 0)),
         ]))
     return nodes
