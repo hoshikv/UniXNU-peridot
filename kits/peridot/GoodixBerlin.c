@@ -120,7 +120,7 @@ goodix_berlin_probe(struct goodix_berlin_chip *chip, bool verbose)
     if (length < 40 || length >= GOODIX_BERLIN_MAX_READ ||
         !goodix_berlin_read(chip, GOODIX_BERLIN_IC_INFO, info, length) ||
         !checksum_ok(info, length)) {
-        printf("goodix: bad chip description (length %zu)\n", length);
+        printf("goodix: bad chip description (length %u)\n", (unsigned)length);
         return false;
     }
     offset = 2 + 16 + 10 + 4;
@@ -131,7 +131,7 @@ goodix_berlin_probe(struct goodix_berlin_chip *chip, bool verbose)
         offset += 1 + 2u * info[offset];
     }
     if (offset + 48 + 2 > length) {
-        printf("goodix: chip description too short (%zu, lists end at %zu)\n", length, offset);
+        printf("goodix: chip description too short (%u, lists end at %u)\n", (unsigned)length, (unsigned)offset);
         return false;
     }
     chip->touch_address = le32(info + offset + 44);
@@ -199,7 +199,10 @@ goodix_berlin_poll(struct goodix_berlin_chip *chip, struct goodix_berlin_contact
         return GOODIX_BERLIN_POLL_ERROR;
     }
     *count = 0;
-    if (!goodix_berlin_read(chip, chip->touch_address, report, first) || report[0] == 0) {
+    if (!goodix_berlin_read(chip, chip->touch_address, report, first)) {
+        return GOODIX_BERLIN_POLL_ERROR;
+    }
+    if (report[0] == 0) {
         return GOODIX_BERLIN_POLL_IDLE;
     }
     touches = report[2] & 0xf;

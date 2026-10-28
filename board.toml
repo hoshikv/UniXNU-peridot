@@ -35,6 +35,7 @@ archives = [
   "build-adreno740-kits.py",
   "build-adreno740-accelerator.py",
   "build-gop-legacy-display.py",
+  "build-peridot-touch.py",
 ]
 
 [kernel.prelink]
