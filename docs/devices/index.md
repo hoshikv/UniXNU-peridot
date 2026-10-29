@@ -42,6 +42,7 @@ Follow [Build and boot](/building), [porting steps](/porting/steps) and [log cap
 | [Lenovo Legion Y700 Gen 4 \(elden\)](/devices/elden) | SM8750P | 2 | Porting record | [jerry-2009/UNIXNU_elden](https://github.com/jerry-2009/UNIXNU_elden) |
 | [Xiaomi Pad 5 Pro Wi-Fi \(elish\)](/devices/elish) | SM8250-AC | 1 | Device notes | [hpadmx/UniXNU-elish](https://github.com/hpadmx/UniXNU-elish) |
 | [OnePlus 6 \(enchilada\)](/devices/enchilada) | SDM845 | 1 | Device notes | [keyfan/UniXNU-enchilada](https://github.com/keyfan/UniXNU-enchilada) |
+| [OnePlus 6 \(keyfan\)](/devices/enchilada-keyfan) | SDM845 | 1 | Repository link | [keyfan/UniXNU-enchilada-bringup](https://github.com/keyfan/UniXNU-enchilada-bringup) |
 | [Xiaomi Pad 5 Pro 5G \(enuma\)](/devices/enuma) | SM8250 | 1 | Device notes | [wh1stl3/UniXNU-enuma](https://github.com/wh1stl3/UniXNU-enuma) |
 | [Xiaomi Pad 5 Pro 5G / iPadOS 17.7.11 bring-up \(alghiffaryfa19\)](/devices/enuma-alghiffaryfa19) | SM8250 | 1 | Repository link | [alghiffaryfa19/UniXNU-enuma-5g](https://github.com/alghiffaryfa19/UniXNU-enuma-5g) |
 | [Xiaomi Pad 5 Pro 5G \(Tlrenhb\)](/devices/enuma-tlrenhb) | SM8250-AC | 1 | Repository link | [Tlrenhb/UniXNU-enuma](https://github.com/Tlrenhb/UniXNU-enuma) |
@@ -89,6 +90,7 @@ Follow [Build and boot](/building), [porting steps](/porting/steps) and [log cap
 | [Microsoft Lumia 950 — P1 build research \(TwisstedToast\)](/devices/lumia950-twisstedtoast) | MSM8992 | 1 | Repository link | [TwisstedToast/UniXNU-lumia950](https://github.com/TwisstedToast/UniXNU-lumia950) |
 | [Xiaomi Civi 5 Pro \(luming\)](/devices/luming) | SM8735 | 1 | Device notes | [infinityEX-RSXQ/-UniXNU-luming](https://github.com/infinityEX-RSXQ/-UniXNU-luming) |
 | [Meizu 20 Classic \(m2381\)](/devices/m2381) | SM8550 | 1 | Device notes | [RiverKawa271828/ios-m2381-unixnu](https://github.com/RiverKawa271828/ios-m2381-unixnu) |
+| [Meizu 20 Classic \(RiverKawa271828\)](/devices/m2381-riverkawa271828) | SM8550 | 2 | Record pending | [RiverKawa271828/UniXNU-m2381](https://github.com/RiverKawa271828/UniXNU-m2381) |
 | [POCO X7 / Redmi Note 14 Pro 5G \(malachite\)](/devices/malachite) | MT6878 | 1 | Device notes | [ghidgdsr/uefi-malachite](https://github.com/ghidgdsr/uefi-malachite) |
 | [Redmi Note 12 Turbo / POCO F5 \(marble\)](/devices/marble) | SM7475 | 2 | Porting record | [sing0626/UniXNU-marble](https://github.com/sing0626/UniXNU-marble) |
 | [Xiaomi Redmi Note 9 \(merlinx\)](/devices/merlinx) | MT6768 | 1 | Device notes | [Dracen-W/UniXNU-merlinx](https://github.com/Dracen-W/UniXNU-merlinx) |
@@ -120,6 +122,7 @@ Follow [Build and boot](/building), [porting steps](/porting/steps) and [log cap
 | [Redmi K30 5G \(minhtritt1996\)](/devices/picasso-minhtritt1996) | SM7250 | 1 | Repository link | [minhtritt1996/UniXNU-picasso](https://github.com/minhtritt1996/UniXNU-picasso) |
 | [Redmi K30 5G \(silenzio111\)](/devices/picasso-silenzio111) | SM7250 | 1 | Repository link | [silenzio111/UniXNU-picasso](https://github.com/silenzio111/UniXNU-picasso) |
 | [Redmi K30 5G targeting iPhone X iOS 16; Darwin 22 ABI and firmware pending \(SuzukiR1n\)](/devices/picasso-suzukir1n) | SM7250 | 2 | Porting record | [SuzukiR1n/UniXNU-Picasso](https://github.com/SuzukiR1n/UniXNU-Picasso) |
+| [Redmi K30 5G \(tselongson\)](/devices/picasso-tselongson) | SM7250 | 1 | Repository link | [tselongson/UniXNU-picasso](https://github.com/tselongson/UniXNU-picasso) |
 | [Xiaomi Pad 6 \(pipa\)](/devices/pipa) | SM8250 | 1 | Device notes | [xVanTuring/uefi-pipa](https://github.com/xVanTuring/uefi-pipa) |
 | [Xiaomi Pad 6 \(FFT-infra\)](/devices/pipa-fft-infra) | SM8250 | 1 | Repository link | [FFT-infra/UniXNU-alioth-ARCHIVE](https://github.com/FFT-infra/UniXNU-alioth-ARCHIVE) |
 | [Xiaomi Pad 6 \(xVanTuring\)](/devices/pipa-xvanturing) | SM8250 | 1 | Repository link | [xVanTuring/UniXNU-pipa](https://github.com/xVanTuring/UniXNU-pipa) |
@@ -158,6 +161,7 @@ Follow [Build and boot](/building), [porting steps](/porting/steps) and [log cap
 | [Xiaomi Redmi Note 10 Pro \(zeroninevibedslop\)](/devices/sweet-zeroninevibedslop) | SM7150 | 2 | Record pending | [zeroninevibedslop/UniXNU-sweet](https://github.com/zeroninevibedslop/UniXNU-sweet) |
 | [Unisoc UMS512 / T610YP](/devices/t610yp) | unisoc-ums512-sharkl5pro-t610yp | 1 | Device notes | [hxzbaka/UniXNU-t610yp](https://github.com/hxzbaka/UniXNU-t610yp) |
 | [Lenovo Xiaoxin Pad 2022 \(tb128fu\)](/devices/tb128fu) | SM6225 | 1 | Device notes | [xVanTuring/UniXNU-tb128fu](https://github.com/xVanTuring/UniXNU-tb128fu) |
+| [Lenovo Xiaoxin Pad 12.1 \(2025\), Lenovo TB365FC \(board cava\_prc\_consumer\_wifi\)](/devices/tb365fc) | MT6835 | 2 | Porting record | [LittleStar-OuO/UniXNU-tb365fc](https://github.com/LittleStar-OuO/UniXNU-tb365fc) |
 | [Xiaomi Mi 10S \(thyme\)](/devices/thyme) | SM8250 | 1 | Device notes | [tobyfox1640/UniXNU-thyme](https://github.com/tobyfox1640/UniXNU-thyme) |
 | [Xiaomi Mi 10S / SM8250-AC UniXNU bring-up \(measured 2026-10-24\) \(Coryyi\)](/devices/thyme-coryyi) | SM8250 | 1 | Repository link | [Coryyi/UniXNU-thyme](https://github.com/Coryyi/UniXNU-thyme) |
 | [Motorola moto s30 pro \(tundra\)](/devices/tundra) | SM8350 | 1 | Repository link | [Meltemi-9264/unixnu-tundra](https://github.com/Meltemi-9264/unixnu-tundra) |

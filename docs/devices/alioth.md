@@ -4,9 +4,9 @@
 
 <div v-pre>
 
-Device template. Complete each area with board-specific inputs and evidence.
+UFS root, launchd, touch and a published GPU device with the staged Metal accelerator; the desktop does not draw yet and there is no Wi-Fi.
 
-Source record: [porting.toml](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/porting.toml), `872cb18ab1816467bb3812d33b9af764cc2036a0`.
+Source record: [porting.toml](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/porting.toml), `3f40b1d80dfa3246869714ae2a3167216610b421`.
 
 This page is generated from the device record.
 
@@ -137,7 +137,7 @@ Collect evidence using the next action.
 
 ### Evidence
 
-- `source`: [Refuses a device tree that declares cluster-type without the cluster patch applied and MAX\_CPU\_CLUSTERS &gt;= 2, the combination that killed three boots silently.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/scripts/check-smp-topology.py)
+- `source`: [Refuses a device tree that declares cluster-type without the cluster patch applied and MAX\_CPU\_CLUSTERS &gt;= 2, the combination that killed three boots silently.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/scripts/check-smp-topology.py)
 
 ## Memory and DMA {#memory}
 
@@ -219,7 +219,7 @@ Components: `ShengUfs`, `VerifiedRoot`, `VirtioMmioBlock`, `RamBlock`.
 
 ### Evidence
 
-- `device`: [The kernel reports cryptexd aborting with mkdirat ENOSPC while the Data volume reports 31 MiB free, which places the failing write on a mount other than /private/var.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [The kernel reports cryptexd aborting with mkdirat ENOSPC while the Data volume reports 31 MiB free, which places the failing write on a mount other than /private/var.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read /dev/tty.usbmodem&lt;N&gt; at 115200 8N1 and collect EXITLOG records</code>. Revision: `24d127c47217eb580dbe3f3a94c32ad25cbaae00`.
 
 ## Display {#display}
@@ -262,7 +262,7 @@ Components: `GopFramebuffer`.
 
 ### Evidence
 
-- `device`: [DISPLAY stage=10 with CLIENT calls=4 class=IOMobileFramebufferUserClient, and SWAP calls=0: a client connects but no frame is submitted.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [DISPLAY stage=10 with CLIENT calls=4 class=IOMobileFramebufferUserClient, and SWAP calls=0: a client connects but no frame is submitted.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read the diagnostic page and the USB console after booting the image</code>. Revision: `24d127c47217eb580dbe3f3a94c32ad25cbaae00`.
 
 ## Input {#input}
@@ -306,7 +306,7 @@ Components: `QcomGeniSpi`, `ShengHidInput`, `ShengNovatekTouch`.
 
 ### Evidence
 
-- `source`: [Frame parsing treats an all-0xFF payload as no data, decodes 15-bit coordinates with the low bits in the pressure byte, and records the CRC it compared so 'passed' is visible rather than inferred.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/kits/alioth-touch/FocalTouchProtocol.c)
+- `source`: [Frame parsing treats an all-0xFF payload as no data, decodes 15-bit coordinates with the low bits in the pressure byte, and records the CRC it compared so 'passed' is visible rather than inferred.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/kits/alioth-touch/FocalTouchProtocol.c)
 
 ## GPU {#gpu}
 
@@ -317,7 +317,7 @@ Components: `Adreno650`.
 ### Hardware and dependencies
 
 - Adreno 650 on SM8250-AC; chip id 0x06050002; blocks GPU 0x3d00000, GMU 0x3d6a000, GPUCC 0x3d90000, SMMU 0x3da0000.
-- Firmware already embedded in package/GpuFirmwareA650.c: gmu 41548 B, sqe 31632 B, zap.mdt 6860 B + zap.b02 1676 B, concatenated for the probe's single zap image.
+- Firmware already embedded in package/GpuFirmwareA650.c: gmu 41548 B, sqe 31632 B, and the zap image 13964 B \(ELF header 148 B at 0, the 6712 B hash at 0x1000, the 1676 B segment at 0x3000\). The vendor's a650\_zap.mdt is packed as \[header 148\]\[hash 6712\] and would not satisfy its own program headers; the embedded image is laid out by those headers, which is what zapLoad and qcom\_mdt\_load read.
 - The pipa fork's A650 driver \(reference/repo/Adreno650\) is the same generation as this board; the upstream Adreno740 is not.
 
 ### Configuration
@@ -336,7 +336,19 @@ Components: `Adreno650`.
 - Mode 1 \(read only\) runs: GPU m1 gcc=ok cc=ok smmu=skip gpu=skip io=0.
 - Mode 6 powers the GPU: GPU m6 gcc=ok cc=ok smmu=ok io=0 cx1 clocks1 — the CX domain comes out of collapse and the SMMU/GMU clocks run.
 - Mode 7 stops at the GMU context's Attach step: status e00002ca, routes 0, programme phase 5 with 13 writes issued and no global fault.
-- Two writes to the SMMU, each with a value different from the one present, are accepted and do not take effect: SMR slot 5 0x8000007f reads back 0, sCR0 0x0026040e reads back 0x00260406. Reads through the same mapping are correct \(IDR0 0x4c017e06\) and GPUCC writes through an identically constructed window do take effect. The readable, silently unwritable register file is what a resource owned above EL1 looks like.
+- The Attach failure was the free-slot test, not an ownership wall. ArmSmmu4KStreams.c:47 required an idle slot's S2CR to equal 0x00020000 exactly; this part's idle slots read 0x000203ff, which is FAULT type with CBNDX 0xff left in the low byte, so every slot the kit looked at came back Busy and the attach never wrote a route.
+- The board now writes the canonical FAULT word 0x00020000 into the slots it is about to use, before the attach, and only where the type is already FAULT. Mode 7 then completes: routes 2, phase 5 with 13 writes, SCTLR enabled, GMU firmware in 16 blocks, the CM3 running, and HFI acknowledged. Clearing such a slot to zero instead, which an earlier round did, turns FAULT into TRANSLATE and makes it look busy again.
+- One write remains unexplained and is not an ownership wall: SMR slot 5, 0x8000007f, reads back 0. The same file takes the kit's context writes and the route writes, so the S2CR/SMR path is usable; slot 5 is outside the slots this board uses.
+- Mode 8 powers GX through the GMU on the first attempt: GPUROW17 reads GX on perf 7 vote 0 oob 2 gx 000000c0&gt;00000000 gdscr f8222800 rbbm 00000001. The HFI vote was accepted, the OOB GPU\_SET request was acknowledged on the second poll, GDSCR bit 31 came up, and rows 13-15 stayed identical to mode 7.
+- Mode 9 builds the GPU's own context and runs its first command: GPUROW18 status 0 with routes 4 \(bank 0 / ASID 2, streams 0, 1, 0x400, 0x401\), GPUROW19 CP ok with init 0, ring 0 and the marker a6500c0d written by CP\_MEM\_WRITE into the scratch page and read back by the CPU. GPUROW20 shows rptr and wptr both at 0x1b, hwfault 0 and cpint 0.
+- A K40 vendor kernel tree \(LineageOS lineage-20, reference/k40-kernel\) confirms the board inputs the later modes need: pil\_gpu\_region@8681a000 with size 0x2000 no-map \(the zap shader region\) and the GPU interrupt as SPI 300, level high.
+- Mode 10 completes after the zap image is laid out by its own program headers: GPUROW21 ZAP ok \(init 0/0 in 7 ms, mem 0/0, auth 0/0, resumes 0, secure 0\) and GPUROW22 IRQ attach 0, readback a002, count 1&gt;2, nop fence 1, seen 00100000, masked 0. TrustZone accepted the a650 zap, CP\_SET\_SECURE\_MODE\(0\) fenced, and the SPI 300 line raised an interrupt for a CP\_NOP without a storm.
+- The vendor a650\_zap.mdt is packed as \[ELF header 148 B\]\[hash 6712 B\] while its program headers address the hash at 0x1000 and the a650\_zap.b02 segment at 0x3000. Concatenating the two files, 8536 B, failed zapLoad at -6; the embedded image is now 13964 B in the addressed layout.
+- Mode 11 publishes the device and runs the user-client path: GPUROW23 PUBLISH ok submit 0 timer 0 publish 0 \| uc 36/36 first 0 at 0 \| rounds 4 4, so all 36 steps of two kernel rounds pass.
+- Mode 12 registers the staged accelerator: GPUROW24 METAL ok \(IOGPUFamily loaded, class size 136, Turnip options nocb\). In the same boot GPUROW25 moved from sub 2/2 \| uc 2/2 to sub 7/7 \| uc 4/4 with pool 128/128/768, so two processes outside the kernel opened the GPU service, took the 128 MiB pool and completed five more submissions: the plugin is found through IOAcceleratorES -&gt; MetalPluginName -&gt; NSBundle and connects to the driver.
+- The accelerator builds from the A650 checkout into the same libAdreno740.a that build-xnu links: PIPA\_GPU\_ACCELERATOR=1, the three IOAcceleratorES imports bound to the audited addresses \(0xfffffff004bd3b20 constructor alias, 0xfffffff004bd3b64 destructor, 0xfffffff006aeb688 metaclass\), \_\_mod\_init\_func stripped and the initializer globalised for the probe to run after IOGPUFamily.
+- The plan's control is satisfied in the stronger form: the same image with the accelerator but without the plugin bundle \(the original Data seed\) shows no crash at all, which is the software-rendering fallback the plan predicts.
+- The screenshot channel of the USB console does not work on this board: every SCREENSHOT/SHOTNEXT transfer dies with ENXIO a second in, on the image without the plugin as well, so it is independent of the graphics stack. The LIVE and FAULTS rows are the substitute evidence.
 
 ### Completion criteria
 
@@ -344,20 +356,45 @@ Components: `Adreno650`.
 
 ### Current limits
 
-- The GMU context cannot be built because this SMMU accepts no writes from EL1; every later step depends on it. Two writes with values different from the ones present read back unchanged through both IODeviceMemory::withRange\(\)-&gt;map\(\) and ml\_io\_map\_unmappable, at 200 ms and at 5 s, while the apps SMMU on the same part accepts writes and IDR0 reads correctly.
-- Metal is unreachable for the same reason plus the missing IOAccelerator class, so the wallpaper overlay and poster rendering stay on the CPU path.
+- Modes 8 through 12 complete: GX power, the GPU's own context with a CP\_MEM\_WRITE, the zap shader and secure-mode exit with the GPU interrupt, the published device with 36 of 36 user-client steps, and the registered accelerator with two user-space clients connected.
+- Drawing is not confirmed. The wallpaper overlay mounts \(WALLPAPER stage=5 status=0\) and processes now reach the GPU, but nothing reads the panel back: the USB console's SCREENSHOT/SHOTNEXT path fails with ENXIO on every attempt, on images with and without the plugin.
+- The live row carries fence timeouts \(t2 at mode 11, t9 once clients come and go\) and the GPU context bank keeps reading FSR 0x400 with a changing FAR; submissions complete after the driver's stall recovery, so neither stops the path.
+- FSR 0x400 is not a fault under this SoC's own definition: the vendor kernel's arm-smmu-regs.h puts TF at bit 1, and its fault mask is 0xc00001fe \(bits 31, 30, 8, 7, 6, 5, 4, 3, 2, 1\). 0x400 \(bit 10\) is outside that mask, which is why the kit's own fault test never fired; bit 10 is either implementation-defined on this part or the readback is not the register it is believed to be. Recorded, not explained.
+- backboardd finds the accelerator and the plugin: GPUOPEN records it opening type 1 \(the IOAcceleratorES client\), 0x4147 and 0x4148 \(the plugin's types\) with the sandbox gate answering kIOReturnNotPermitted \(0xe00002e2\) and the grant still admitting it, GPUCCLI shows it in slot 0 with a peak GPU address of 650 MiB, and no open was refused.
+- The user-client table runs out: NativeAdrenoMaxClients is 4 \(slots 0..3, 4 is the sentinel\) and NativeAdrenoPublish.cpp:237 answers kIOReturnNoSpace when no slot is free. GPUMOUNT fail 1/e00002db slot 4 is exactly that, so it is connection slots, not the VA window \(0x20000000..0x80000000\) and not the BO pool \(128 of 768 MiB used\). backboardd takes slot 0, the other three go to the next processes, and a restart whose old connection has not been reaped asks for a fifth.
+- The open record's res field is io\_filter\_resolver's opinion and macf is mac\_iokit\_check\_open's, both taken before the driver decides; only type 0x4147 mounts a core, and refused counts outcomes. res NotPermitted with refused 0 therefore means the filter commented and the open was served anyway.
+- The plugin can be carried in the GPU addon instead of the Data seed: make-gpu-addon.py packs the same files and the kernel writes them into the Data volume before its addon mount, so a plugin rebuild no longer needs an APFS remount. With the addon the plugin loads exactly as from the seed \(backboardd opens type 1, 0x4147 and 0x4148\) and backboardd does not always crash: three minutes without one crash in u208.
+- No counter on this board measures the panel yet. The GOP presenter \(native\_gop\_\*\) only exists on offline-legacy-phase=3 and this board runs phase 4, so its counters are zero by construction; native\_legacy\_surfaces\[1\] counts only surfaces the compositor offers to the legacy driver, and this window server draws into the mapped framebuffer instead, so it reads zero while the UI is visible. GPUFRAME reports both and will read zero until the right counter is chosen.
+- The live row's fb and sc fields are native\_adreno\_pool\_stats\[5\] and \[2\], buffer allocation counters, not scanout; an earlier reading of them as framebuffer and swap counts was wrong.
+- The frames stop short of the panel. GPUROW25 keeps swapping at sc12 with fb0, the fence counters show the GPU exactly one fence behind the wait \(waited 8, gpu 7; waited 6, gpu 5\) and the stall recovery is never entered, and only about eleven submissions arrive in three minutes. sheng-fb-gpu=1 did not move the swap counter.
+- The plugin reaches the driver with a full workload before it dies: 50 BoAlloc and 50 BoMap with no failure, 48 BoCpuMap, 7 Submit and 29 WaitFence \(two timeouts\), slot 0 peaking at 32 live objects and 128 MiB, and GetStatus unsupported on all 8 calls. The fault is then a userspace read through an unmapped level-3 entry \(ESR 0x82000007, WnR clear\), at a fixed code site that moves with ASLR between boots.
+- The control isolates the plugin: with the accelerator registered but the original Data seed \(no NativeAdrenoMetal.bundle\), backboardd runs 170 s without one crash and opens only the accelerator's type 1; with the plugin present it opens 0x4147 and 0x4148 as well and crash-loops. So the SIGBUS is the plugin's, not the accelerator's, the driver's or the SMMU's.
+- backboardd then dies with SIGBUS: EXITCRASH pid 54 sig10 PC 0x106da915c LR 0x106dbbd24 ESR 0x82000007 \(data abort, translation fault level 3\) and the same backtrace every time; SpringBoard, PosterBoard and WidgetRenderer are terminated with it and the cycle repeats. ReportCrash itself dies the same way, so no crash report is written.
+- Metal needs the accelerator published plus the IOAccelerator class; until then the wallpaper overlay and poster rendering do not draw, and an app window opens with no content.
 - The wallpaper overlay itself is not an upstream capability: no porting page covers it and no device status table carries a wallpaper row. It arrives through zzy-native-gpu-addon-mount.patch, make-gpu-addon.py and make-wallpaper-overlay.py only, and the mount succeeds here \(WALLPAPER stage=5 status=0\) while the picture does not appear -- PosterBoard chooses the collection by device idiom, and this image carries only \~ipad collections.
 
 ### Next action
 
-- Decide the route past the SMMU's EL1 write refusal: an EL2-side channel, a presentation path that needs no SMMU programming, or accepting CPU presentation on this board.
+- Stop backboardd dying. It finds the plugin and takes slot 0, then faults on a userspace pointer \(SIGBUS at 0x106da915c, ESR 0x82000007\) with the same backtrace every time; the control image without the publish file decides whether the plugin is the cause. In parallel, give the four client windows room for the four processes that ask for one \(kIOReturnNoSpace\), and set sheng-fb-gpu=1 once frames are submitted so the composited frame reaches scanout.
 
 ### Evidence
 
-- `device`: [Mode 1 reads and mode 6 powers the CX domain with the SMMU and GMU clocks running: gcc=ok cc=ok smmu=ok cx1 clocks1.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [Mode 1 reads and mode 6 powers the CX domain with the SMMU and GMU clocks running: gcc=ok cc=ok smmu=ok cx1 clocks1.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>sh scripts/run-sheng-unattended.sh &lt;boot.img&gt; 180, then read GPUROW lines from the console capture of that run</code>. Revision: `002ccaa75267bcc70ea1ba97dfefea14c6f7211d`.
-- `device`: [Writes to SMR slot 5 \(0x8000007f\) and sCR0 \(0x0026040e\) both read back the pre-existing value while IDR0 reads 0x4c017e06 through the same window.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [Writes to SMR slot 5 \(0x8000007f\) and sCR0 \(0x0026040e\) both read back the pre-existing value while IDR0 reads 0x4c017e06 through the same window.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pipa-gpu=7 image and read the GPUROW14 line from the console capture</code>. Revision: `e240b0e810988bf1012b2aa37bd3ae4fd6d84e67`.
+- `device`: [routes 2, phase 5 with 13 writes, rb 1, en 1; GMU firmware 16 blocks, version 20010008, cm3 1, HFI acked c6.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-29-gpu-smmu-slot.md)
+  Command: <code>boot a pipa-gpu=7 image built with the slot normalisation and read GPUROW13/14/15 from the console capture</code>. Revision: `7946cba83f32b768075a071a5d47bb0a2fd3eeb2`.
+- `device`: [GX on perf 7 vote 0 oob 2 gx 000000c0&gt;00000000 gdscr f8222800 rbbm 00000001 gbif halt 0/3 rbbm halt 0/0.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+  Command: <code>boot a pipa-gpu=8 image (usb191) and read GPUROW17 from the serial console capture</code>. Revision: `6642723982701653e2546fb4b83859bb3bf41a17`.
+- `device`: [GPUCTX step 7 status 0 routes 4; CP ok init 0 ring 0 fence 0/1 marker a6500c0d read back; rptr and wptr 0x1b, hwfault 0.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+  Command: <code>boot a pipa-gpu=9 image (usb192) and read GPUROW18/19/20 from the serial console capture</code>. Revision: `ce0c65a1cbe872e44da38cbe51812cdbc775f32a`.
+- `device`: [ZAP ok step 7 init 0/0 mem 0/0 auth 0/0 secure 0; IRQ attach 0 readback a002 count 1&gt;2 nop fence 1 seen 00100000 masked 0.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+  Command: <code>boot a pipa-gpu=10 image with the re-laid zap image (usb194) and read GPUROW21/22 from the serial console capture</code>. Revision: `32cdcd97f19d21d8e684ca4670bf1c834d9e681d`.
+- `device`: [PUBLISH ok submit 0 timer 0 publish 0 \| uc 36/36 first 0 at 0 cpumap 0 \| rounds 4 4.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+  Command: <code>boot a pipa-gpu=11 image (usb195) and read GPUROW23 from the serial console capture</code>. Revision: `1d954032604c986bd98de483447cb06ab8896cff`.
+- `device`: [METAL ok: accelerator registered \(IOGPUFamily loaded, class size 136\); LIVE moved from sub 2/2 uc 2/2 to sub 7/7 uc 4/4 with pool 128/128/768.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+  Command: <code>boot a pipa-gpu=12 image (usb199) carrying the staged Data seed and read GPUROW24/25 from the serial console capture</code>. Revision: `fe2e366add2343efa48f8fe0cb01ff99ffa598d6`.
 
 ## Network {#network}
 
@@ -402,11 +439,11 @@ Components: `Adreno650`.
 
 ### Evidence
 
-- `device`: [gcc pcie\_0\_gdscr reads 0x22f001, the value the ios-sweet series recorded for a fully collapsed controller.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [gcc pcie\_0\_gdscr reads 0x22f001, the value the ios-sweet series recorded for a fully collapsed controller.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=1 image and read the PCIE 1 lines from the console capture</code>. Revision: `dc3ab04aa4b05d38a1c372fa2ec257b3ae8547ce`.
-- `device`: [Writing 0x22f000 reads back 0xf822f000 within a millisecond: the controller has power.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [Writing 0x22f000 reads back 0xf822f000 within a millisecond: the controller has power.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=2 image and read the PCIE 2 lines from the console capture</code>. Revision: `28be364f4dc9223a006770635dbc0f352d230401`.
-- `device`: [With pcie\_skip=32 the PARF setup completes and parf\_mhi\_clock\_reset\_ctrl 0x3 becomes 0x13, matching the reference.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [With pcie\_skip=32 the PARF setup completes and parf\_mhi\_clock\_reset\_ctrl 0x3 becomes 0x13, matching the reference.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=9 pcie_skip=32 image and read the PCIE 9 lines from the console capture</code>. Revision: `eeda5a8139786ca8029044708679c40e7382eb1e`.
 
 ## Audio {#audio}
@@ -573,9 +610,9 @@ Components: `QcomXnuUsbDebug`.
 
 ### Evidence
 
-- `device`: [Console enumerated as 1209:316d named QcomXnuUsbDebug; STATUS returned usb=3 er=0 with the worker polling, so the port is live in both directions.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [Console enumerated as 1209:316d named QcomXnuUsbDebug; STATUS returned usb=3 er=0 with the worker polling, so the port is live in both directions.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read /dev/tty.usbmodem&lt;N&gt; at 115200 8N1 and send SXNU1 ... HELLO / STATUS</code>. Revision: `15a15d7cc526262a64531ff56b3a33bdbc46379c`.
-- `device`: [215 exit records captured. 180 xpcproxy status=0 \(normal\), 13 cryptexd ns=18 code=2, 11 liveactivitiesd sig5, 2 lsd sig11; each process repeats one fixed crash PC, so the faults are deterministic.](https://github.com/FFT-infra/UniXNU-alioth/blob/872cb18ab1816467bb3812d33b9af764cc2036a0/docs/evidence/2026-10-27-serial-exit-records.log)
+- `device`: [215 exit records captured. 180 xpcproxy status=0 \(normal\), 13 cryptexd ns=18 code=2, 11 liveactivitiesd sig5, 2 lsd sig11; each process repeats one fixed crash PC, so the faults are deterministic.](https://github.com/FFT-infra/UniXNU-alioth/blob/3f40b1d80dfa3246869714ae2a3167216610b421/docs/evidence/2026-10-27-serial-exit-records.log)
   Command: <code>./unixnu build kernel; ./unixnu bootimg; fastboot flash boot_b; read the CDC-ACM console for 420 s</code>. Revision: `15a15d7cc526262a64531ff56b3a33bdbc46379c`.
 
 </div>

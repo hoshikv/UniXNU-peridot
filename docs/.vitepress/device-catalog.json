@@ -180,6 +180,11 @@
     "title_zh": "一加 6（enchilada）"
   },
   {
+    "name": "enchilada-keyfan",
+    "title": "OnePlus 6 (keyfan)",
+    "title_zh": "OnePlus 6 (keyfan)"
+  },
+  {
     "name": "enuma",
     "title": "Xiaomi Pad 5 Pro 5G (enuma)",
     "title_zh": "小米平板 5 Pro 5G（enuma）"
@@ -415,6 +420,11 @@
     "title_zh": "魅族 20 Classic（m2381）"
   },
   {
+    "name": "m2381-riverkawa271828",
+    "title": "Meizu 20 Classic (RiverKawa271828)",
+    "title_zh": "Meizu 20 Classic (RiverKawa271828)"
+  },
+  {
     "name": "malachite",
     "title": "POCO X7 / Redmi Note 14 Pro 5G (malachite)",
     "title_zh": "POCO X7 / Redmi Note 14 Pro 5G（malachite）"
@@ -568,6 +578,11 @@
     "name": "picasso-suzukir1n",
     "title": "Redmi K30 5G targeting iPhone X iOS 16; Darwin 22 ABI and firmware pending (SuzukiR1n)",
     "title_zh": "Redmi K30 5G targeting iPhone X iOS 16; Darwin 22 ABI and firmware pending (SuzukiR1n)"
+  },
+  {
+    "name": "picasso-tselongson",
+    "title": "Redmi K30 5G (tselongson)",
+    "title_zh": "Redmi K30 5G (tselongson)"
   },
   {
     "name": "pipa",
@@ -758,6 +773,11 @@
     "name": "tb128fu",
     "title": "Lenovo Xiaoxin Pad 2022 (tb128fu)",
     "title_zh": "联想小新 Pad 2022（tb128fu）"
+  },
+  {
+    "name": "tb365fc",
+    "title": "Lenovo Xiaoxin Pad 12.1 (2025), Lenovo TB365FC (board cava_prc_consumer_wifi)",
+    "title_zh": "Lenovo Xiaoxin Pad 12.1 (2025), Lenovo TB365FC (board cava_prc_consumer_wifi)"
   },
   {
     "name": "thyme",

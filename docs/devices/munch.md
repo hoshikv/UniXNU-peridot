@@ -6,7 +6,7 @@
 
 Redmi K40S \(munch\) bring-up derived from UniXNU-alioth: SM8250-AC, GOP framebuffer, FocalTech SE4 touch, UFS root. Hardware results are inherited from alioth and not yet measured on a K40S.
 
-Source record: [porting.toml](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/porting.toml), `9b227e6c8517f4b62ecf1d7898c6ff05c659cba6`.
+Source record: [porting.toml](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/porting.toml), `101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f`.
 
 This page is generated from the device record.
 
@@ -137,7 +137,7 @@ Collect evidence using the next action.
 
 ### Evidence
 
-- `source`: [Refuses a device tree that declares cluster-type without the cluster patch applied and MAX\_CPU\_CLUSTERS &gt;= 2, the combination that killed three boots silently.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/scripts/check-smp-topology.py)
+- `source`: [Refuses a device tree that declares cluster-type without the cluster patch applied and MAX\_CPU\_CLUSTERS &gt;= 2, the combination that killed three boots silently.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/scripts/check-smp-topology.py)
 
 ## Memory and DMA {#memory}
 
@@ -219,7 +219,7 @@ Components: `ShengUfs`, `VerifiedRoot`, `VirtioMmioBlock`, `RamBlock`.
 
 ### Evidence
 
-- `device`: [The kernel reports cryptexd aborting with mkdirat ENOSPC while the Data volume reports 31 MiB free, which places the failing write on a mount other than /private/var.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [The kernel reports cryptexd aborting with mkdirat ENOSPC while the Data volume reports 31 MiB free, which places the failing write on a mount other than /private/var.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read /dev/tty.usbmodem&lt;N&gt; at 115200 8N1 and collect EXITLOG records</code>. Revision: `24d127c47217eb580dbe3f3a94c32ad25cbaae00`.
 
 ## Display {#display}
@@ -262,7 +262,7 @@ Components: `GopFramebuffer`.
 
 ### Evidence
 
-- `device`: [DISPLAY stage=10 with CLIENT calls=4 class=IOMobileFramebufferUserClient, and SWAP calls=0: a client connects but no frame is submitted.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [DISPLAY stage=10 with CLIENT calls=4 class=IOMobileFramebufferUserClient, and SWAP calls=0: a client connects but no frame is submitted.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read the diagnostic page and the USB console after booting the image</code>. Revision: `24d127c47217eb580dbe3f3a94c32ad25cbaae00`.
 
 ## Input {#input}
@@ -304,7 +304,7 @@ Components: `QcomGeniSpi`, `ShengHidInput`, `ShengNovatekTouch`.
 
 ### Evidence
 
-- `source`: [Frame parsing treats an all-0xFF payload as no data, decodes 15-bit coordinates with the low bits in the pressure byte, and records the CRC it compared so 'passed' is visible rather than inferred.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/kits/munch-touch/FocalTouchProtocol.c)
+- `source`: [Frame parsing treats an all-0xFF payload as no data, decodes 15-bit coordinates with the low bits in the pressure byte, and records the CRC it compared so 'passed' is visible rather than inferred.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/kits/munch-touch/FocalTouchProtocol.c)
 
 ## GPU {#gpu}
 
@@ -351,9 +351,9 @@ Components: `Adreno650`.
 
 ### Evidence
 
-- `device`: [Mode 1 reads and mode 6 powers the CX domain with the SMMU and GMU clocks running: gcc=ok cc=ok smmu=ok cx1 clocks1.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [Mode 1 reads and mode 6 powers the CX domain with the SMMU and GMU clocks running: gcc=ok cc=ok smmu=ok cx1 clocks1.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>sh scripts/run-sheng-unattended.sh &lt;boot.img&gt; 180, then read GPUROW lines from the console capture of that run</code>. Revision: `002ccaa75267bcc70ea1ba97dfefea14c6f7211d`.
-- `device`: [Writes to SMR slot 5 \(0x8000007f\) and sCR0 \(0x0026040e\) both read back the pre-existing value while IDR0 reads 0x4c017e06 through the same window.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [Writes to SMR slot 5 \(0x8000007f\) and sCR0 \(0x0026040e\) both read back the pre-existing value while IDR0 reads 0x4c017e06 through the same window.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pipa-gpu=7 image and read the GPUROW14 line from the console capture</code>. Revision: `e240b0e810988bf1012b2aa37bd3ae4fd6d84e67`.
 
 ## Network {#network}
@@ -399,11 +399,11 @@ Components: `Adreno650`.
 
 ### Evidence
 
-- `device`: [gcc pcie\_0\_gdscr reads 0x22f001, the value the ios-sweet series recorded for a fully collapsed controller.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [gcc pcie\_0\_gdscr reads 0x22f001, the value the ios-sweet series recorded for a fully collapsed controller.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=1 image and read the PCIE 1 lines from the console capture</code>. Revision: `dc3ab04aa4b05d38a1c372fa2ec257b3ae8547ce`.
-- `device`: [Writing 0x22f000 reads back 0xf822f000 within a millisecond: the controller has power.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [Writing 0x22f000 reads back 0xf822f000 within a millisecond: the controller has power.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=2 image and read the PCIE 2 lines from the console capture</code>. Revision: `28be364f4dc9223a006770635dbc0f352d230401`.
-- `device`: [With pcie\_skip=32 the PARF setup completes and parf\_mhi\_clock\_reset\_ctrl 0x3 becomes 0x13, matching the reference.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [With pcie\_skip=32 the PARF setup completes and parf\_mhi\_clock\_reset\_ctrl 0x3 becomes 0x13, matching the reference.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=9 pcie_skip=32 image and read the PCIE 9 lines from the console capture</code>. Revision: `eeda5a8139786ca8029044708679c40e7382eb1e`.
 
 ## Audio {#audio}
@@ -570,9 +570,9 @@ Components: `QcomXnuUsbDebug`.
 
 ### Evidence
 
-- `device`: [Console enumerated as 1209:316d named QcomXnuUsbDebug; STATUS returned usb=3 er=0 with the worker polling, so the port is live in both directions.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [Console enumerated as 1209:316d named QcomXnuUsbDebug; STATUS returned usb=3 er=0 with the worker polling, so the port is live in both directions.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read /dev/tty.usbmodem&lt;N&gt; at 115200 8N1 and send SXNU1 ... HELLO / STATUS</code>. Revision: `15a15d7cc526262a64531ff56b3a33bdbc46379c`.
-- `device`: [215 exit records captured. 180 xpcproxy status=0 \(normal\), 13 cryptexd ns=18 code=2, 11 liveactivitiesd sig5, 2 lsd sig11; each process repeats one fixed crash PC, so the faults are deterministic.](https://github.com/WuBarlynn/unixnu-munch/blob/9b227e6c8517f4b62ecf1d7898c6ff05c659cba6/docs/evidence/2026-10-27-serial-exit-records.log)
+- `device`: [215 exit records captured. 180 xpcproxy status=0 \(normal\), 13 cryptexd ns=18 code=2, 11 liveactivitiesd sig5, 2 lsd sig11; each process repeats one fixed crash PC, so the faults are deterministic.](https://github.com/WuBarlynn/unixnu-munch/blob/101a2cccdf5ef1d3bb78faefbb1b9e4431180d9f/docs/evidence/2026-10-27-serial-exit-records.log)
   Command: <code>./unixnu build kernel; ./unixnu bootimg; fastboot flash boot_b; read the CDC-ACM console for 420 s</code>. Revision: `15a15d7cc526262a64531ff56b3a33bdbc46379c`.
 
 </div>

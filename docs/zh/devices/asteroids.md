@@ -6,7 +6,7 @@
 
 Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UFS userdata partition, with shared SM7635 support and board-owned storage, GPU, input and power integration. Bring-up runs as numbered staged tests; their results are in docs/asteroids-gpu-gen8.md and docs/asteroids-touch.md of rootstockos/iosonandng.
 
-源记录: [porting.toml](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/porting.toml), `fa01edb96274e710efc109650b6b82a7fc56ad32`.
+源记录: [porting.toml](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/porting.toml), `8729b427eb141d3e21724bdaa5bc2485aebc1522`.
 
 本页按设备记录自动生成。
 
@@ -72,7 +72,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Format 2 board configuration with the SM7635 SoC and 21H461 OS profiles.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
+- `source`: [Format 2 board configuration with the SM7635 SoC and 21H461 OS profiles.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
 
 ## 固件与启动 {#firmware}
 
@@ -112,7 +112,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [\[bootimg\] and \[firmware\] select uefi-asteroids and the payload in the kernel image.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
+- `source`: [\[bootimg\] and \[firmware\] select uefi-asteroids and the payload in the kernel image.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
 
 ## CPU 与中断 {#cpu}
 
@@ -153,7 +153,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [EPSS CPU governor with touch boost and frame floor.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/CpuFreqProbe.cpp)
+- `source`: [EPSS CPU governor with touch boost and frame floor.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/CpuFreqProbe.cpp)
 
 ## 内存与 DMA {#memory}
 
@@ -190,7 +190,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Memory node for the XNU window's DRAM bank.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/dts/asteroids.dts)
+- `source`: [Memory node for the XNU window's DRAM bank.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/dts/asteroids.dts)
 
 ## 存储与根卷 {#storage}
 
@@ -230,7 +230,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T29 booted iPadOS 17.7.11 from the UFS root with persistent Data to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
+- `device`: [T29 booted iPadOS 17.7.11 from the UFS root with persistent Data to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t29-boot.img</code>. Revision: `adf900cf453a6b318864913757f588c9f661596f`.
 
 ## 显示 {#display}
@@ -271,6 +271,8 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T53: the boot log gains \[gpu work\] \(BootLog.c\), the GPU work per submission by render passes against its GPU time.
 - T54: the boot log gains \[gpu sysmem why\]; \[gpu work\] drops the draw count.
 - T55: the boot log gains \[gpu ops\] \(GPU time per kind of work\).
+- T61: BootProgress.c also anchors boot\_diag\_scan\_gpu \(BootDiagExport.c\), which the periodic GPU trace export \(sheng-gpu-trace-export, see diagnostics\) calls; its rounds include the half-resolution screen, so a trace comes with what was shown.
+- T62: BootLog.c gains the \[gpu tables\] and \[gpu recovery\] rows \(see diagnostics\).
 
 ### 完成条件
 
@@ -286,7 +288,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T34b: GPU copy to the panel, no tearing or stale patches, stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
+- `device`: [T34b: GPU copy to the panel, no tearing or stale patches, stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## 输入 {#input}
@@ -330,7 +332,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [Touch input works on the desktop \(stage 6\).](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/AsteroidsTouchProbe.cpp)
+- `device`: [Touch input works on the desktop \(stage 6\).](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/AsteroidsTouchProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## GPU {#gpu}
@@ -382,6 +384,14 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T59 \(2026-10-28\): t59-tiles booted. 1849 GMEM passes, 8.2 s \(the per-tile stamps add about 1 s over T58\): begin with binning 0.35 s, loads and clears 1.14 s, draws 4.99 s, stores 1.24 s, between tiles 0.50 s, end 0.01 s. 64 tiles per pass \(max 85\) of about 33K pixels for about 2.0 MP of render area: the A810's GMEM is 576 KiB \(NativeAdreno profile 0x90000\), so a full-screen pass is cut into many small bins; HW binning ran in 1499 passes; about one attachment loaded and one stored per pass. Per pixel, these passes ran at about 0.46 MP/ms against about 1 MP/ms for the autotune's system-memory passes \(0.22 MP each\).
 - T59-sysmem \(2026-10-28\): every pass forced to system memory \(asteroids-tu-debug=sysmem\): 5900 passes, 7.3 s; 746 submissions, 13.0 ms of GPU time each. GPU time per megapixel of render area was the same as with the autotune's mix \(9677 ms / 4593 MP = 2.1 ms/MP; t58-all 10546 / 5017 = 2.1\): the large passes cost about 2.1 ms/MP in either mode, so tiling is not what makes them slow; their per-pixel work is.
 - T60: \[gpu frags\] splits timed passes into large \(1 MP of render area or more\) and small, and takes each pass's draw count and samples passed from the autotune's finished entries \(its BANDWIDTH metric\), so samples per pixel of render area gives overdraw. The turnip-asteroids-stats draw counter had never been sent \(the submit word has no bits left\), which is why the draw count read 0. The totals reach NativeAdreno as SetMetadata tagged FRAG \(native\_adreno\_fragstats\).
+- T60 \(2026-10-28\): 634 submissions, 13.4 ms of GPU time each. 1319 large passes took 6.2 s \(4.7 ms each\) for 2.52 MP of render area, the full screen; 2719 small passes took 0.2 s \(70 us, 59K px\). Measured large passes averaged 99 draws \(most 262\) and 9.2M samples, an overdraw of 3.6; small ones 5 draws and an overdraw of 2.3. Large-pass time per sample is about 0.5 ns, about 3.5 samples per clock at the 895 MHz ceiling \(the draws stage, 61 % of a GMEM pass in T59, makes it about 3.2 Gsamples/s\). The large passes are slow because CoreAnimation stacks about 3.6 full-screen layers in roughly 100 draws, each shaded and blended in full; on Apple GPUs hidden-surface removal skips the occluded opaque fragments, on the A810 without a depth buffer nothing does. \[gpu dcvs\] still prints sheng's MHz labels \(220-680\) for the 3a's levels.
+- T61: a GPU trace so that new measurements need no new build. asteroids-tu-trace=&lt;letters&gt; \(AsteroidsMetalPlugin.mm, render server only\) sets Turnip's TU\_DW\_TRACE \(UniXNU patches/mesa/turnip-asteroids-timing.patch\): binary records in m2v/gpu/trace.bin of every timed pass \(GPU start and end, render area, GMEM or system memory, tiles and tile size, HW binning, the attachments' formats, load, store, clear, UBWC and tiling, the draws recorded\), every draw \(vertex and fragment shader ids from the stages' BLAKE3, blend enable and factors, write mask, depth and stencil state, scissor, count\), every shader once \(ir3's statistics: instructions, nops, texture and SFU counts, registers, waves, sync stalls\) and the autotune's samples passed per pass. Letters: p passes, d draws, b shader binaries \(1 = pdb\), s each draw's samples passed \(an occlusion-query pair around every draw, accumulated over tiles by the GPU, with a wait for idle after each draw, so GPU time in that mode is not representative\), t GMEM stages, a blits and copies. The file stops at 56 MiB. scripts/gpu-trace.py reports on it \(passes by size with overdraw, large-pass draws by blend state with their samples, the fragment shaders behind them with their statistics, render targets\) and dumps CSV tables and shader binaries; its record layouts were checked against the C structs by compiling them \(118, 60, 76 and 24 bytes\). The Turnip changes compile on Linux against the pinned Mesa with every recorded patch applied \(local/mesa-full, kgsl build in local/mesa-check\).
+- T61 \(2026-10-28\): the trace works end to end: t61 booted, 7 export rounds, pull-asteroids-log fetched and decoded it \(5726 passes, 127601 draws, 71 shaders over 35 s, nothing lost\). The Metal bridge records each pass's draws in a secondary command buffer, so draws carry the secondary's serial; gpu-trace.py joins each secondary to the next primary serial, which matches the autotune's draw count for 1567 of 1570 passes. The blend fields are not valid: every draw reads factors 0, 0, 0, because Turnip keeps static blend state in the pipeline and not in the command buffer's dynamic state, where the recorder reads it. Findings, large \(full-screen\) passes, 7.8 s in all: \(1\) 252 passes with 200-400 solid fills take 12.9 ms each \(11.3 ms in system memory, so not tiling\) at an overdraw of 11.8, about 41 % of the time; each fill is a 768-vertex mesh drawn by one of two fragment shaders, vertex color times alpha \(9 instructions\) or the same plus metal2vulkan's exact 8-bit output rounding \(85 instructions: per-channel flags from a constant, scale, rndne, compare, select\), about 151 and 65 per pass. 232 passes with 100-200 fills take 4.0 ms at an overdraw of 2.2. \(2\) 1325 passes with few draws \(about 8, overdraw 0.19\), mostly with the attachment loaded and stored, take 2.3 ms each in GMEM and 1.7 ms in system memory, about 38 %; 155 with no draws at all take 0.8 ms. The exported screen is the console layer \(black under zero-copy scanout\), so it does not show the scene. ir3-disasm from the local Mesa build \(local/mesa-check, chip ffff44010000\) disassembles the trace's shader binaries.
+- T61-samples \(2026-10-28, asteroids-tu-trace=pdbs\): the per-draw sample counters ran without a hang \(101786 draws, 37 s; GPU times not representative: a wait for idle after each draw\). Large passes drew 9.98 G samples. The 768-vertex solid fills that dominate the draw count are tiny \(about 325 pixels each for the 9-instruction one\); the pixels go to shaders that end in metal2vulkan's exact 8-bit output rounding \(saturate, NaN test, x255, rndne, compare with +-0.5, correct, x1/255, select by per-channel flags from c4\), about 50 instructions on top of 5-15 of real work: 31 of 66 fragment shaders, 71 % of the samples and 95 % of the instruction-weighted work. The largest single consumer, 6238666134616236 \(interpolated color then the rounding, 82 instructions\), drew 4.9 G samples at 1.67 M per draw. Upstream development removed this rounding \(70068f7c, 'Leave color writes to the device's own conversion', 2026-10-28\); the pinned translator only skips it for drivers it has measured \(VkProperty::MetalColorWrites, MoltenVK\), with no option to set it. Light passes \(fewer than 20 fills\): 1199, median coverage 0.19 of the screen, 58 % under a quarter, mostly loading and storing the whole attachment \(GMEM 621, system memory 517\).
+- T61-stages \(2026-10-28, asteroids-tu-trace=pdbt; gpu-trace.py now splits large passes by coverage, the autotune's samples over the render area\): large GMEM passes drawing under a quarter of the screen \(459, about 85 tiles, 20 draws\) took 2.7 ms each: loads 0.90, draws 0.45, stores 0.94, between tiles 0.38 ms, so about 80 % is loading and storing the whole attachment around a small change; large system-memory passes at the same coverage \(66\) took 0.17 ms. At coverage 1-3 GMEM took 4.5 ms \(draws 2.9\) against 2.3 ms in system memory \(8 passes\); at 8 or more, 13.7 ms with 12.0 ms of draws. The autotune still chose GMEM for most light passes. Load and store run at about 11.5 GB/s each way \(10.3 MB of BGRA8 in 0.9 ms\). T62 plan: metal2vulkan updated to development \(exact output rounding removed\) plus a toggleable Turnip choice of system memory for passes whose history draws little of their area.
+- T62 \(2026-10-29, built, not booted\): metal2vulkan moves to development eeb79340 \(UniXNU a49a8dd\), where color writes are the device's own conversion \(70068f7c\) and float maths the device's \(4817f3bdf, cdc09276f\), removing the exact 8-bit output rounding that T61-samples found in 95 % of the large passes' fragment work. The bridge is rootstockos/AdrenoMetal asteroids \(137eeb1, forked from UniXNU/AdrenoMetal\): the 16 shared patches and sheng's 21 from feat/ipados27-gpu-parity \(which stays on the old pin\) were triaged against development; 17 remain \(skip draws without a pipeline, two-plane shadow as memory lies, padded framebuffers through a new PaddedRowsPolicy::AliasWrites since development removed padded-row aliasing, priming cache, refuse\_rebinds now actually set by the bridge, optional shader cache, sRGB extended-range blend, bitreverse, growing memory blocks, patches without control points, heap texture size, Core Image libraries and two small speedups\); the rest \(keep final pass, fewer allocations per draw, keep draw commands and lists, map tracker keys, and most of sheng's draw-path patches\) are done in development by LiveBind, SpareLiveBinds, ViewportList and KeptRenderPasses. Turnip: asteroids-tu-light=&lt;percent&gt; \(TU\_DW\_LIGHT, render server only\) renders a pass in system memory when its history draws less than that share of its area \(T61-stages: 2.7 ms in GMEM against 0.17 ms in system memory for passes under a quarter of the screen\); trace pass records flag such passes \(4\), and draws read the pipeline's static blend state. Not covered: the translator's own tests beyond the touched areas, and any device run.
+- T62 \(2026-10-29\), every Metal process on the GPU, as sheng's iPadOS 27 branches do \(UniXNU-sheng 9800f8cd\): drivers/Adreno740 merges UniXNU/Adreno740 feat/ipados27-gpu-parity \(rootstockos/NativeAdreno asteroids ad01b92\): no connection cap, growing object, queue and job tables, a BO pool of contiguous chunks, msm hangcheck and restart, and per-process GPU address spaces \(own page table and ASID, 4 GiB to 2^ias\) switched into the GPU's bank: mode 2 by CP\_SMMU\_TABLE\_UPDATE in the ring, only where the board opened the CP's SMMU aperture and one switch is proved at publication, else mode 1, the CPU writing TTBR0 with the GPU idle. This board keeps mode 1: asteroids-gpu-cp-aperture=1 makes sheng's qcom\_scm\_set\_gpu\_smmu\_aperture call \(off: the CP switch has not run on an A810\). Kept from this fork in the merge: the gen8 slice SRAM init before the table switch, the reserved GMU pool \(its table pages now on demand\), single-stream contexts, per-client maintenance, and the loader-kept BO pool \(adoptPool\) as an adopted chunk of the chunked pool \(write-combined, zeroed with stores, never given back\). The merge had refused a nonzero submit reserved word, which carries the asteroids Turnip's counts; that check is gone. The board publishes the context's ias with va\_start GpuClientVaStart and grants the accelerator to every process \(NativeSandboxGrantProcess "\*"\); the plugin's client list is "\*". UniXNU 2b79721 takes sheng's Turnip backend for the new ABI \(address allocator, BO cache returned under pressure\) and ArmSmmu4K 30ec63b. Host tests on Linux \(GMU and GPU contexts, the board GMU pool, VM, SMMU memory, GMU memory and map\) pass; the kernel, board and Turnip backend only build on CI.
+- T62 first kernel build \(run 40785590664\) failed to link: \_native\_pmap\_user\_mappings, which the merged NativeAdrenoMemory::release weak-imports from sheng's XNU patch for a diagnostic count; GpuPowerProbe.cpp now defines a weak stand-in that finds no mapping, as it does for boot\_log\_export\_put. The add-on \(run 40785594609\) built: metal2vulkan development, the bridge, sheng's Turnip backend and the plugin compile for iOS.
 
 ### 完成条件
 
@@ -397,7 +407,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [GPU compositing and the GPU panel copy run stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/GpuPowerProbe.cpp)
+- `device`: [GPU compositing and the GPU panel copy run stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/GpuPowerProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## clock {#clock}
@@ -438,7 +448,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T39e: the time set in Settings survived a restart; Settings &gt; Date &amp; Time opens.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/board.toml)
+- `device`: [T39e: the time set in Settings survived a restart; Settings &gt; Date &amp; Time opens.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t39e-boot.img</code>. Revision: `e4d1092cc3d051617ee88858b153ed2ba0d456fd`.
 
 ## 网络 {#network}
@@ -530,7 +540,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `host`: [PASS: 207 AudioReach packet checks, including the 3a's primary MI2S port and the 32-bit speaker device format.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/scripts/check-audioreach-host.py)
+- `host`: [PASS: 207 AudioReach packet checks, including the 3a's primary MI2S port and the 32-bit speaker device format.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/scripts/check-audioreach-host.py)
   Command: <code>python3 scripts/check-audioreach-host.py</code>. Revision: `b1621b32a2513ba8e2c4c599d4f4baf602a7369a`.
 - `device`: [T40k-spk-sd1: the boot tone and iOS sounds played through both speakers; \[amps\] showed the boost converters active and \[audio-io\] 8.3 M frames without gaps in 494 s.](https://github.com/rootstockos/UniXNU-asteroids/commit/b1621b32a2513ba8e2c4c599d4f4baf602a7369a)
   Command: <code>fastboot boot with boot args sheng-audio=3 asteroids-audio-i2s=0x200200 sheng-audio-tone-ms=4000</code>. Revision: `49ec1ccb18fd6b7ddd23b25b2c4ae96cd084ad1a`.
@@ -572,7 +582,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T29: with the stand-in, SpringBoard boots to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/KeyStoreProbe.cpp)
+- `device`: [T29: with the stand-in, SpringBoard boots to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/KeyStoreProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t29-boot.img</code>. Revision: `adf900cf453a6b318864913757f588c9f661596f`.
 
 ## 镜像组装 {#packaging}
@@ -609,7 +619,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Board patch series after the arch, SoC and OS series.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/patches/xnu/series)
+- `source`: [Board patch series after the arch, SoC and OS series.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/patches/xnu/series)
 
 ## 诊断 {#diagnostics}
 
@@ -641,6 +651,8 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T53: \[gpu work\] \(passes, system-memory passes, blits, draws, render area per submission against GPU time\).
 - T54: \[gpu sysmem why\] \(system-memory pass reasons against GPU time\).
 - T55: \[gpu ops\] \(GPU time per pass kind, blit, copy, resolve and clear, from Turnip's timestamp brackets\).
+- T61: sheng-gpu-trace-export=&lt;seconds&gt; exports the render server's GPU trace directory \(m2v/gpu, boot\_diag\_scan\_gpu\) with the screen every so many seconds, each round into the 64 MiB quarter of the diagnostic half that the header does not name, so the header always names a complete copy whenever the phone is taken to recovery; a full export \(sheng-diag-export\) still runs once and ends the rounds. While it runs, the Metal plugin's pipeline-cache exports are refused, as with any diagnostic export. \[diag\] counts the rounds. scripts/pull-asteroids-log.py now also reads a named diagnostic export from the export region, unpacks it into diag/ and runs scripts/gpu-trace.py into gpu-trace.txt.
+- T62: \[gpu tables\] \(sheng's row: table mode, CP aperture and switch check, switches by CP and CPU, address spaces, table pages on demand, ias, BO pool chunks\) and \[gpu recovery\] \(hangs and restarts, shown once one happened\); eight \[gpu client text\] rows.
 
 ### 完成条件
 
@@ -656,6 +668,6 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Live page and banner rows.](https://github.com/rootstockos/UniXNU-asteroids/blob/fa01edb96274e710efc109650b6b82a7fc56ad32/package/BootProgress.c)
+- `source`: [Live page and banner rows.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/BootProgress.c)
 
 </div>
