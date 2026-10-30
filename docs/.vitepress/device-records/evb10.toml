@@ -1,0 +1,229 @@
+schema_version = 1
+
+[device]
+name = "evb10"
+soc = "RK3588"
+os_profile = "ipados-17.7.11-21H461"
+summary = "Rockchip RK3588 EVB10 V10 runs the iPadOS 17.7.11 userland on a source-built XNU, started from edk2-rk3588 firmware (uefi-evb10). Shared SoC support is in UniXNU-rk3588-common; this repository owns the memory layout, the eMMC root, the VOP2 display, touch, the Mali-G610 integration and the packaging. Areas in scope are recorded as implemented: the results below were observed with the previous repository layout; a rebuild of everything from these repositories was booted on 2026-10-29 (see docs/reproduce.md), without a look at the panel or touch."
+
+[[area]]
+id = "configuration"
+status = "implemented"
+components = []
+paths = ["board.toml", "feeds.toml", "configs/**", ".gitmodules", ".github/**", ".gitignore", ".env.example", "local.toml.example", "unixnu.lock", "LICENSE", ".gitattributes", "scripts/build-evb10-kernel.sh", "scripts/build-evb10-drivers.py", "scripts/host/**", "docs/reproduce.md"]
+inputs = ["ARM64 profile, rk3588 SoC source pinned in feeds.toml, iPadOS 17.7.11 build 21H461 profile, evb10_defconfig and evb10_display_defconfig, submodules package/Mali and package/Rk3588Emmc."]
+configuration = ["board.soc_source = rk3588; board.os_profile = ipados-17.7.11-21H461; schema_version = 2.", "kernel.config_fragments = arch common, soc rk3588, os ipados; the defconfig applies last and switches off what the OS profile enables for other hardware (NATIVE_ADRENO, SOURCE_MOCKFS).", "kernel.patch_series = arch, soc, os, device in that order."]
+procedure = ["From the UniXNU checkout run ./unixnu defconfig evb10_defconfig -D ../UniXNU-evb10, then ./unixnu fetch and ./unixnu status --json with the same -D.", "For a local SoC checkout copy local.toml.example to local.toml.", "Run scripts/build-evb10-kernel.sh for the two-pass kernel build."]
+findings = ["The [adt.defaults.u32] table of board.toml must carry sleep-disabled = 1 and vmm-present = 1; the OS profile only supplies kern.maxvnodes. vmm-present backs kern.hv_vmm_present: without it watchdogd traps with SIGTRAP three times and the kernel panics when the third instance exits (seen in a rebuild from a clean tree, fixed in the clean-directory rerun).", "Arrays replace inherited values, so board.toml lists every archive, fragment and trust-cache digest it needs.", "The display archive is made from the kernel of an earlier display-less pass, which is why two defconfigs exist and why the build script runs them in order.", "A device script named like a UniXNU script shadows it in the build tree; the board driver builder is therefore named build-evb10-drivers.py and does not replace build-arm-driver.py."]
+completion = ["Every source pin resolves, ./unixnu status lists the intended patch order, and both defconfigs materialise."]
+limits = ["The format 2 configuration has been materialised and checked with status and tree; a full kernel build with it is recorded under Image assembly."]
+next_action = ["Pin the Mali and Rk3588Emmc submodules to released commits when they change."]
+
+[[area.evidence]]
+kind = "source"
+reference = "board.toml"
+result = "Implementation and configuration described in this section"
+
+[[area]]
+id = "firmware"
+status = "implemented"
+components = []
+paths = ["proprietary-files.txt", "scripts/extract-files.py", "scripts/build-mali-firmware.py"]
+inputs = ["edk2-rk3588 firmware built by uefi-evb10 (SPI NOR image), TF-A at EL3 with PSCI over SMC, UEFI GOP frame buffer and the Mali CSF firmware listed in proprietary-files.txt."]
+configuration = ["board.toml has no [firmware] section: the unixnu firmware step builds Mu-Silicium, and this board boots edk2-rk3588 built by uefi-evb10.", "payload.loader = firmware: DarwinBoot is inside the firmware volume.", "proprietary-files.txt pins mali_csffw.bin by SHA-256; scripts/extract-files.py places it in .cache/firmware."]
+procedure = ["Build the firmware in uefi-evb10 (build.sh) and flash or boot it as that repository describes.", "Run scripts/extract-files.py SOURCE, then the kernel step; scripts/build-mali-firmware.py writes package/Mali/mali_csffw.inc."]
+findings = ["The firmware hands the kernel EL1 with the MMU off and PSCI on SMC; secondary cores started by CPU_ON arrive at EL2 and the SoC patch drops them to EL1.", "The firmware leaves the eMMC in HS400 and UART2 at 1.5 Mbaud; the drivers rely on both."]
+completion = ["Firmware enters DarwinBoot, publishes the GOP frame buffer and keeps the memory reservations of the board."]
+limits = ["Firmware and its boot flow are documented in uefi-evb10; this repository only pins the inputs."]
+next_action = ["Record the firmware commit next to each image verification."]
+
+[[area.evidence]]
+kind = "source"
+reference = "proprietary-files.txt"
+result = "Firmware inputs and their digests"
+
+[[area]]
+id = "cpu"
+status = "implemented"
+components = ["ArmCpu", "ArmDTPlatform"]
+paths = ["scripts/*armcpu*"]
+inputs = ["Four Cortex-A55 and four Cortex-A76 at affinities 0x000 to 0x700, GICv3 at 0xfe600000 with redistributors at 0xfe680000 (128 KiB stride), 24 MHz architected timer, PSCI over SMC."]
+configuration = ["The CPU, GIC and PSCI nodes come from the SoC dtsi (rk3588-common dts/rk3588.dtsi); the board DTS enables nothing extra.", "Kernel arguments sheng-smp=1, armcpu-self-ipi=1 and armcpu-mmio-sgi=0 select the secondary-core and IPI paths."]
+procedure = ["Compile dts/evb10.dts through ./unixnu tree and inspect /cpus, /psci and /arm-io/intc in the generated device tree.", "Boot and read the per-core entry lines on the serial console."]
+findings = ["Inline assembly in this target goes through the Darwin assembler, where ';' starts a comment: \"dsb ishst; msr icc_sgi1r_el1, %0; isb\" assembled to a lone dsb. Earlier conclusions that the GIC ignores ICC_SGI1R, that the A55 CNTFRQ is zero and that counters differ per core all came from this mistake and were withdrawn. The SoC repository carries the ArmCpu fix; scripts/build-evb10-kernel.sh refuses new inline assembly with ';'.", "With the fix all eight cores run and inter-processor interrupts go through ICC_SGI1R_EL1."]
+completion = ["Every enabled core reaches its entry checkpoint and receives timer and inter-processor interrupts."]
+limits = ["CPU frequency is not managed: cores run at the clock the firmware left. No cluster-type properties are set, so the scheduler sees one cluster type."]
+next_action = ["Add CPU frequency control and decide whether to describe the A55 and A76 clusters to the scheduler."]
+
+[[area.evidence]]
+kind = "source"
+reference = "dts/evb10.dts"
+result = "Board device tree on top of the shared SoC description"
+
+[[area]]
+id = "memory"
+status = "implemented"
+components = []
+paths = ["dts/**", "patches/xnu/evb10-vc-mirror.patch"]
+inputs = ["DRAM bank 0x1_00000000 with size 0x1_00000000 in the firmware memory map, 2 GiB owned window for the kernel, eMMC controller with 32-bit DMA."]
+configuration = ["dts/evb10.dts declares the memory node; payload.dram_size must equal it.", "payload.adt.owned_memory_size = 0x80000000: DarwinBoot allocates this contiguous window from the low bank."]
+procedure = ["Compare the firmware memory map, dts/evb10.dts and the owned window reported by DarwinBoot.", "Check DMA buffers of the eMMC driver against the 4 GiB address limit."]
+findings = ["The 4 GiB bank above 4 GiB is the one large region without TF-A, OP-TEE, firmware or Rockchip carve-outs.", "A 256 MiB window left too little memory for the iPadOS userland; 2 GiB fits the firmware's low bank, 3 GiB was refused with Out of Resources. All pages sit below 4 GiB, where the eMMC DMA reaches.", "No IOMMU is used for the eMMC controller; the driver allocates a bounce window below 4 GiB."]
+completion = ["All handoff regions are accounted for and every DMA engine works inside its allocated range."]
+limits = ["Memory above the 2 GiB window is unused."]
+next_action = ["Test a larger window by placing the kernel window above 4 GiB."]
+
+[[area.evidence]]
+kind = "source"
+reference = "dts/evb10.dts"
+result = "Memory node and handoff window"
+
+[[area]]
+id = "storage"
+status = "implemented"
+components = ["AppleKeyStoreState"]
+paths = ["package/Rk3588Emmc", "scripts/bind-emmc-storage.py", "scripts/audit-evb10-storage.py", "scripts/peek-root-image.py", "scripts/data/**", "patches/xnu/evb10-userland-mounts.patch", "patches/tools/**"]
+inputs = ["DesignWare MSHC at 0xfe2e0000, 8-bit eMMC, GPT with userdata at LBA 8459264 to 122142655 (512-byte blocks), SHNGROOT manifest image written by unixnu build userdata."]
+configuration = ["userdata.first_lba, last_lba and windows (OS, SystemOS) describe the root image.", "Kernel arguments: emmc=4, emmc-root-trust=1, emmc-systemos-union=1, emmc-data-mount=1, emmc-data-size=2048, emmc-data-persist=1.", "payload.adt.root_match_volume_uuid names the OS volume; packed_data_ramdisk = false."]
+procedure = ["Build with build-evb10-drivers.py Rk3588Emmc followed by bind-emmc-storage.py; regenerate scripts/data/evb10-storage-interface-audit.json with audit-evb10-storage.py when the kernelcache pin changes.", "scripts/peek-root-image.py reads the manifest of a userdata image without a board."]
+findings = ["The driver subclasses the original IOBlockStorageDevice, so its archive is made by binding the object to the original code at audited addresses.", "Only the last 2049 MiB of userdata, the Data window, is ever written: the first start formats it and the kernel copies /private/var once, after which restarts mount it. Writes showed zero failures in the observed runs.", "A 256 MiB Data volume ran out of space (ENOSPC) and stalled SpringBoard; 512 MiB was enough to reach the lock screen, 2048 MiB is the configured size. vnode jetsam killed daemons until /defaults/kern.maxvnodes was set to 66560, which the OS profile now provides."]
+completion = ["The root volume mounts read-only from the OS window and the Data volume mounts read-write across restarts."]
+limits = ["Only eMMC is supported; PCIe NVMe is not used. The kernel of the format 2 layout builds, but a payload from it has not been written to the board."]
+next_action = ["Assemble a payload from the rebuilt kernel and repeat the persistence check across restarts."]
+
+[[area.evidence]]
+kind = "source"
+reference = "scripts/bind-emmc-storage.py"
+result = "Binding of the eMMC block device to the original storage class"
+
+[[area]]
+id = "display"
+status = "implemented"
+components = ["GopFramebuffer"]
+paths = ["package/Evb10Display/**", "package/LegacyDisplayProbe.cpp", "package/Evb10Console.h", "package/LinkStubs.c", "package/KeyStoreProbe.cpp", "scripts/build-native-legacy-display.py", "scripts/build-evb10-display.py", "scripts/build-display-abi.py", "scripts/build-link-stubs.py", "configs/evb10_display_defconfig"]
+inputs = ["VOP2 with the Esmart3 window on the DSI panel, 1080x1920; UEFI GOP frame buffer; original IOMobileFramebufferLegacy bound to NativeLegacyDisplay."]
+configuration = ["Kernel arguments evb10-vop=2, evb10-vop-es2=1, evb10-fb-w=1072, evb10-fb-h=1904, offline-legacy-* and sheng-vsync=60.", "evb10_display_defconfig links the display archive and the link stubs."]
+procedure = ["Build both passes with scripts/build-evb10-kernel.sh and boot with a monitor or panel attached."]
+findings = ["The firmware assigns Esmart3 to VP2; writing back the layer-mixer policy of U-Boot makes the window take effect.", "Underruns (POST_BUF_EMPTY) on the panel path came from the firmware's HDMI0 window (Esmart2) fetching at the same time; disabling it with evb10-vop-es2=1 gave zero underruns.", "A frame size of exactly 1080x1920 makes backboardd render the 1242x2208 geometry of other devices and ask for scaling, which the full-frame swap validation rejects; 1072x1904 avoids it.", "Tearing in scanout was removed by waiting for the GPU jobs of a frame before the page flip."]
+completion = ["The panel shows the lock screen without flicker or tearing."]
+limits = ["Frame rate while scrolling is limited by the GPU frame time. The panel timing is the firmware's."]
+next_action = ["Shorten the GPU frame time (see GPU) and move presentation to vsync interrupts."]
+
+[[area.evidence]]
+kind = "source"
+reference = "package/Evb10Display/NativeLegacyDisplay.cpp"
+result = "VOP2 scanout presenter"
+
+[[area]]
+id = "input"
+status = "implemented"
+components = []
+paths = ["package/Evb10Touch/**", "package/Evb10Hid/**", "package/Evb10HidProbe.cpp", "scripts/build-evb10-hid.py"]
+inputs = ["Goodix GT1158 on I2C5, polled; coordinate grid 720x1280 on a 1080x1920 panel."]
+configuration = ["Kernel arguments evb10-touch=1, evb10-touch-xmax=720, evb10-touch-ymax=1280, evb10-hid=1, evb10-hid-input=1, sheng-touch-hid=1."]
+procedure = ["Boot and watch the evb10: touch lines on the console; touch the panel and check the pointer in SpringBoard."]
+findings = ["The controller reports a configured 800x480 but delivers X 9..696 and Y 10..1270: the real grid is 720x1280.", "The input device is one HID device on the IOHIDResource; the original IOHIDEventDriver attaches to it and feeds backboardd."]
+completion = ["Touch coordinates map to the panel and SpringBoard reacts."]
+limits = ["No keyboard, buttons or pen; the controller is polled every 10 ms."]
+next_action = ["Use the controller interrupt instead of polling."]
+
+[[area.evidence]]
+kind = "source"
+reference = "package/Evb10Touch/Evb10Touch.cpp"
+result = "I2C master and touch controller driver"
+
+[[area]]
+id = "gpu"
+status = "implemented"
+components = []
+paths = ["package/Mali", "package/KeyStoreProbe.cpp"]
+inputs = ["Mali-G610 (Valhall CSF) at 0xfb000000, CSF firmware from proprietary-files.txt, MaliMetal user-space stack (PanVK, metal2vulkan, Metal plug-in)."]
+configuration = ["Kernel arguments mali=8 and mali-metal=1; evb10-gpu-addon=1 makes the payload tool carry the Metal plug-in.", "package/Mali is a submodule; scripts/build-mali-firmware.py generates the firmware include."]
+procedure = ["Provide the firmware, build the kernel, then build the user-space stack from MaliMetal and the add-on it describes."]
+findings = ["The stack composites the iPadOS lock screen on the Mali: backboardd, AGXAccelerator, NativeMaliMetal, metal2vulkan, PanVK and the Mali driver.", "PanVK counts a colour attachment with write mask 0 as written; a Mesa patch in MaliMetal fixes the black rectangle behind the lock screen clock.", "GPU time per frame is about 100 ms while scrolling (8 to 10 frames per second); the clock is fixed at 594 MHz."]
+completion = ["The lock screen and its animations render on the Mali at a steady frame rate."]
+limits = ["No DVFS, no interrupt-driven completion (waits poll), at most eight groups; frame time is the open item."]
+next_action = ["Profile the frame time of a scroll and move completion to the GPU interrupts."]
+
+[[area.evidence]]
+kind = "source"
+reference = ".gitmodules"
+result = "Mali driver source is the package/Mali submodule"
+
+[[area]]
+id = "network"
+status = "not-applicable"
+components = []
+paths = ["docs/network.md"]
+inputs = ["No network driver is part of this port."]
+configuration = ["None."]
+procedure = ["None."]
+findings = ["The board's Ethernet and Wi-Fi controllers are not used by the userland."]
+completion = ["Out of scope."]
+limits = ["Network is outside the current scope of the board."]
+next_action = ["Choose a network device when the scope extends."]
+evidence = []
+
+[[area]]
+id = "audio"
+status = "not-applicable"
+components = []
+paths = ["docs/audio.md"]
+inputs = ["No audio driver is part of this port."]
+configuration = ["None."]
+procedure = ["None."]
+findings = ["The userland runs without an audio device."]
+completion = ["Out of scope."]
+limits = ["Audio is outside the current scope of the board."]
+next_action = ["Choose a codec path when the scope extends."]
+evidence = []
+
+[[area]]
+id = "power"
+status = "not-applicable"
+components = []
+paths = ["docs/power.md"]
+inputs = ["The board is mains powered."]
+configuration = ["The ADT sets sleep-disabled through the OS profile defaults."]
+procedure = ["None."]
+findings = ["Suspend and resume are not implemented. The GPU runs at a fixed clock and the CPUs at the firmware clock."]
+completion = ["Out of scope."]
+limits = ["No battery, regulator or clock management beyond what the drivers need to start."]
+next_action = ["Add CPU and GPU frequency control."]
+evidence = []
+
+[[area]]
+id = "packaging"
+status = "implemented"
+components = ["XnuPrelink", "DarwinBoot"]
+paths = ["patches/xnu/**", "patches/tools/**", "package/**", "feeds.toml"]
+inputs = ["XNU of the OS profile, ARM64, SoC and device patch series, generated Apple device tree, payload volume of 96 MiB, owner trust-cache digests."]
+configuration = ["payload.* in board.toml and the [adt] tables; the device tree is generated from dts/evb10.dts.", "payload.kernel_args lists the boot arguments grouped by purpose."]
+procedure = ["Run scripts/build-evb10-kernel.sh, then ./unixnu build payload with --unique-chip-id."]
+findings = ["A rebuild from the six pushed repositories in an empty directory (docs/reproduce.md) reaches launchd with about 110 processes and Mali-composited frames; the feeds.toml pin of the SoC repository has to include the dts change that stops exporting interrupts on the eMMC and UART nodes, because an exported interrupts property without AAPL,phandle makes IOKit start-up take a data abort. The second trust_cache_sha256 entry changes with every rebuild because the user-space binaries are not bit-for-bit reproducible.", "The device series must not touch the context of the hunks of earlier series: the userland-mounts patch is generated by patches/tools/make-patches.py from a tree that has the earlier series applied.", "The Mali driver carries weak fallbacks for the display driver's GPU hand-off, because the display-less pass links it too (kernel patches call its test hooks); the display archive's strong definitions replace them.", "Each defconfig name is its own output directory (out/evb10/<os>/evb10 and .../evb10_display), so the display scripts read the display-less kernel from the sibling directory.", "The payload rides in a boot image through U-Boot's fastboot, whose download buffer is 112 MiB; 96 MiB of payload fits, 128 MiB was refused."]
+completion = ["The payload boots on the board to the lock screen."]
+limits = ["The two-pass kernel build of this layout completed on Linux (evb10_defconfig, then evb10_display_defconfig; kernel.macho 51.7 MB, sha256 56cac3bc9d5384005ec2b2919d6ce37eb8e6a72832568b51c0f6eb784dadf210). A payload was not assembled from it and the image was last booted with the previous layout."]
+next_action = ["Boot an image built from this layout."]
+
+[[area.evidence]]
+kind = "source"
+reference = "patches/xnu/series"
+result = "Device patch order"
+
+[[area]]
+id = "diagnostics"
+status = "implemented"
+components = []
+paths = ["patches/xnu/evb10-exit-trace.patch", "patches/xnu/evb10-thread-sample.patch", "patches/xnu/evb10-mmap-grant.patch", "package/Evb10Console.h"]
+inputs = ["UART2 serial console at 1.5 Mbaud; DEVELOPMENT kernel."]
+configuration = ["Kernel arguments -v, serial=3, vc_mirror=1, debug=0x10014e, -enable_kprintf_spam, evb10-ps=10, evb10-bt, evb10-bt2, evb10-bt3, evb10-bt4."]
+procedure = ["Read the serial console. evb10-ps prints the process table, evb10-bt prints user stacks of the named processes for symbolication on the host."]
+findings = ["Console lines longer than about 255 characters lose their tail.", "The serial input of XNU is dead on this board, so there is no command channel; judge the kernel's progress from the serial output only."]
+completion = ["Every boot stage prints a checkpoint to the serial console."]
+limits = ["Panics reset the board after the text is out; no panic screen is drawn."]
+next_action = ["Add a panic screen on the frame buffer."]
+
+[[area.evidence]]
+kind = "source"
+reference = "patches/xnu/evb10-exit-trace.patch"
+result = "Process exit trace"

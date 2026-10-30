@@ -10,6 +10,11 @@
     "title_zh": "Benesse TAB-A04-BR3（a04br3）"
   },
   {
+    "name": "ace6",
+    "title": "OnePlus Ace 6 PLQ110 (OP6113L1): SM8750 Sun v1, 12 GiB, AA605 panel, S3910 touch",
+    "title_zh": "OnePlus Ace 6 PLQ110 (OP6113L1): SM8750 Sun v1, 12 GiB, AA605 panel, S3910 touch"
+  },
+  {
     "name": "alioth",
     "title": "Redmi K40 (alioth)",
     "title_zh": "Redmi K40（alioth）"
@@ -205,6 +210,11 @@
     "title_zh": "一加平板 2 Pro（erhai）"
   },
   {
+    "name": "evb10",
+    "title": "Rockchip RK3588 EVB10 V10",
+    "title_zh": "Rockchip RK3588 EVB10 V10"
+  },
+  {
     "name": "fairlady",
     "title": "OnePlus 15T (fairlady)",
     "title_zh": "一加 15T（fairlady）"
@@ -273,6 +283,11 @@
     "name": "gta4l",
     "title": "Samsung Galaxy Tab A7 10.4 (gta4l)",
     "title_zh": "三星 Galaxy Tab A7 10.4（gta4l）"
+  },
+  {
+    "name": "gta4l-gta4lunix",
+    "title": "Samsung Galaxy Tab A7 10.4 (2020) (gta4lunix)",
+    "title_zh": "Samsung Galaxy Tab A7 10.4 (2020) (gta4lunix)"
   },
   {
     "name": "gta4l-ilovemykedi",
@@ -415,6 +430,11 @@
     "title_zh": "小米 Civi 5 Pro（luming）"
   },
   {
+    "name": "luming-infinityex-rsxq",
+    "title": "Xiaomi Civi 5 Pro (SM8735; format-2 bring-up, iPadOS 17.7.11 profile) (infinityEX-RSXQ)",
+    "title_zh": "Xiaomi Civi 5 Pro (SM8735; format-2 bring-up, iPadOS 17.7.11 profile) (infinityEX-RSXQ)"
+  },
+  {
     "name": "m2381",
     "title": "Meizu 20 Classic (m2381)",
     "title_zh": "魅族 20 Classic（m2381）"
@@ -460,9 +480,19 @@
     "title_zh": "Xiaomi Redmi K40S (munch, 22021211RC)"
   },
   {
+    "name": "munch-erodenine",
+    "title": "Xiaomi Redmi K40S (munch, 22021211RC) (ErodeNine)",
+    "title_zh": "Xiaomi Redmi K40S (munch, 22021211RC) (ErodeNine)"
+  },
+  {
     "name": "myron",
     "title": "Redmi K90 Pro Max / Poco F8 Ultra (myron)",
     "title_zh": "Redmi K90 Pro Max / Poco F8 Ultra（myron）"
+  },
+  {
+    "name": "myron-typeun",
+    "title": "Redmi K90 Pro Max (Typeun)",
+    "title_zh": "Redmi K90 Pro Max (Typeun)"
   },
   {
     "name": "nabu",
@@ -510,6 +540,11 @@
     "title_zh": "Xiaomi 13 Pro (pubglite55)"
   },
   {
+    "name": "nuwa-wuuuweiii",
+    "title": "Xiaomi 13 Pro (WuuuWeiii)",
+    "title_zh": "Xiaomi 13 Pro (WuuuWeiii)"
+  },
+  {
     "name": "nx721j",
     "title": "ZTE Nubia Z60 Ultra (nx721j)",
     "title_zh": "中兴努比亚 Z60 Ultra（nx721j）"
@@ -518,6 +553,11 @@
     "name": "nx729j",
     "title": "Nubia RedMagic 8 Pro / 8 Pro+ (nx729j)",
     "title_zh": "努比亚红魔 8 Pro / 8 Pro+（nx729j）"
+  },
+  {
+    "name": "nx769j",
+    "title": "nubia RedMagic 9 Pro / 9 Pro+ / 9S Pro / 9S Pro+ (NX769J)",
+    "title_zh": "nubia RedMagic 9 Pro / 9 Pro+ / 9S Pro / 9S Pro+ (NX769J)"
   },
   {
     "name": "oneplus13t",
@@ -643,6 +683,11 @@
     "name": "raphael",
     "title": "Redmi K20 Pro / Mi 9T Pro (raphael)",
     "title_zh": "Redmi K20 Pro / Mi 9T Pro（raphael）"
+  },
+  {
+    "name": "rmx1971",
+    "title": "Realme 5 Pro",
+    "title_zh": "Realme 5 Pro"
   },
   {
     "name": "ruyi",
@@ -803,6 +848,11 @@
     "name": "uke",
     "title": "Xiaomi Pad 7 / POCO Pad X1 (uke)",
     "title_zh": "小米平板 7 / POCO Pad X1（uke）"
+  },
+  {
+    "name": "uke-iosnjbrepo",
+    "title": "Xiaomi Pad 7 (iOSNJBrepo)",
+    "title_zh": "Xiaomi Pad 7 (iOSNJBrepo)"
   },
   {
     "name": "uke-wuhaoran956-cyber",

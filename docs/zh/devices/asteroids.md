@@ -6,7 +6,7 @@
 
 Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UFS userdata partition, with shared SM7635 support and board-owned storage, GPU, input and power integration. Bring-up runs as numbered staged tests; their results are in docs/asteroids-gpu-gen8.md and docs/asteroids-touch.md of rootstockos/iosonandng.
 
-源记录: [porting.toml](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/porting.toml), `8729b427eb141d3e21724bdaa5bc2485aebc1522`.
+源记录: [porting.toml](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/porting.toml), `014bd043037b73a4dc686df8ddec845deb63a675`.
 
 本页按设备记录自动生成。
 
@@ -57,6 +57,8 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T40c \(2026-10-27\): build tag T40; the GPU governor and fence spin are board defaults \(see gpu\).
 - T40d \(2026-10-27\): sheng-lite=1 as on sheng; sheng-disable-jobs keeps only bluetoothd and coreduetd \(the lite list holds the XPC wait cycle\). The kernel from fork asteroids-dev 0d215db carries native-union-root-checkdirs.patch: the SystemOS union over / no longer leaves the OS root one usecount short \(T40c's shutdown panic in vnode\_rele\_ext\).
 - T50: board.toml kernel\_args gain sheng-dpu-scanout=2, sheng-dpu-linux=1 and sheng-audio=1.
+- T64 \(2026-10-29\): \[payload\] dram\_size 0x23FE00000 and \[payload.adt\] owned\_memory\_size 0x1F0000000 \(7.75 GiB\) over the whole high bank, which the uefi-asteroids map now declares as one run without GPU\_Pool; \[gpu\] gpu\_pool\_base and gpu\_pool\_bytes are gone with the BO pool \(memory area\).
+- T64: owned\_memory\_size is 0x180000000 \(6 GiB\) instead of 7.75 GiB until the kernel carries UniXNU 2867796's larger bootstrap table pool \(memory area\).
 
 ### 完成条件
 
@@ -72,7 +74,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Format 2 board configuration with the SM7635 SoC and 21H461 OS profiles.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
+- `source`: [Format 2 board configuration with the SM7635 SoC and 21H461 OS profiles.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/board.toml)
 
 ## 固件与启动 {#firmware}
 
@@ -112,7 +114,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [\[bootimg\] and \[firmware\] select uefi-asteroids and the payload in the kernel image.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
+- `source`: [\[bootimg\] and \[firmware\] select uefi-asteroids and the payload in the kernel image.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/board.toml)
 
 ## CPU 与中断 {#cpu}
 
@@ -138,6 +140,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - The CPU governor is sheng's CpuFreqProbe with 4/3/1 CPUs per domain and no L3 vote \(the 3a has no EPSS L3\).
 - The E/P Edge scheduler and the idle-time helper are sheng's zzyf and zzye patches \(patches/xnu\).
 - T40c \(2026-10-27\): the cpu0 park thread is off by default \(sheng-cpu0-park=0, as UniXNU-sheng d361b53\): the E/P Edge scheduler places work by cluster, and T39b found the park thread holding cpu0 at 100 %. The governor and the AMP and idle patches already match sheng's latest.
+- T64 \(2026-10-29\): dts/asteroids.dts's memory node covers the whole high bank \(0x8C0000000 + 0x23FE00000\), equal to board.toml dram\_size, since the GPU pool at its top is gone \(memory area\).
 
 ### 完成条件
 
@@ -153,7 +156,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [EPSS CPU governor with touch boost and frame floor.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/CpuFreqProbe.cpp)
+- `source`: [EPSS CPU governor with touch boost and frame floor.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/package/CpuFreqProbe.cpp)
 
 ## 内存与 DMA {#memory}
 
@@ -161,11 +164,11 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 硬件与依赖
 
-- DRAM high bank 0x8C0000000-0xABFE00000 for the XNU window; GPU pool at 0xABFE00000 \(1 GiB\); GMU pool at 0xE6440000 \(32 MiB\); all reserved in the uefi-asteroids memory map.
+- DRAM high bank 0x8C0000000-0xAFFE00000 \(9 GiB less 2 MiB, one conventional run since T64\) for the XNU window; GMU pool at 0xE6440000 \(32 MiB\), reserved in the uefi-asteroids memory map. Until T63 a GPU pool sat at 0xABFE00000 \(1 GiB\).
 
 ### 配置
 
-- owned\_memory\_size 0x130000000 \(4.75 GiB\) and dram\_size 0x1FFE00000; the DTS memory node equals dram\_size.
+- owned\_memory\_size 0x180000000 \(6 GiB, T64; 4.75 GiB before\) and dram\_size 0x23FE00000; the DTS memory node equals dram\_size.
 
 ### 操作步骤
 
@@ -175,6 +178,8 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 - 384 MiB of owned memory left iPadOS short; 4.75 GiB in the high bank \(uke's layout\) is enough.
 - Metal's 64 MiB blocks need a 1 GiB GPU pool outside the XNU window.
+- T62b-light \(2026-10-29\): with every app on the GPU the 1 GiB pool filled and the GPU stopped once BOs fell back to scattered pages, while XNU had 849 pages free. T64: no pool; user BOs are XNU's pageable memory \(sheng's Adreno740 882f4bf\) and the window grows from 4.75 to 7.75 GiB over the whole high bank, leaving 1.25 GiB of the run to UEFI's own allocations.
+- T64 first boot \(2026-10-29\): 7.75 GiB stopped at the kernel's entry, the green and blue bars without the magenta one: before the MMU is on, start.s maps the window twice with 1 GiB per L2 table page, and UniXNU's native-4k-bootstrap-capacity patch held 16 pages, enough for 6 GiB; the patch's own guard loops when the pool runs out. The window is 6 GiB until a kernel with UniXNU 2867796 \(22 pages, windows up to 9 GiB; staged, not built\) is built, then 7.75 GiB.
 
 ### 完成条件
 
@@ -182,7 +187,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 当前范围
 
-- The GPU and GMU pools are fixed reservations in the firmware memory map.
+- The GMU pool is a fixed reservation in the firmware memory map. DarwinBoot gives XNU at most 8 GiB.
 
 ### 下一步
 
@@ -190,7 +195,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Memory node for the XNU window's DRAM bank.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/dts/asteroids.dts)
+- `source`: [Memory node for the XNU window's DRAM bank.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/dts/asteroids.dts)
 
 ## 存储与根卷 {#storage}
 
@@ -230,7 +235,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T29 booted iPadOS 17.7.11 from the UFS root with persistent Data to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
+- `device`: [T29 booted iPadOS 17.7.11 from the UFS root with persistent Data to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t29-boot.img</code>. Revision: `adf900cf453a6b318864913757f588c9f661596f`.
 
 ## 显示 {#display}
@@ -273,6 +278,9 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T55: the boot log gains \[gpu ops\] \(GPU time per kind of work\).
 - T61: BootProgress.c also anchors boot\_diag\_scan\_gpu \(BootDiagExport.c\), which the periodic GPU trace export \(sheng-gpu-trace-export, see diagnostics\) calls; its rounds include the half-resolution screen, so a trace comes with what was shown.
 - T62: BootLog.c gains the \[gpu tables\] and \[gpu recovery\] rows \(see diagnostics\).
+- T64 \(2026-10-29\): build-native-legacy-display.py no longer checks board.toml gpu\_pool\_\* against GpuPowerBoard.h \(both gone with the BO pool\); BootLog's \[bo pool\] row is \[bo memory\] \(diagnostics area\).
+- T64: BootLog.c adds the \[gpu uc\] rows \(diagnostics area\).
+- T65: the boot log adds a \[bo pool\] row \(native\_adreno\_pool\_stats\): pool MiB and chunks, the reservation's and write-combine's IOReturn, BOs from the pool, BOs sent to the system, MiB in use and peak.
 
 ### 完成条件
 
@@ -288,7 +296,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T34b: GPU copy to the panel, no tearing or stale patches, stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
+- `device`: [T34b: GPU copy to the panel, no tearing or stale patches, stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## 输入 {#input}
@@ -332,7 +340,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [Touch input works on the desktop \(stage 6\).](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/AsteroidsTouchProbe.cpp)
+- `device`: [Touch input works on the desktop \(stage 6\).](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/package/AsteroidsTouchProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## GPU {#gpu}
@@ -392,6 +400,16 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T62 \(2026-10-29, built, not booted\): metal2vulkan moves to development eeb79340 \(UniXNU a49a8dd\), where color writes are the device's own conversion \(70068f7c\) and float maths the device's \(4817f3bdf, cdc09276f\), removing the exact 8-bit output rounding that T61-samples found in 95 % of the large passes' fragment work. The bridge is rootstockos/AdrenoMetal asteroids \(137eeb1, forked from UniXNU/AdrenoMetal\): the 16 shared patches and sheng's 21 from feat/ipados27-gpu-parity \(which stays on the old pin\) were triaged against development; 17 remain \(skip draws without a pipeline, two-plane shadow as memory lies, padded framebuffers through a new PaddedRowsPolicy::AliasWrites since development removed padded-row aliasing, priming cache, refuse\_rebinds now actually set by the bridge, optional shader cache, sRGB extended-range blend, bitreverse, growing memory blocks, patches without control points, heap texture size, Core Image libraries and two small speedups\); the rest \(keep final pass, fewer allocations per draw, keep draw commands and lists, map tracker keys, and most of sheng's draw-path patches\) are done in development by LiveBind, SpareLiveBinds, ViewportList and KeptRenderPasses. Turnip: asteroids-tu-light=&lt;percent&gt; \(TU\_DW\_LIGHT, render server only\) renders a pass in system memory when its history draws less than that share of its area \(T61-stages: 2.7 ms in GMEM against 0.17 ms in system memory for passes under a quarter of the screen\); trace pass records flag such passes \(4\), and draws read the pipeline's static blend state. Not covered: the translator's own tests beyond the touched areas, and any device run.
 - T62 \(2026-10-29\), every Metal process on the GPU, as sheng's iPadOS 27 branches do \(UniXNU-sheng 9800f8cd\): drivers/Adreno740 merges UniXNU/Adreno740 feat/ipados27-gpu-parity \(rootstockos/NativeAdreno asteroids ad01b92\): no connection cap, growing object, queue and job tables, a BO pool of contiguous chunks, msm hangcheck and restart, and per-process GPU address spaces \(own page table and ASID, 4 GiB to 2^ias\) switched into the GPU's bank: mode 2 by CP\_SMMU\_TABLE\_UPDATE in the ring, only where the board opened the CP's SMMU aperture and one switch is proved at publication, else mode 1, the CPU writing TTBR0 with the GPU idle. This board keeps mode 1: asteroids-gpu-cp-aperture=1 makes sheng's qcom\_scm\_set\_gpu\_smmu\_aperture call \(off: the CP switch has not run on an A810\). Kept from this fork in the merge: the gen8 slice SRAM init before the table switch, the reserved GMU pool \(its table pages now on demand\), single-stream contexts, per-client maintenance, and the loader-kept BO pool \(adoptPool\) as an adopted chunk of the chunked pool \(write-combined, zeroed with stores, never given back\). The merge had refused a nonzero submit reserved word, which carries the asteroids Turnip's counts; that check is gone. The board publishes the context's ias with va\_start GpuClientVaStart and grants the accelerator to every process \(NativeSandboxGrantProcess "\*"\); the plugin's client list is "\*". UniXNU 2b79721 takes sheng's Turnip backend for the new ABI \(address allocator, BO cache returned under pressure\) and ArmSmmu4K 30ec63b. Host tests on Linux \(GMU and GPU contexts, the board GMU pool, VM, SMMU memory, GMU memory and map\) pass; the kernel, board and Turnip backend only build on CI.
 - T62 first kernel build \(run 40785590664\) failed to link: \_native\_pmap\_user\_mappings, which the merged NativeAdrenoMemory::release weak-imports from sheng's XNU patch for a diagnostic count; GpuPowerProbe.cpp now defines a weak stand-in that finds no mapping, as it does for boot\_log\_export\_put. The add-on \(run 40785594609\) built: metal2vulkan development, the bridge, sheng's Turnip backend and the plugin compile for iOS.
+- T62 \(2026-10-29, booted\): slower, with more glitches: the kernel's grant patch \(UniXNU zzw-native-adreno-sandbox-grant\) compared NativeSandboxGrantProcess "\*" as a process name, so no process had the grant: the sandbox refused AGXDeviceUserClient to backboardd and the apps, Turnip reported no device \(VK\_ERROR\_INITIALIZATION\_FAILED\), the render server composited on the CPU \(71 ms a frame\) and crashed twice \(an alignment fault on a store\), and only SpringBoard and Preferences, whose profiles allow the class, opened the GPU. The gpu-trace in that log was T61t's file left on the persistent Data. UniXNU feb5612: "\*" names every process.
+- T62b \(2026-10-29\): backboardd and seven apps each on their own GPU address space \(mode 1 table switches\), no crash, but no faster than T61: 12.2 ms of GPU time per submission against 12.0, 2.7 ms per megapixel of render area against 2.2 \(the apps' own rendering now counts too\), compositor 52 ms a frame against 47; mapping into the per-process tables took 492 ms in all against 25. No trace file: m2v/gpu was missing on the phone \(Turnip makes only its last directory\).
+- T62b-light \(2026-10-29, asteroids-tu-light=100\): no felt difference; it froze after many app opens. At 352-358 s the 1 GiB BO pool filled \(1023 MiB in use, backboardd 873 MiB, seven GPU clients\), 61 BOs fell back to scattered pages, and the render server's submission 1490 never completed: no SMMU fault, no recovery, every later wait timed out. Photos and ScreenshotServicesService aborted on an uncaught exception \(\!PXPixelSizeAreaIsZero\(roundedSize\)\). Sheng's answer, user BOs from system memory with no pool \(Adreno740 882f4bf\), would move them into XNU's 4.75 GiB window, where 849 pages were free; the loader-kept GiB would then go unused unless the window takes it back. Not merged.
+- T63 \(2026-10-29, built from UniXNU 2ee276c\): the Metal stack is sheng's: drivers/AdrenoMetal is UniXNU/AdrenoMetal feat/ipados27-gpu-parity ca7faaf \(rootstockos/AdrenoMetal asteroids b4fb935\), metal2vulkan development 624bab39 under sheng's 18 bridge patches \(all apply; in-place written textures replace T62's padded-rows policy\), with the encoding thread, the telemetry table \(the boot log's rows from native\_adreno\_metal\_rows, empty until now\), priming from the OS image's 159 metallib paths \(scripts/data/prime-list.txt, embedded in \_\_DATA,\_\_primelist\), cache import \(off here: the driver has no method 0x7101\) and the half-float scanout conversion; GopFramebuffer 90b64ef for its header only \(the kernel builds this repository's fork\). package/AsteroidsMetalPlugin.mm is sheng's plugin with this board's diagnostics: the asteroids-tu-\* boot arguments \(and the trace's directory made whole\), the render server's stacks as BT pieces, the stack-only mode, supportsConditionalLoadStore answered NO, the deep framebuffer off by preference with sheng's render-server memory writes removed, and the clients list. The kernel and Turnip are T62b's.
+- T64 \(2026-10-29\): the GPU's BOs move into XNU's memory. drivers/Adreno740 merges sheng's feat/ipados27-gpu-parity again \(rootstockos/NativeAdreno asteroids c24a81c\): user BOs are pageable system memory the driver wires \(882f4bf\), no fixed pool, the import region method 0x7101 \(aa015f7\); this fork keeps adopt\(\) for the GMU pool. GpuPowerProbe no longer tests and adopts the loader-kept pool \(mode 17 step 1\), GPB\_GPU\_POOL\_\* and board.toml gpu\_pool\_\* are gone, and the boot log's \[bo pool\] row is \[bo memory\] \(system BOs, spans, MiB in use and peak, refusals\). The loader's map \(uefi-asteroids\) drops GPU\_Pool and the window grows to 7.75 GiB \(memory area\). Host tests on Linux pass \(GMU and GPU contexts, VM, system memory, SMMU memory, GMU memory and map\) except test\_memory's stale 256 MiB budget check, as before the merge.
+- T64 first kernel build \(run 40832768114\) failed to link: \_native\_ufs\_import\_blocks and \_native\_ufs\_import\_read, which the merged driver's import method 0x7101 \(aa015f7\) weak-imports from sheng's ShengUfs; GpuPowerProbe.cpp now defines weak stand-ins that report no region, as for native\_pmap\_user\_mappings, so the method answers not ready and the plugin's cache import stays off.
+- T64 at 6 GiB \(2026-10-29\): booted, but every process rendered on the CPU: no Metal askers, no GPU clients, no ASTEROIDS GPU report lines. The kernel client's test \(mode 17\) ran its steps \(6 system BOs allocated and mapped, 34 submissions completed\) yet missed, so the accelerator was never published \(dcvs off, no userWatch\); its result lines had left the kernel buffer, the board kept no row of them, and this boot's unified log never reached Data. GpuPowerProbe now keeps the round, burst and summary lines \(native\_gpu\_uc\_text\) for BootLog's \[gpu uc\] rows, and asteroids-gpu-publish-unverified=1 \(off by default\) publishes despite a miss, to see whether user space renders while the test fails.
+- T64b and T64b-nomedia \(2026-10-29\): the kernel's own test passed \(rounds 4/4, burst 32/32\), but the first user job \(fence 41\) never completed, from mediaserverd and, with mediaserverd off the client list, from backboardd: GPU 99% busy, no SMMU fault, the ring read pointer past the IB packet. T63 \(T62b's kernel, the loader-kept pool, the same add-on\) ran well: 1703 submissions at 7.3 ms of GPU time, compositor 33 ms a frame. A host walk of scattered BOs in a 48-bit per-process table found every page right \(833 pages\), so the tables are not it. xnu-10063 zero-fills a system BO's pages through the cacheable kernel alias and then sets the write-combined attribute without cleaning a line \(pmap\_batch\_set\_cache\_attributes cleans for VM\_WIMG\_RT only\); sheng's allocateSystem cleans only default-attribute BOs. NativeAdreno 4063b92 cleans and invalidates every write-combined system BO by physical address after the VM hands it over. GpuPowerProbe now gives the driver a DRAM reader \(ml\_phys\_read\_word\), so a stall's \[gpu stall\] rows can show a system BO's words instead of deadbeef.
+- T65: drivers/Adreno740 takes NativeAdreno 5e2b23e: user BOs come from a pool reserved at GPU bring-up again \(sheng's ad01b92 chunks, sheng-gpu-pool MiB, default 1536, without the adopted range\), one span each, system memory when it is full. T64c's system BOs left 228876 owned spans live, VM insert/erase 641/841 ms against T63's pooled 61/74 ms, BoAlloc/Map/Free 196/457/940 us against 59/146/222, compositor mean 139 ms against 33 ms.
+- T65: GpuPowerProbe makes sheng-gpu-import-skip default to 1: T63 spent 89 GiB \(about 3 ms of each 4.4 ms submission\) cleaning read-only imports every submission; T40f measured skipping it at 7x cheaper submissions with no stale content.
 
 ### 完成条件
 
@@ -407,7 +425,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [GPU compositing and the GPU panel copy run stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/GpuPowerProbe.cpp)
+- `device`: [GPU compositing and the GPU panel copy run stable.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/package/GpuPowerProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t34b-boot.img</code>. Revision: `e022e84a9721ea6408ea12665b5a23e9b89fc5f6`.
 
 ## clock {#clock}
@@ -448,7 +466,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T39e: the time set in Settings survived a restart; Settings &gt; Date &amp; Time opens.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/board.toml)
+- `device`: [T39e: the time set in Settings survived a restart; Settings &gt; Date &amp; Time opens.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/board.toml)
   Command: <code>fastboot boot local/unixnu-asteroids-t39e-boot.img</code>. Revision: `e4d1092cc3d051617ee88858b153ed2ba0d456fd`.
 
 ## 网络 {#network}
@@ -540,7 +558,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `host`: [PASS: 207 AudioReach packet checks, including the 3a's primary MI2S port and the 32-bit speaker device format.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/scripts/check-audioreach-host.py)
+- `host`: [PASS: 207 AudioReach packet checks, including the 3a's primary MI2S port and the 32-bit speaker device format.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/scripts/check-audioreach-host.py)
   Command: <code>python3 scripts/check-audioreach-host.py</code>. Revision: `b1621b32a2513ba8e2c4c599d4f4baf602a7369a`.
 - `device`: [T40k-spk-sd1: the boot tone and iOS sounds played through both speakers; \[amps\] showed the boost converters active and \[audio-io\] 8.3 M frames without gaps in 494 s.](https://github.com/rootstockos/UniXNU-asteroids/commit/b1621b32a2513ba8e2c4c599d4f4baf602a7369a)
   Command: <code>fastboot boot with boot args sheng-audio=3 asteroids-audio-i2s=0x200200 sheng-audio-tone-ms=4000</code>. Revision: `49ec1ccb18fd6b7ddd23b25b2c4ae96cd084ad1a`.
@@ -582,7 +600,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `device`: [T29: with the stand-in, SpringBoard boots to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/KeyStoreProbe.cpp)
+- `device`: [T29: with the stand-in, SpringBoard boots to the first picture.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/package/KeyStoreProbe.cpp)
   Command: <code>fastboot boot local/unixnu-asteroids-t29-boot.img</code>. Revision: `adf900cf453a6b318864913757f588c9f661596f`.
 
 ## 镜像组装 {#packaging}
@@ -604,6 +622,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 ### 开发经验
 
 - Format 2 applies only the patches its series list; the fork's bring-up patches are listed in the device series with the arch: prefix.
+- T64 \(2026-10-29\): the DTS memory node grows to the whole high bank \(0x8C0000000 + 0x23FE00000\) with board.toml dram\_size; the uefi-asteroids map declares it as one run without GPU\_Pool \(memory area\).
 
 ### 完成条件
 
@@ -619,7 +638,7 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Board patch series after the arch, SoC and OS series.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/patches/xnu/series)
+- `source`: [Board patch series after the arch, SoC and OS series.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/patches/xnu/series)
 
 ## 诊断 {#diagnostics}
 
@@ -653,6 +672,9 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 - T55: \[gpu ops\] \(GPU time per pass kind, blit, copy, resolve and clear, from Turnip's timestamp brackets\).
 - T61: sheng-gpu-trace-export=&lt;seconds&gt; exports the render server's GPU trace directory \(m2v/gpu, boot\_diag\_scan\_gpu\) with the screen every so many seconds, each round into the 64 MiB quarter of the diagnostic half that the header does not name, so the header always names a complete copy whenever the phone is taken to recovery; a full export \(sheng-diag-export\) still runs once and ends the rounds. While it runs, the Metal plugin's pipeline-cache exports are refused, as with any diagnostic export. \[diag\] counts the rounds. scripts/pull-asteroids-log.py now also reads a named diagnostic export from the export region, unpacks it into diag/ and runs scripts/gpu-trace.py into gpu-trace.txt.
 - T62: \[gpu tables\] \(sheng's row: table mode, CP aperture and switch check, switches by CP and CPU, address spaces, table pages on demand, ias, BO pool chunks\) and \[gpu recovery\] \(hangs and restarts, shown once one happened\); eight \[gpu client text\] rows.
+- T64 \(2026-10-29\): \[bo pool\] is replaced by \[bo memory\]: system BOs made and their spans, MiB in use and peak, refusals with the last status, kernel-owned allocations and import spans, from the driver's native\_adreno\_bo\_memory; \[gpu tables\] drops the pool chunk counts.
+- T64: \[gpu uc\] rows: the GPU probe's stage \(0x108 passed, 0x10e missed\), its kernel-client test counters \(rounds, steps, first error and its step, burst, system BOs, opens\) and the test's result lines.
+- T65: \[bo pool\] in the boot log shows the GPU BO pool next to \[bo memory\]: MiB and chunks reserved, the reservation's and write-combine's IOReturn, BOs it served, BOs sent to system memory for lack of room, MiB in use and peak.
 
 ### 完成条件
 
@@ -668,6 +690,6 @@ Nothing Phone \(3a\) runs the unchanged iPad7,1 iPadOS 17.7.11 image from its UF
 
 ### 证据
 
-- `source`: [Live page and banner rows.](https://github.com/rootstockos/UniXNU-asteroids/blob/8729b427eb141d3e21724bdaa5bc2485aebc1522/package/BootProgress.c)
+- `source`: [Live page and banner rows.](https://github.com/rootstockos/UniXNU-asteroids/blob/014bd043037b73a4dc686df8ddec845deb63a675/package/BootProgress.c)
 
 </div>

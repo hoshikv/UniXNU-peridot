@@ -6,7 +6,7 @@
 
 Nothing Phone \(2\), iPadOS18 Darwin24 local format2 migration and board adaptation
 
-Source record: [porting.toml](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/porting.toml), `db132965b0753ea6f49e989e4ec03bd2c379b137`.
+Source record: [porting.toml](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/porting.toml), `64ddf288ab6f7fa38eab36a31a599dbaf051534a`.
 
 This page is generated from the device record.
 
@@ -62,7 +62,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [格式2解析、DTS、内核和启动镜像已构建；services73未安装或启动。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/ipados18/services73-smmu-audio.md)
+- `source`: [格式2解析、DTS、内核和启动镜像已构建；services73未安装或启动。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/ipados18/services73-smmu-audio.md)
 
 ## Firmware and boot {#firmware}
 
@@ -100,7 +100,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [现有设备可进入桌面，物理内存与可分配内存分别记录。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/format2/README.zh.md)
+- `source`: [现有设备可进入桌面，物理内存与可分配内存分别记录。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/format2/README.zh.md)
 
 ## CPU and interrupts {#cpu}
 
@@ -138,7 +138,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [CPU 4/3/1 拓扑保持 SM8475；受管内存沿用已启动实现。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/format2/README.zh.md)
+- `source`: [CPU 4/3/1 拓扑保持 SM8475；受管内存沿用已启动实现。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/format2/README.zh.md)
 
 ## Memory and DMA {#memory}
 
@@ -176,7 +176,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [物理容量12GiB；此前受管容量9728MiB，不能将物理空洞分配给VM。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/format2/README.zh.md)
+- `source`: [物理容量12GiB；此前受管容量9728MiB，不能将物理空洞分配给VM。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/format2/README.zh.md)
 
 ## Storage and root {#storage}
 
@@ -214,7 +214,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [本机OS中init及音频策略已更新，设备仍保留services72。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/ipados18/services73-smmu-audio.md)
+- `source`: [本机OS中init及音频策略已更新，设备仍保留services72。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/ipados18/services73-smmu-audio.md)
 
 ## Display {#display}
 
@@ -252,7 +252,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [桌面与壁纸已有显示；120Hz是请求值，不代表测得帧率。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/format2/README.zh.md)
+- `source`: [桌面与壁纸已有显示；120Hz是请求值，不代表测得帧率。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/format2/README.zh.md)
 
 ## Input {#input}
 
@@ -290,7 +290,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [services72已观察真实输入事件，系统动作仍需设备结果。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/ipados18/services73-smmu-audio.md)
+- `source`: [services72已观察真实输入事件，系统动作仍需设备结果。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/ipados18/services73-smmu-audio.md)
 
 ## GPU {#gpu}
 
@@ -328,7 +328,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [已有桌面硬件渲染记录，保留此前高RAM BO和copy分配修补。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/format2/README.zh.md)
+- `source`: [已有桌面硬件渲染记录，保留此前高RAM BO和copy分配修补。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/format2/README.zh.md)
 
 ## Network {#network}
 
@@ -366,7 +366,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [services72日志定位SMMU写序；services73复用ArmSmmu4K公共编程原语，未实机启动。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/ipados18/services73-smmu-audio.md)
+- `source`: [services72日志定位SMMU写序；services73复用ArmSmmu4K公共编程原语，未实机启动。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/ipados18/services73-smmu-audio.md)
 
 ## Audio {#audio}
 
@@ -404,7 +404,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [services72的audiomxd堆栈定位CoreMedia路由等待，services73策略与launchd服务门控保持一致。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/ipados18/services73-smmu-audio.md)
+- `source`: [services72的audiomxd堆栈定位CoreMedia路由等待，services73策略与launchd服务门控保持一致。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/ipados18/services73-smmu-audio.md)
 
 ## Power {#power}
 
@@ -442,7 +442,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [DSP readiness和电池协议已有日志；控制器值保持Pong板级来源。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/format2/README.zh.md)
+- `source`: [DSP readiness和电池协议已有日志；控制器值保持Pong板级来源。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/format2/README.zh.md)
 
 ## Image assembly {#packaging}
 
@@ -480,7 +480,7 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [内核、运行时与启动镜像已构建，产物留在本机；未安装、未启动。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/ipados18/services73-smmu-audio.md)
+- `source`: [内核、运行时与启动镜像已构建，产物留在本机；未安装、未启动。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/ipados18/services73-smmu-audio.md)
 
 ## Diagnostics {#diagnostics}
 
@@ -518,6 +518,6 @@ Components: `PongPlatform24`.
 
 ### Evidence
 
-- `source`: [services72的REC日志与audiomxd超时堆栈已分析，services73修补只构建、未启动。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/db132965b0753ea6f49e989e4ec03bd2c379b137/migration/format2/README.zh.md)
+- `source`: [services72的REC日志与audiomxd超时堆栈已分析，services73修补只构建、未启动。](https://github.com/Chengdong-Yu/UniXNU-pong/blob/64ddf288ab6f7fa38eab36a31a599dbaf051534a/migration/format2/README.zh.md)
 
 </div>

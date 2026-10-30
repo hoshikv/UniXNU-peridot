@@ -6,7 +6,7 @@
 
 Redmi K60 \(mondrian/SM8475\). Format 2 device: the kernel builds and prelinks, the payload and the boot image still need the board ADT and the hardware bring-up.
 
-源记录: [porting.toml](https://github.com/Emilelu/UniXNU-mondrian/blob/581019b0623a926f91164e3dd3ec2750550feea3/porting.toml), `581019b0623a926f91164e3dd3ec2750550feea3`.
+源记录: [porting.toml](https://github.com/Emilelu/UniXNU-mondrian/blob/a3cef504eef008a952da89a9411cbf110276dccb/porting.toml), `a3cef504eef008a952da89a9411cbf110276dccb`.
 
 本页按设备记录自动生成。
 
@@ -62,7 +62,7 @@ Redmi K60 \(mondrian/SM8475\). Format 2 device: the kernel builds and prelinks, 
 
 ### 证据
 
-- `source`: [schema\_version = 2 resolves through the arch, SM8475, 20G81 and device layers; status reports three components and 83 ordered patches](https://github.com/Emilelu/UniXNU-mondrian/blob/581019b0623a926f91164e3dd3ec2750550feea3/board.toml)
+- `source`: [schema\_version = 2 resolves through the arch, SM8475, 20G81 and device layers; status reports three components and 83 ordered patches](https://github.com/Emilelu/UniXNU-mondrian/blob/a3cef504eef008a952da89a9411cbf110276dccb/board.toml)
 
 ## 固件与启动 {#firmware}
 
@@ -175,6 +175,8 @@ Redmi K60 \(mondrian/SM8475\). Format 2 device: the kernel builds and prelinks, 
 ## 存储与根卷 {#storage}
 
 `planned`
+
+组件: `PongUfs`.
 
 ### 硬件与依赖
 
