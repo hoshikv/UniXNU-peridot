@@ -4,9 +4,9 @@
 
 <div v-pre>
 
-OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs the whole of kernel\_bootstrap, starts the scheduler and its first thread, and with PE\_init\_iokit, initialize\_screen, kperf\_init\_early, ml\_wait\_max\_cpus and platform\_stall\_panic\_or\_spin skipped it stops after PE\_init\_iokit and before bsd\_init. A 32-checkpoint flag log is implemented, but the DRAM flag page does not survive the reset; the pram mailbox is the next measurement.
+OnePlus 8T \(KB2000\). Firmware, menu and payload volume work, and the kernel passes the whole IOKit initialisation: IODeviceTreeAlloc, IOPlatformExpertDevice::init, IOService::init, attach, InitIOKit and ConfigureIOKit all return. The IOKit stall was the gic node's interrupts property: the ADT has no AAPL,phandle, IODTFindInterruptParent returned NULL and IODTGetICellCounts dereferenced it. The next stall is vm\_commpage\_init, inside pmap\_create\_commpages. With the commpage calls replaced by ret \(eight-patch bring-up kernel\) the kernel still stops between mac\_policy\_initmach and OSKextRemoveKextBootstrap, before PE\_lockdown\_iokit and bsd\_init.
 
-源记录: [porting.toml](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/porting.toml), `5ba9d471c59a893ef40868190d73d88edb1af453`.
+源记录: [porting.toml](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/porting.toml), `fd655c9589bad1d68c5e5c8111dcafb9d376dbb4`.
 
 本页按设备记录自动生成。
 
@@ -59,6 +59,8 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 - Every change to a file an area owns has to update that area findings or evidence in the same commit; the catalog workflow fails otherwise and names the path.
 - The device summary is what the generated page shows first, so it has to name the current stage rather than the first blocker found.
 - The README status table names the current PE\_init\_iokit to bsd\_init gap and links the 32-checkpoint capture in docs/log-capture.md.
+- The shared ADT generator gained platform\_node\(\) for nested \[adt.\*\] nodes and reads unixnu,cluster-type \(E or P\) from a cpu node, so kebab's 1+3+4 clusters can be described without a device-side patch.
+- The ADT generator emits a plain phandle property, while IOKit registers and looks up AAPL,phandle. Until the generator maps one to the other, no device tree node is reachable by phandle inside XNU.
 
 ### 完成条件
 
@@ -74,8 +76,8 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 证据
 
-- `source`: [Format 2 board description with the SM8250 SoC feed and the five components above.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/board.toml)
-- `source`: [Thirteen areas with measured facts; python3 scripts/porting-record.py check --device ../UniXNU-kebab passes.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/porting.toml)
+- `source`: [Format 2 board description with the SM8250 SoC feed and the five components above.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/board.toml)
+- `source`: [Thirteen areas with measured facts; python3 scripts/porting-record.py check --device ../UniXNU-kebab passes.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/porting.toml)
 
 ## 固件与启动 {#firmware}
 
@@ -126,7 +128,7 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 证据
 
-- `device`: [UniXNU menu on the KB2000 panel listing the payload entry, keys working, full firmware and DarwinBoot log readable.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
+- `device`: [UniXNU menu on the KB2000 panel listing the payload entry, keys working, full firmware and DarwinBoot log readable.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/docs/bring-up.md)
   Command: <code>fastboot flash boot_a out/darwin-boot.img; fastboot reboot</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## CPU 与中断 {#cpu}
@@ -165,6 +167,8 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 - A call-site stub can save x0-x8 and LR, call ml\_phys\_write\_byte, restore and tail-call the original callee, so arguments and return address are unchanged.
 - The 32 calls between PE\_init\_iokit and the first bsd\_init locks name the gap: the last set byte is the call entered, and the next unset byte is the callee that did not return.
 - The 4 GiB window loads the kernel at physical 0x20007C000 \(base A, measured by a temporary DarwinBoot colour band\). A one-stub BSS write at 0x7B281B0, dc cvac and PSCI reset reboots, but the next reader still sees no prefix, so normal DRAM does not carry the flag across the reset; pram 0x17F00FE0 is the persistent page.
+- The 2026-10-29 checkpoints reach IOLibInit, OSlibkernInit, IOMachPortInitialize, the OSSymbol interners, OSSet::withObjects, interruptAccountingInit and the IOPlatformExpertDevice allocation on the boot CPU.
+- cpus=1, and ret patches on ml\_wait\_max\_cpus, kperf\_init\_early and platform\_stall\_panic\_or\_spin, do not move the PE\_init\_iokit stall.
 
 ### 完成条件
 
@@ -180,9 +184,9 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 证据
 
-- `device`: [Reboot six seconds after the stage bars with the probe after the MMU enable; no reboot with the probe after \_machine\_conf, so the kernel reached \_machine\_startup and stopped inside it.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
+- `device`: [Reboot six seconds after the stage bars with the probe after the MMU enable; no reboot with the probe after \_machine\_conf, so the kernel reached \_machine\_startup and stopped inside it.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/docs/bring-up.md)
   Command: <code>flash the reset-probe image and observe the panel</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
-- `source`: [Resolves 32 call sites, verifies every original bl, places 80-byte stubs in \_\_TEXT\_EXEC padding and checks each branch.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/scripts/patch-xnu-log-probe.py)
+- `source`: [Resolves 32 call sites, verifies every original bl, places 80-byte stubs in \_\_TEXT\_EXEC padding and checks each branch.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/scripts/patch-xnu-log-probe.py)
 
 ## 内存与 DMA {#memory}
 
@@ -212,6 +216,8 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 - The physical aperture starts at gPhysBase and maps upward, so the 0xB9000000 ring has no phystokv mapping. ml\_phys\_write\_data falls back to the uncached CPU copy window for this unmanaged page, which is how the stage-1 stub writes it.
 - The 4 GiB test window put the kernel physical base at 0x20007C000, measured by a temporary DarwinBoot colour band; the 3 GiB build's 0xC007C000 is not the current local base.
 - Normal DRAM does not carry the checkpoint flags across the reset: the 0xB9000010 ring, 0xC0001000/0x200001000 and a real \_\_DATA BSS page all lose the byte after a reboot. The pram page at 0x17F00FE0 is the reset-persistent page; UEFI must map it before it can read the flags.
+- The ADT handed to the kernel is 13980 bytes with 21 nodes, 122 properties and maximum depth two, so a tree that small cannot make a walk loop; a stall inside IODeviceTreeAlloc would be a lock or a fault.
+- SecureDTIsLockedDown\(\) is false because the ADT sits physically after the kernel, so arm\_vm\_prot\_init does not treat it as EXTRADATA; the tree stays mapped through the boot\_args window up to topOfKernelData.
 
 ### 完成条件
 
@@ -227,7 +233,7 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 证据
 
-- `device`: [DarwinBoot reports the kernel at physical 0xC007C000 inside the 3 GiB window, and the kernel reaches the MMU enable.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
+- `device`: [DarwinBoot reports the kernel at physical 0xC007C000 inside the 3 GiB window, and the kernel reaches the MMU enable.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/docs/bring-up.md)
   Command: <code>flash the entry-probe image and read the DarwinBoot physical base line</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## 存储与根卷 {#storage}
@@ -293,6 +299,8 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 - The stride used while drawing a glyph row must remain \(FB\_WIDTH - FONT\_WIDTH \* FontScale\) \* FB\_BPP; using a full scanline there shears every glyph.
 - The framebuffer is a DSC command-mode panel; the firmware console renders correctly with the inherited GOP.
+- PE\_create\_console blocks in ml\_io\_map\_wcomb while it maps the framebuffer, so the bring-up kernel replaces it with a ret; vcattach and vc\_progress\_initialize block on the same mapping and are patched the same way.
+- initialize\_screen is the next call after PE\_init\_iokit in kernel\_bootstrap\_thread; it reaches the same framebuffer mapping that blocks PE\_create\_console, so it is the next checkpoint.
 
 ### 完成条件
 
@@ -308,7 +316,7 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 证据
 
-- `device`: [Menu, firmware log and DarwinBoot log render at 1080x2400 with correct geometry.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
+- `device`: [Menu, firmware log and DarwinBoot log render at 1080x2400 with correct geometry.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/docs/bring-up.md)
   Command: <code>boot the firmware and read the panel</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## 输入 {#input}
@@ -346,7 +354,7 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 证据
 
-- `device`: [Menu selection and confirmation work with the physical keys.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
+- `device`: [Menu selection and confirmation work with the physical keys.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/docs/bring-up.md)
   Command: <code>boot the firmware and press volume and power</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 ## GPU {#gpu}
@@ -514,7 +522,8 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 操作步骤
 
-- ./unixnu build payload, then wrap the FAT image in an MBR container, point the FDF FILE region at it, rebuild the firmware and run ./unixnu bootimg
+- ./unixnu build payload, then run scripts/pack-payload-mbr.py on the FAT image, point the FDF FILE region at the wrapped image, rebuild the firmware and run ./unixnu bootimg
+- ./unixnu bootimg --uefi &lt;Mu-Silicium&gt; --dtb desktop-kebab.dtb --ramdisk none verifies the gzip payload, firmware volume and appended DTB before flashing
 
 ### 开发经验
 
@@ -522,6 +531,11 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 - unixnu bootimg needs the patched mkbootimg call that passes the DTB for header version 2.
 - The payload builder now injects the device tree nodes XNU looks up by property, and scripts/patch-func-ret.py replaces a single kernel function with a ret when one call has to be skipped without a kernel rebuild.
 - The exported firmware patch keeps every edited firmware file, including the two kebab drivers and the BootShim, so the tree can be rebuilt from the patch alone.
+- The bring-up kernel is reproducible: the CI Mach-O with a ret in \_PE\_create\_console, \_vcattach, \_vc\_progress\_initialize and \_PE\_get\_default is sha256 db666dcf2b930fac1ed5da95accf2a4ed5f9e6c780ab7445284bbcbeedcc7d96, and the entry probe refuses to apply unless that base is un-probed.
+- The payload FAT volume has to be wrapped in an MBR disk before it becomes the FDF FILE region: a type 0x0c partition at LBA 2048 plus a 1 MiB pad, written by scripts/pack-payload-mbr.py.
+- The working boot image DTB is desktop-kebab.dtb \(sha256 8ba6ed34b8396102eac4d95769c56317aece50cf95b69cd3d98aa8353b27f293\); the 11 MiB raw live dump carries trailing data past the FDT totalsize and fails the bootimg check.
+- The bring-up kernel grew to six ret patches on 2026-10-30: PE\_create\_console, vcattach, vc\_progress\_initialize, PE\_get\_default, initialize\_screen and kperf\_init\_early \(sha256 9531eef048f30eba31d159194260e19044fec25b9cd605cbbb2c82ca997d1461\).
+- The 2026-10-30 evening bring-up kernel grew to eight ret patches: the six above plus vm\_commpage\_init and vm\_commpage\_text\_init \(sha256 63ac20f91988a04f96396408f1d0b1248784d805a5c2e0eee3632082cbef49f4\), used to bisect past the commpage stall.
 
 ### 完成条件
 
@@ -537,8 +551,9 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 证据
 
-- `device`: [The image boots to the menu, the payload volume mounts and the kernel entry bar appears after the DarwinBoot hand-off.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
+- `device`: [The image boots to the menu, the payload volume mounts and the kernel entry bar appears after the DarwinBoot hand-off.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/docs/bring-up.md)
   Command: <code>fastboot flash boot_a out/probe-final-boot.img; fastboot reboot</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
+- `source`: [MBR wrapper for the payload FAT volume: status 0, type 0x0c partition at LBA 2048, 1 MiB pad.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/scripts/pack-payload-mbr.py)
 
 ## 诊断 {#diagnostics}
 
@@ -569,6 +584,23 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 - A checkpoint ring at 0xB9000000 and a BSS probe were tried. A one-stub BSS write + dc cvac + PSCI reset reboots, but the next reader still reads no prefix, so normal DRAM does not carry the flag across the reset; the 0xB9000010, 0xC0001000 and 0x200001000 probes behaved the same way.
 - pram 0x17F00FE0 is the panic-log page that survives the reset. UEFI leaves it unmapped; a reader that adds it to the GCD and sets it uncached with gDS-&gt;AddMemorySpace and gDS-&gt;SetMemorySpaceAttributes was built, together with a one-stub ml\_phys\_write\_byte\(0x17F00FE0,1\) + reset image \(out/prammap-boot.img\).
 - Do not clear the flag page from the firmware: pram may be read-only to UEFI and the kernel clears its own BSS. The prefix check must accept only the value 1, not any non-zero byte.
+- debug=0x144 enables a branch that calls SecureDTLookupEntry on /chosen/iBoot and stalls before any IOKit code, so debug stays out of kernel\_args.
+- The 2026-10-29 chain uses entry\_probe\_reset\_after and entry\_probe\_reset\_in on \_InitIOKit and IOPlatformExpertDevice::init: the patched bl performs the call, waits six seconds of the 19.2 MHz counter and issues PSCI SYSTEM\_RESET, so one flash answers exactly one question.
+- 2026-10-30 bisection of IODeviceTreeAlloc: the checkpoint after IODeviceTreeAlloc did not fire, the one after the first child MakeReferenceTable fired, getRegistryRoot fired and IORegistryIterator::iterateOver fired, which left the interrupt-mapping loop as the stall.
+- The device tree carried interrupts and interrupt-parent on the gic node. IODTFindInterruptParent resolves the phandle through gIODTPHandles, which AddPHandle fills only from AAPL,phandle; the ADT has none, so the parent was NULL and IODTGetICellCounts\(NULL\) dereferenced it. A CPU exception screen after repeated resets is the bootloader crash dump for that fault.
+- Removing the gic interrupts property from dts/kebab.dts clears IODeviceTreeAlloc, InitIOKit and ConfigureIOKit; the kernel now reaches initialize\_screen in kernel\_bootstrap\_thread.
+- kernel\_bootstrap\_thread calls PE\_init\_iokit, then initialize\_screen, vm\_commpage\_init, mac\_policy\_initmach, OSKextRemoveKextBootstrap, machine\_lockdown, kernel\_do\_post, PE\_lockdown\_iokit, vm\_set\_restrictions and kperf\_init\_early before bsd\_init.
+- 2026-10-30, after the gic fix: the checkpoint after PE\_init\_iokit fired, and the one after ConfigureIOKit fired too, so InitIOKit and ConfigureIOKit both return.
+- kernel\_bootstrap\_thread runs kernel\_startup\_initialize\_upto\(16\) \(THREAD\_CALL\) right after PE\_init\_iokit; that checkpoint fires. The next checkpoints - after initialize\_screen, mac\_policy\_initmach and vm\_commpage\_text\_init - do not, so the stall is in vm\_commpage\_init.
+- vm\_commpage\_init calls commpage\_populate, whose first call is pmap\_create\_commpages; it is the current bisection target.
+- vm\_commpage\_init calls commpage\_populate, whose first call is pmap\_create\_commpages. The checkpoint after pmap\_create\_commpages did not fire, and inside it the one after the second pmap\_enter\_options\_addr did not either, so the commpage pmap creation stops in its first half \(page allocation, pmap\_create\_options, ASID or the first enter\).
+- Replacing vm\_commpage\_init and vm\_commpage\_text\_init with ret lets the boot continue; the next checkpoint after OSKextRemoveKextBootstrap still fails, so the stall moves into mac\_policy\_initmach, vnguard\_policy\_init, dtrace\_early\_init, sdt\_early\_init or OSKextRemoveKextBootstrap.
+- The stall after the commpage is mac\_policy\_initmach: the checkpoints after vnguard\_policy\_init and dtrace\_early\_init never fire and the one after mac\_policy\_initmach does not either.
+- mac\_policy\_initmach calls load\_security\_extensions\_function, which the libsa KLDBootstrap static constructor points at bootstrapLoadSecurityExtensions. That walks com.apple.\* kexts and calls OSKext::loadKextWithIdentifier for every kAppleSecurityExtension kext, so the boot is now inside prelinked kext loading \(AMFI and friends\) before PE\_lockdown\_iokit.
+- Inside KLDBootstrap::loadSecurityExtensions the checkpoint after OSKext::copyKexts already fails, and the one after the first OSKext::loadKextWithIdentifier fails too, so the boot stops in OSKext::copyKexts itself.
+- OSKext::copyKexts takes sKextLock with IORecursiveLockLock and then copies sKextsByID with copyCollection. Nothing else in this path runs, so either the lock is held by another thread \(deadlock\) or the kext registry is not usable at this point.
+- The sKextLock acquisition inside OSKext::copyKexts returns, so the lock is fine and the stall is sKextsByID-&gt;copyCollection\(\).
+- OSKext::initialize creates both sKextLock and sKextsByID and asserts them, and \_\_PRELINK\_INFO lists 38 bundle identifiers, so a valid registry of that size should copy instantly; the copy is most likely faulting on a corrupt entry recorded by readStartupExtensions rather than looping.
 
 ### 完成条件
 
@@ -580,11 +612,11 @@ OnePlus 8T \(KB2000\). Firmware, menu and payload volume work. The kernel runs t
 
 ### 下一步
 
-- Boot out/prammap-boot.img and read the pram one-stub: if it reports last=0, move the 32 checkpoint bytes to pram.
+- Probe inside OSDictionary::copyCollection \(after super::copyCollection and after withDictionary\) to see whether the cycle check, the shallow copy or the per-entry loop is where it stops, or patch OSKext::copyKexts to return NULL and continue toward bsd\_init.
 
 ### 证据
 
-- `device`: [Seventeen exit-boot-services notifications, a hung notification phase and a passing hand-off after skipping them; kernel entry, MMU enable and \_machine\_startup all confirmed by bars and timed resets.](https://github.com/stevedang67889/UniXNU-kebab/blob/5ba9d471c59a893ef40868190d73d88edb1af453/docs/bring-up.md)
+- `device`: [Seventeen exit-boot-services notifications, a hung notification phase and a passing hand-off after skipping them; kernel entry, MMU enable and \_machine\_startup all confirmed by bars and timed resets.](https://github.com/stevedang67889/UniXNU-kebab/blob/fd655c9589bad1d68c5e5c8111dcafb9d376dbb4/docs/bring-up.md)
   Command: <code>flash each bisect image and photograph the panel</code>. Revision: `97f6fea12dae49a1bbc30ccd22c098b82b97dbe4`.
 
 </div>

@@ -4,106 +4,143 @@
 
 <div v-pre>
 
-UFS root, launchd, touch and a published GPU device with the staged Metal accelerator; the desktop does not draw yet and there is no Wi-Fi.
+UFS root with launchd, a stable lock screen, touch input and a published GPU device driving the staged Metal accelerator; the desktop draws on the parity pin but SpringBoard loses its Metal device at the client IOVA window, and there is no Wi-Fi.
 
-源记录: [porting.toml](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/porting.toml), `5dcdaca3287c4ca8f9ca15790ff87b9a7d469511`.
+源记录: [porting.toml](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/porting.toml), `520581af69b6fc57d346b60d614756f04612823a`.
 
 本页按设备记录自动生成。
 
 | 部分 | 状态 |
 | --- | --- |
-| [配置](#configuration) | `planned` |
-| [固件与启动](#firmware) | `planned` |
+| [配置](#configuration) | `implemented` |
+| [固件与启动](#firmware) | `implemented` |
 | [CPU 与中断](#cpu) | `implemented` |
-| [内存与 DMA](#memory) | `planned` |
+| [内存与 DMA](#memory) | `implemented` |
 | [存储与根卷](#storage) | `device-verified` |
 | [显示](#display) | `implemented` |
 | [输入](#input) | `implemented` |
 | [GPU](#gpu) | `implemented` |
-| [网络](#network) | `implemented` |
+| [网络](#network) | `planned` |
 | [音频](#audio) | `planned` |
 | [电源](#power) | `planned` |
-| [镜像组装](#packaging) | `planned` |
+| [镜像组装](#packaging) | `device-verified` |
 | [诊断](#diagnostics) | `device-verified` |
 
 ## 配置 {#configuration}
 
-`planned`
+`implemented`
 
 组件: `ArmDTPlatform`, `ArmCpu`, `SoftwareAES`, `XnuPrelink`, `DarwinBoot`, `AppleKeyStoreState`.
 
 ### 硬件与依赖
 
-- Identify the configuration hardware, resources and existing component interfaces for this board.
+- Four profile files merged in a fixed order: profiles/arch/arm64/profile.toml, the SoC profile from the feed checkout out/feeds/UniXNU-sm8250-common-HASH/soc.toml, profiles/os/ipados-17.7.11-21H461/profile.toml, then this repository's board.toml.
+- feeds.toml pins the SoC repository \(FFT-infra/UniXNU-sm8250-common, a6e7e36c\) and four driver sources: ShengUfs, GopFramebuffer, QcomXnuUsbDebug and Adreno740. The OS profile pins XNU d8b80295 and the IPSW iPad\_Pro\_HFR\_17.7.11\_21H461.
+- unixnu.lock records the resolved git sources, so a checkout resolves to the same commits without moving.
 
 ### 配置
 
-- Record the board.toml fields, DTS properties and defconfig values used for configuration.
+- schema\_version = 2. \[board\]: name alioth, soc SM8250, soc\_source sm8250, os\_profile ipados-17.7.11-21H461, kit alioth. \[components\] include names twelve components; ShengUfs pulls VirtioMmioBlock and VerifiedRoot, and ShengHidInput pulls ShengNovatekTouch, so status resolves fifteen.
+- profiles.merge is a recursive dictionary merge and replaces a list wholesale: the board's config\_fragments, patch\_series and archives are the whole lists, not additions to the arch profile's.
+- configs/alioth\_defconfig holds 29 CONFIG\_XNU\_ switches. unixnu defconfig writes them into out/DEVICE/OS/CONFIG/.config, and build kernel reads .config, never the defconfig.
+- Patch order is the four series in sequence: arch 57 entries, soc 2 \(native-smp-secondary, native-smp-type-clusters\), os 9 \(including two QcomXnuUsbDebug and two XnuPrelink component patches\), device 0. status --json reports all 68 in that order.
 
 ### 操作步骤
 
-- Follow the configuration stage in the porting guide and record the actual commands.
+- ./unixnu defconfig alioth\_defconfig -D ../UniXNU-alioth. Run it after every edit of configs/alioth\_defconfig: build kernel reads .config and does not notice a changed defconfig.
+- ./unixnu fetch -D ../UniXNU-alioth updates submodules, shallow-fetches the git sources and writes unixnu.lock.
+- ./unixnu status --json -D ../UniXNU-alioth prints the four profile paths, the merged board, the catalog entry and the resolved module for each component, and the patch order.
+- ./unixnu tree -D ../UniXNU-alioth assembles the build tree. Compare the modules it links with what status reports.
+- Acceptance, from the UniXNU checkout: python3 scripts/porting-record.py check --device ../UniXNU-alioth, which prints 13 structured areas checked.
 
 ### 开发经验
 
+- Array values replace and dictionaries merge. profiles.merge deep-copies the overlay over the base and recurses only when both sides are dictionaries, so a board list is the final list. That is why board.toml repeats the arch profile's patch\_series and archives in full instead of adding to them.
+- Measured 2026-10-30: status prints a catalog revision beside the module it resolved, and the two disagree twice. ShengUfs shows e2b32cc4 \(UniXNU/ShengUfs\) while the module is ab54059 \(FFT-infra/NativeUfs-alioth from feeds.toml\); ShengHidInput shows 5f3a37ce while the device submodule is f35c4ff1. The build compiles the resolved module, so a catalog pin does not describe the image. This replaces the earlier claim that components.toml names the revisions the build compiles.
+- The images that reached the desktop were not built from those pins either: every build script passes --local-module driver:ShengUfs=../NativeUfs-alioth \(94a3dd6a\) and driver:ArmCpu=../ArmCpu-alioth \(a9c4585d\), both ahead of what status reports without those flags. Repeating status with the same two --local-module flags shows the difference.
+- The earlier claim that components.toml is kept equal to the working tree after every pin move is withdrawn for the same reason: it is equal to the working tree, and the working tree is not what the images were built from.
+- kits/ArmSmmu4K in this repository is a symbolic link to ../../UniXNU/kits/ArmSmmu4K, not a copy, so the device repository carries none of its bytes. The catalog entry ArmSmmu4K names 3ba92451, which is the gitlink the main repository commits. An earlier finding called the device copy byte-identical, and that was wrong.
+- On the Mac, ./unixnu needs /opt/homebrew/bin/python3.13: the system python3 has no tomllib, so the driver stops with ModuleNotFoundError before it parses anything.
+- board.toml repeats the profile's 31 prelink roots in a \[kernel.prelink\] block so a board change can append to it. profiles.py merge\(\) replaces a non-dict value wholesale, so the list has to be whole. As committed, the root set equals the profile's. The working tree carries four more \(IOUSBDeviceFamily, AppleEmbeddedUSB, AppleUSBDeviceMux, AppleSynopsysOTGDevice\), uncommitted and never booted: the USB stack analysis records that an offline prelink with them resolves and links, and that no hardware boot has tried them.
 - The GPU driver that is compiled is reference/repo/Adreno650, which has no remote this project can push to, and it carried an uncommitted working-tree change through every image from u252 to u270: the two client text lines per process. It is committed there now \(d7bfe27\) so the source at least matches what shipped, but the repository still cannot be reproduced by anyone else. Moving that driver into a pushable fork is a prerequisite for any further change to it, including the pool argument rename.
-- components.toml is kept equal to the working tree after every pin move. It has drifted twice: once when four components named upstream commits while the tree carried fork ones, and once when AdrenoMetal moved to parity-selftest and only the gitlink followed. unixnu status reads this file, so a stale row makes the official check report a source set the image was not built from.
 - The board's own driver forks are pinned by this device repository, not by the main repository's submodules: GopFramebuffer and QcomXnuUsbDebug moved to feeds.toml with their exact commits, because porting/device-repository gives board driver submodules to the device repository and AGENTS.md does not list .gitmodules among the main repository's allowed edits. build script and tree resolve both through feeds/. AdrenoMetal stays a submodule until build-adreno-metal-plugin.py reads it from a feed path.
-- components.toml now names the revisions the build actually compiles. It used to name upstream commits while the working tree carried fork commits, so unixnu status reported a source set the image was not built from: AdrenoMetal, GopFramebuffer and QcomXnuUsbDebug each differed, and the two forks' repositories now point at FFT-infra.
-- ArmSmmu4K is a submodule of the main repository \(kits/ArmSmmu4K\) and the catalog named a commit two behind it. The device repository carries a byte-identical copy, so the submodule is what describes the source; the catalog now names its tip, 3ba92451. Keeping that pin current is a follow-up rule rather than a one-time correction: it moves when the submodule moves.
 - sheng-build-tag is no longer kept in board.toml. Every image build rewrote it, which touched this area's paths on every commit and made the record check demand a finding each time; the tag now arrives as --kernel-arg NAME=VALUE, which payload.py replaces over the board's argument of the same name.
 
 ### 完成条件
 
-- All source pins resolve; every selected component has a record; status shows the intended overrides and patch order.
+- All source pins resolve, every selected component has a record, and status shows the intended overrides and patch order.
+- Measured 2026-10-30: status --json resolves fifteen components, 29 modules and 68 patches from the four profile files, and porting-record.py check passes with 13 areas.
 
 ### 当前范围
 
-- Hardware inputs and implementation are pending for this example board.
+- Two catalog pins disagree with the modules the build resolves, and the booted images were built from --local-module overrides that no repository records. This record describes the configuration; it cannot yet name the exact source set behind a given image.
+- The two SoC patches are applied only in the build feed checkout and are not committed to FFT-infra/UniXNU-sm8250-common, so a fetch or tree refresh loses them.
 
 ### 下一步
 
-- Inventory the required configuration inputs before implementation.
+- Commit the two SoC patches to the SoC repository's patch series, then decide whether the ShengUfs and ShengHidInput catalog rows should name what the build compiles.
 
 ### 证据
 
-按下一步操作收集证据。
+- `source`: [The 29 kernel switches unixnu defconfig writes into .config, the file build kernel actually reads.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/configs/alioth_defconfig)
+- `source`: [The SoC source and the four driver sources pinned by commit, including the two forks that exist only for this board.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/feeds.toml)
 
 ## 固件与启动 {#firmware}
 
-`planned`
+`implemented`
 
 ### 硬件与依赖
 
-- Identify the firmware and boot hardware, resources and existing component interfaces for this board.
+- NEW/uefi-alioth, a Mu-Silicium port for this board; upstream is Project-Silicium/Mu-Silicium. The board platform is Platforms/Xiaomi/aliothPkg/, the SoC support is Silicon/Qualcomm/KonaPkg/, and the EDK II tree is the Mu\_Basecore submodule.
+- The firmware volume is 3 MiB at 0x9FC00000 \(Resources/Configs/alioth.toml \[uefi\_fd\], base 0x9FC00000, size 0x300000\), which MemoryMapLib places between Display Reserved \(0x9C000000+0x02400000\) and UEFI Stack \(0x9FF90000+0x00040000\).
+- The frame buffer is the phone's own cont\_splash\_region: 0x9C000000, 0x2300000 bytes, 1080x2400 at 32 bpp with 4320-byte rows. The firmware hands it over in the memory map and UniXNU republishes it to the OS.
+- No Android vendor blob is consumed. proprietary-files.txt records that the UEFI firmware, the device tree, the kernel and kexts, both root volumes and the Data seed are all built from source or taken from the target IPSW.
 
 ### 配置
 
-- Record the board.toml fields, DTS properties and defconfig values used for firmware and boot.
+- \[firmware\] in board.toml: config alioth, dsc Platforms/Xiaomi/aliothPkg/alioth.dsc, fd Build/aliothPkg/&\#123;target&\#125;\_CLANGPDB/FV/SILICIUM\_UEFI.fd, preflight scripts/check-alioth.py.
+- patches = Resources/MuPatches/Gic-Spurious.patch, applied to the EDK2 tree for the build and reverted in a finally block. It masks an unhandled level interrupt after acknowledging it, because such a source re-fires immediately and starves the CPU.
+- submodules = Common/Mu, Common/Mu\_OEM\_Sample, Silicium-ACPI, Silicon/Silicium/OpensslPkg/Library/OpensslLib/openssl: the four the board needs on top of the separately provided Mu\_Basecore.
+- \[firmware.defines\]: ENABLE\_SECUREBOOT 1, DEVICE\_MODEL 1 \(Redmi K40 / M2012K11AC\), MEMORY\_PROTECTION TRUE, SHIP\_MODE FALSE, BUILDID\_STRING alioth-research.
+- The DSC \[Components\] lists AcpiTables, UniXNU, UniXNUDxe, ShengBootMemoryDxe, UniXNURamDiskDxe and DarwinBoot. alioth.fdf pulls Include/APRIORI.inc, Include/DXE.inc and Include/RAW.inc, and DXE.inc adds DiskIoDxe, PartitionDxe, Fat and EnglishDxe.
 
 ### 操作步骤
 
-- Follow the firmware and boot stage in the porting guide and record the actual commands.
+- ./unixnu build firmware -D ../UniXNU-alioth --uefi ../uefi-alioth, run from the UniXNU checkout. firmware.py reads git log of the Mu-Silicium tree, applies the board patches to the EDK2 checkout, runs the EDK II build with -a AARCH64 -b DEBUG -t CLANGPDB and the board defines, then reverts the patches.
+- The driver refuses to finish unless the FD exists and is exactly 0x300000 bytes, which is the \[uefi\_fd\] size bootimg also enforces.
+- Then build payload and run ./unixnu bootimg --dtb ../uefi-alioth/Resources/DTBs/alioth.dtb. bootimg compiles BootShim.S with -DFD\_BASE=0x9FC00000 -DFD\_SIZE=0x300000, appends the FD, gzips the pair, appends the device tree and packs the Android image.
+- Check the firmware before a boot attempt: UNIXNU\_UEFI=&lt;uefi checkout&gt; python3 scripts/check-alioth.py from the device repository, which verifies the DSC/FDF/DXE.inc module list, the memory descriptors, the boot image geometry and that every Binaries/alioth input exists.
+- Inspect Build/aliothPkg/DEBUG\_CLANGPDB/FV/FVMAIN.Fv.txt for the module list, and boot/boot.json ramdisk\_bytes for the payload section of the boot image.
 
 ### 开发经验
 
-- Collect the first firmware and boot observation, its cause when established, and the resulting implementation decision.
+- Measured 2026-10-30: the FD builds to 3,145,728 bytes \(0x300000\), sha256 44fae8ef3e255828515a1f647a9e4a57ce547867d58aebe17dc43cdde2112888. FVMAIN is 9,232,384 bytes at 99 percent full \(240 bytes free\) and FVMAIN\_COMPACT is 3,145,728 bytes at 51 percent \(1,521,632 bytes free\), so the compressed volume has room but the inner one does not.
+- The required-integration gap that AGENTS.md records is not real, measured 2026-10-30. alioth.dsc does not name DiskIoDxe or Fat in its own \[Components\] block, but it includes KonaPkg/KonaPkg.dsc.inc, which includes QcomPkg/QcomPkg.dsc.inc, which includes SiliciumPkg/SiliciumPkg.dsc.inc, and that file's \[Components\] lists DiskIoDxe, PartitionDxe, EnglishDxe and Fat at lines 437-450. Both places the guide asks for therefore exist; the gap was read from the board DSC alone, without following the include chain.
+- The FD's disk modules do not all come from the same source, and the GenSec lines say which. The DSC compiles DiskIoDxe and Fat from the EDK2 checkout, and the build log shows both. The FDF then overrides two of them: DXE.inc names Binaries/alioth/MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf and .../PartitionDxe/PartitionDxe.inf, whose PE32 sections point at the prebuilt .efi files, so the compiled DiskIoDxe is built and discarded. Fat and EnglishDxe enter the volume from the compiled output. The prebuilt DiskIoDxe is 45,060 bytes against the compiled 27,136.
+- Known gap, 2026-10-30: AdvancedLogDxe and AdvancedLoggerLib are not integrated, so there is no firmware-stage log export. The driver exists in UniXNU/package/UniXNUPkg/Driver/AdvancedLogDxe/; what is missing is the DSC and FDF wiring and the Tools menu entry. Firmware-stage logs therefore come only from the USB console and photographs.
+- The board preflight reads UNIXNU\_UEFI from the environment, not from --uefi, so a firmware build driven through unixnu works but a bare scripts/check-alioth.py invocation fails without that export. The driver sets it when it runs the preflight itself.
+- On orb, CLANG\_BIN must point at a plain toolchain: the nix clang wrapper injects --gcc-toolchain, and EDK II CLANGPDB compiles with -Werror, which makes the unused-argument warning fatal. The one-second failure and the error 7000 / F002 lines are the tell.
+- bootimg packs the FD as-is and does not check what is inside it. A firmware volume built before UniXNU.efi existed produced a boot image with no boot manager, which returned to fastboot in about 20 seconds and looked like a kernel fault. Rebuild the firmware after any package build.
 
 ### 完成条件
 
-- Firmware image builds, enters UniXNU, publishes the framebuffer and preserves the documented memory reservations.
+- The firmware volume builds, enters UniXNU, publishes the frame buffer and preserves the documented memory reservations.
+- Measured 2026-10-30: the FD is 0x300000 bytes and carries the boot manager, its registrar, the payload block device and the XNU loader; the preflight passes with 36 memory descriptors, 97 vendor inputs and 0 missing, and the frame buffer at 0x9C000000+0x2300000 lies inside Display Reserved.
 
 ### 当前范围
 
-- Hardware inputs and implementation are pending for this example board.
+- There is no firmware-stage log export: AdvancedLogDxe and AdvancedLoggerLib are not wired into the DSC or the FDF, so firmware observations come from the USB console and photographs only.
+- DiskIoDxe and PartitionDxe enter the volume as prebuilt PE32 files from Binaries/alioth while the same modules are also compiled and discarded, so the firmware contains code whose source is not the one the build just produced. Whether the prebuilt pair matches the checkout is unchecked.
+- The UEFI firmware has been booted on the board, but no device log of that boot was kept in this repository, so this area is implemented rather than device-verified.
 
 ### 下一步
 
-- Inventory the required firmware and boot inputs before implementation.
+- Wire AdvancedLogDxe and AdvancedLoggerLib into the DSC and the FDF so firmware-stage logs reach a readable channel, and decide whether the FDF should keep overriding DiskIoDxe and PartitionDxe with the prebuilt pair or take the compiled ones.
 
 ### 证据
 
-按下一步操作收集证据。
+- `source`: [Records that the firmware, device tree, kernel, root volumes and Data seed are built from source or taken from the IPSW, so there is no vendor blob to download.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/proprietary-files.txt)
+- `source`: [Refuses a firmware tree whose DSC, FDF or DXE.inc lacks the required modules, whose memory descriptors are unaligned or overlapping, whose boot image geometry differs from the board contract, or whose Binaries/alioth inputs are absent.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/scripts/check-alioth.py)
 
 ## CPU 与中断 {#cpu}
 
@@ -145,43 +182,64 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ### 证据
 
-- `source`: [Refuses a device tree that declares cluster-type without the cluster patch applied and MAX\_CPU\_CLUSTERS &gt;= 2, the combination that killed three boots silently.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/scripts/check-smp-topology.py)
+- `source`: [Refuses a device tree that declares cluster-type without the cluster patch applied and MAX\_CPU\_CLUSTERS &gt;= 2, the combination that killed three boots silently.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/scripts/check-smp-topology.py)
 
 ## 内存与 DMA {#memory}
 
-`planned`
+`implemented`
 
 ### 硬件与依赖
 
-- Identify the memory and dma hardware, resources and existing component interfaces for this board.
+- 8 GiB of DRAM in one bank from 0x80000000, size 0x200000000, which is the \[payload\] dram\_size and the /memory node of dts/alioth.dts. The generated ADT carries dram-base 0x80000000 and dram-size 0x200000000, and devicetree.py refuses a dram\_size that differs from the hardware DTS.
+- The firmware's own reserved regions come from the stock device tree at uefi-alioth/Resources/DTBs/alioth.dtb, 33 reserved-memory children: cont\_splash\_region 0x9C000000+0x2300000, disp\_rdump\_region 0xB0400000+0x1000000, dfps\_data\_region 0x9E300000+0x100000, pil\_gpu\_region 0x8681A000+0x2000, removed\_region 0x80B00000+0x5300000, hyp\_region 0x80000000+0x600000.
+- Two SMMU instances: the apps SMMU at 0x15000000 \(0x100000, plus an implementation window at 0x15182000\) with qcom,skip-init, and the GPU SMMU at 0x3DA0000 \(0x10000\) with qcom,skip-init and qcom,no-dynamic-asid. Both inherit the bootloader's state and neither is initialised by its driver.
+- The UFS host is at 0x1D84000 \(0x3000\) with its PHY at 0x1D87000; the DWC3 controller the USB console uses is at 0xA600000 and its stream is SID 0 through the apps SMMU \(iommus = &lt;&amp;apps\_smmu 0 0&gt;\).
 
 ### 配置
 
-- Record the board.toml fields, DTS properties and defconfig values used for memory and dma.
+- \[payload\] dram\_size 0x200000000 and \[payload.adt\] owned\_memory\_size 0x100000000: DarwinBoot copies the kernel into a 4 GiB contiguous window and writes /chosen/darwinboot-memory-size; the generator accepts 256 MiB to 8 GiB in 2 MiB steps.
+- \[payload.adt\] packed\_data\_ramdisk = true, so /chosen/memory-map carries PackedRAMDisk and the kernel reads the DBRDISK1 extent table instead of copying the whole seed. The Data seed is 3 GiB logical, packed to 1.2 MB.
+- \[userdata\] first\_lba 0x2a8000, last\_lba 0x3b037fa, lba\_bytes 4096, with the OS and Cryptex1,SystemOS windows. That is the UFS LUN 0 range read from the phone's GPT, and it is the only region the storage driver writes.
+- SMMU ownership is split three ways: the apps SMMU at 0x15000000 belongs to XNU, which maps it in NativeUfs.cpp and programs the UFS streams; the GPU SMMU at 0x3DA0000 belongs to the board's GPU kit, which maps 64 KiB of it in GpuProbe.cpp; and the GPU and GMU contexts are routed by the board, not by ArmSmmu4K, so the kit stays upstream.
+- UFS streams: board.toml passes native-ufs-stream=0xe0 and native-ufs-stream2=0x4e0, because NativeUfs defaults to sheng's 0x60 and SM8250 routes the UFS host through both 0xe0 and 0x4e0. The driver reuses the bypass context the bootloader already programmed rather than building one.
+- Cache policy: the MMIO windows are mapped kIOMapInhibitCache, and the SMMU context for a UFS stream is S1\_TRANS\_S2\_BYPASS with SCTLR.M clear, so the transport is physical pass-through, with CBA2R VA64 set because a 32-bit-only bypass rejects addresses above 32 bits.
 
 ### 操作步骤
 
-- Follow the memory and dma stage in the porting guide and record the actual commands.
+- dtc -I dts -O dtb -i ../UniXNU-sm8250-common/dts -o out/device-tree/hardware.dtb dts/alioth.dts, which is what ./unixnu build payload runs before it generates the ADT.
+- dtc -I dtb -O dts out/device-tree/hardware.dtb to read back the merged tree: one memory bank, one reserved-memory node \(splash\_region\), eight enabled CPUs and the UFS nodes.
+- Read the generated sidecar out of the payload with mcopy -i payload/payload.img ::/EFI/UniXNU/Payloads/kernel.macho.adt, then check for dram-base, dram-size, darwinboot-memory-size, PackedRAMDisk and TrustCache.
+- On the board, read the storage rows on the console and the GPUROW lines for the SMMU: GPUROW13/14 carry the GMU routes and GPUROW18 carries the GPU context's four routes.
 
 ### 开发经验
 
-- Collect the first memory and dma observation, its cause when established, and the resulting implementation decision.
+- The GPU SMMU's free-slot test compares the whole S2CR word against 0x00020000, and this part's unused slots read 0x000203ff, which is FAULT with CBNDX 0xff left in the low byte. Every slot came back busy and no route was written, so Attach returned e00002ca. The board now rewrites the slots it is about to use to the canonical FAULT word, and only where the type is already FAULT; clearing a slot to zero turns FAULT into TRANSLATE and makes it look busy again. Measured: routes 2, phase 5 with 13 writes, SCTLR enabled, GMU firmware in 16 blocks.
+- The two SMMUs are owned by different code and that split is deliberate. Moving the slot normalisation into ArmSmmu4K was measured to produce byte-identical rows, so the board keeps the change because it is one site, it is reversible, and the kit stays where upstream maintains it.
+- Firmware leaves an SMR entry for SID 0 pointing at context bank 5 with SCTLR 0xe0 \(M clear\) and TTBR0 zero: the USB stream is programmed but no table exists under it. QcomXnuUsbDebug reclaims that slot only when translation is off and there is no table, and still refuses a bank holding a live mapping.
+- The UFS bypass is adopted, not built. After hand-off the apps SMMU has USFCFG set, so an unmatched stream faults; there is no stream-match entry for the UFS host; and a TYPE=BYPASS S2CR reads back as FAULT. NativeUfs therefore reuses an existing bypass context and writes VA64 before exposing a new stream, because ARM IHI 0062D.c requires it for inputs above 32 bits even with SCTLR.M clear. Two sCR0 readings are on record and they differ in one bit: 0x002f0406 in the driver's comment from 2026-10-17, 0x00270406 in reference.md section 16.1. Both pass the kit's \(scr0 &amp; 0x407\) == 0x406 test; the difference is not explained and neither is treated as the authoritative one.
+- sCR0 has no SMMUEN bit on this part: bit 0 is CLIENTPD and 0 means translation is enabled, which is SMMUv3's CR0 bit and not this unit's. The kit's global\(\) test is \(scr0 &amp; 0x407\) == 0x406, and the recorded readings pass it. Reading SMMUEN as zero and calling the unit disabled was wrong.
+- The reserved-memory node in dts/alioth.dts holds only splash\_region, and that is all the kernel needs: the other 32 regions are the bootloader's, described in the firmware DTB, and UniXNU receives the frame buffer through the UEFI memory map rather than through the DTS. The handoff contract is therefore two trees: the small one the ADT is generated from, and the firmware one the bootloader reads.
 
 ### 完成条件
 
-- All handoff regions are accounted for and each enabled DMA engine accesses its allocated range with the documented cache policy.
+- Every handoff region is accounted for and each enabled DMA engine reaches its allocated range with the documented cache policy.
+- Measured: the ADT carries one 8 GiB DRAM range, a 4 GiB owned window and a packed Data ramdisk; the UFS transport runs through the bootloader's bypass context on streams 0xe0 and 0x4e0; the GPU SMMU routes the GMU and GPU contexts after the board's slot normalisation.
 
 ### 当前范围
 
-- Hardware inputs and implementation are pending for this example board.
+- The apps SMMU's bank 0 is not reachable: CBAR\[0\], CBA2R\[0\], CB0 SCTLR and ATS1PR each take the machine down about two seconds after the access, while CBAR\[1\], CBA2R\[1\] and CB1 in the same 4 KiB page read and write normally. Whether bank 0 belongs to the secure world is not verified.
+- SMR slot 5 \(0x8000007f\) reads back zero, and writing 0xff sticks. Whether the stream table refuses a new valid route or slot 5 is reserved is unverified.
+- Two differences from the vendor driver are recorded but unfixed in ArmSmmu4K: S2CR writes carry no SHCFG, and SMR matching supports no mask range.
 
 ### 下一步
 
-- Inventory the required memory and dma inputs before implementation.
+- Decide whether bank 0 belongs to the secure world, with one boot that reads 0x9000 and 0x8000 separately, then record the result here and in the GPU area.
 
 ### 证据
 
-按下一步操作收集证据。
+- `source`: [One 8 GiB DRAM bank from 0x80000000, and the one reserved region the board itself declares: splash\_region@9c000000, 0x2300000 bytes, which is where the bootloader places the payload ramdisk and which the phone's own tree also names cont\_splash\_region.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/dts/alioth.dts)
+- `device`: [routes 2, phase 5 with 13 writes, rb 1, en 1; GMU firmware 16 blocks, version 20010008, cm3 1, HFI acked c6 -- the GPU SMMU routes only after the board writes the canonical FAULT word.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-29-gpu-smmu-slot.md)
+  Command: <code>boot a pipa-gpu=7 image with the slot normalisation and read GPUROW13/14/15 from the serial console capture</code>. Revision: `7946cba83f32b768075a071a5d47bb0a2fd3eeb2`.
 
 ## 存储与根卷 {#storage}
 
@@ -227,7 +285,7 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ### 证据
 
-- `device`: [The kernel reports cryptexd aborting with mkdirat ENOSPC while the Data volume reports 31 MiB free, which places the failing write on a mount other than /private/var.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [The kernel reports cryptexd aborting with mkdirat ENOSPC while the Data volume reports 31 MiB free, which places the failing write on a mount other than /private/var.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read /dev/tty.usbmodem&lt;N&gt; at 115200 8N1 and collect EXITLOG records</code>. Revision: `24d127c47217eb580dbe3f3a94c32ad25cbaae00`.
 
 ## 显示 {#display}
@@ -253,6 +311,9 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ### 开发经验
 
+- Brightness goes through the panel's own DCS 0x51 register, not an I2C controller: this panel is qcom,mdss\_dsi\_k11a\_38\_08\_0a\_dsc\_cmd with bl\_ctrl\_dcs. The packet leaves through DSI0's TPG command FIFO with no DMA buffer, the path dsi\_ctrl\_hw\_cmn\_kickoff\_fifo\_command takes. Two host tests cover the packet and address arithmetic and caught three errors before any boot: the DCS read wrote 0x72 rather than the command byte, max-return used 0x15, and the GPIO PPID was sheng's 0x18c rather than this board's 0x0c6. Not verified on hardware.
+- The brightness interface is the panel's own DCS register over DSI, not an I2C controller, so UniXNU-sheng's AppleARMBacklight.cpp does not port here. This board's panel is qcom,mdss\_dsi\_k11a\_38\_08\_0a\_dsc\_cmd \(alioth.dts:27435\) with qcom,mdss-dsi-bl-pmic-control-type bl\_ctrl\_dcs, bl-min-level 0x01 and bl-max-level 0x7ff \(27487-27489\), plus mi,mdss-dsi-bl-dcs-big-endian-type \(27472\). There is no KTZ8866 node anywhere in the tree -- zero occurrences -- and the only WLED node, qcom,pm8150l-spmi-wled at 5477, is status disabled. sheng drives two KTZ8866 parts over GENI I2C, which this phone does not have. The level goes out through DSI0's test-pattern command FIFO with no DMA buffer \(dsi\_ctrl\_hw\_cmn\_kickoff\_fifo\_command, reference/k40-kernel/techpack/display/msm/dsi/dsi\_ctrl\_hw\_cmn.c:703\); the controller is qcom,dsi-ctrl-hw-v2.4 \(alioth.dts:30915\).
+- The DCS 0x52 read-back is the judge, not the picture: a level has to come back inside 0x01..0x7ff before a write is trusted. A host test is the right place for the packet words because two errors there are invisible on a panel that already lights: a DCS read whose command byte ORs 0x20 turns 0x52 into 0x72, and SET\_MAXIMUM\_RETURN\_PACKET\_SIZE is a 0x37 write, not a 0x15 one.
 - u266 is the first image whose plugin pin, bridge patch list and built bundle all name the same source, and the GPU hand-off survives it: GPUFRAME reads offered 7 done 7 fail 0 copied 0 on an untouched boot, which is the idle count this board shows since the touch correlation was measured \(79 to 830 with a touch, 7 to 10 without\).
 - The Metal plugin's pin and its bridge patch list disagreed between u258 and u265: the repository pinned AdrenoMetal 6ee4328's parent \(afaa171, sixteen patches\) while build-adreno-metal-bridge.py listed the twenty the parity branch carries and every image was built from that branch's bundle. The pin now names parity-selftest, so pin, patch list and built plugin describe one source, and --manifest-only accepts the pair. The translator is fetched by SHA \(624bab39\), not by branch: it is on neither master nor development, and the build refuses a checkout whose HEAD differs from the pin.
 - The GPU raster hand-off was a stub until u260: native\_legacy\_gpu\_offer returned false with five parameters while the display driver calls it with six, so the format was dropped and every frame took the CPU copy path \(GPUFRAME offered 0 across boots\). u260 implements it and creates the presenter at phase 4, attached to the resource service rather than under the display node. Measured once: gpu offered 830, done 830, fail 0, copied 0. That turn is not repeatable on its own: the same image \(boot-u260.img, sha 2e00d7cba235\) run again as u263 gave offered 9, nine swaps and luma 29 with AegirPoster aborting 15 times. The difference is whether anyone touches the panel. Across twelve boots the split holds with one boot set apart: with a touch, swaps 76, 144, 215, 413, 830; without one, 8 to 10. The exception is u253, whose GPUFRAME reads legacy surfaces 0 swaps 0 with a touch present -- that boot took the direct scanout path, so the compositor never handed a surface to the legacy layer and the counters describe a different route. Counting only boots that reach the hand-off, the split has no exception. The compositor submits frames when something asks it to, so an idle panel shows whatever was drawn once and a touched one keeps drawing.
@@ -263,11 +324,13 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 ### 完成条件
 
 - A known frame appears with correct geometry and colors, then userland presentation and backlight controls work.
+- Brightness, when a driver lands: a DCS 0x52 read comes back inside 0x01..0x7ff, and the panel visibly changes at maximum, at the minimum and at the configured level.
 
 ### 当前范围
 
 - No wallpaper: the lock screen draws its date and time over a black field, so composition reaches the text layer only. gpu offered=0 confirms the GPU stack takes no part.
 - dcls was withdrawn on 2026-10-30. It republished the display service as IOClass AppleCLCD2 to test whether the sandbox refusal on our class name gated the wallpaper; the refusal did not gate it, and PosterBoard kept aborting about fifteen times per boot while the service carried a class name that is not upstream's. The argument is gone from board.toml and the code path stays dormant behind it.
+- No brightness driver is on this branch. The interface above is read from the device tree and the vendor sources, not implemented here; the probe written for it lives on branch claude/backlight-buttons and is not merged, so this record describes what the panel requires rather than code in the tree.
 - The Metal plugin is pinned to the ipados27-gpu-parity branch as of u258, which conflicts with the recorded decision to follow the main branch's model. It is kept only because it is the first image that draws: GPUFB nonblack 992/1000 luma 236 and GPUSWAP 215 retired with reason 0, against 86/1000 and zero to nine swaps on the main-based pin. The branch's costs are also measured: 11702 fence timeouts, SpringBoard refusing buffer and texture allocations with OutOfMemory, and four processes left without a device, PosterBoard among them. Reverting means restoring the 16-patch list and translator 720ef1ce9ae2, so the choice needs the owner's decision rather than a silent default.
 
 ### 下一步
@@ -276,7 +339,7 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ### 证据
 
-- `device`: [DISPLAY stage=10 with CLIENT calls=4 class=IOMobileFramebufferUserClient, and SWAP calls=0: a client connects but no frame is submitted.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [DISPLAY stage=10 with CLIENT calls=4 class=IOMobileFramebufferUserClient, and SWAP calls=0: a client connects but no frame is submitted.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read the diagnostic page and the USB console after booting the image</code>. Revision: `24d127c47217eb580dbe3f3a94c32ad25cbaae00`.
 
 ## 输入 {#input}
@@ -304,6 +367,8 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 - The HID publisher was never in the kernel: ShengHidInput compiles NativeHidInput.cpp but nothing archived it, and an object with no inbound reference is dropped from a plain archive. Selected as a component and archived by the display recipe, as UniXNU-sheng does, it links.
 - The official input page describes one merged device -- adapt the descriptor to the sensor, transform coordinates into the display direction, keep ids and count from one frame, publish behind sheng-touch-hid=1 -- and neither reference board splits the digitizer: sheng and pipa both report input as implemented with a single device. Splitting was tried here and left the panel unresponsive with reports=781 and max=5, so sheng-touch-split is commented out in board.toml and should not be re-enabled without evidence the references would support.
 - Six defects were found and fixed in one pass, each with a source citation: \(1\) FocalTouchProtocol.c decoded each axis with shifts of 11 and 3 and took the low bits from PRE\[7:5\], where the vendor driver \(reference/k40-kernel focaltech\_core.c:712\) uses 12 and 4 from PRE\[7:4\] and scales by 10/16 -- algebraically the vendor value halved, so every touch landed in the top-left 80 % and the FromEdgeTip band at 97.6 % of the height was unreachable; after the fix a swipe from the bottom reports xy=30479,20319. \(2\) edge::install returned early once any driver was wrapped, so the second device never had FromEdgeTip injected. \(3\) The per-contact event field was parsed but never read, so a lift was published as a contact still down \(reports fell from 781 to 15 once fixed\). \(4\) Contacts with area 0 were published as real touches. \(5\) native\_hid\_input\_requested answered yes unconditionally, pressing Home every 1.1 s. \(6\) The digitizer service classification backboardd filters on \(Built-In, DisplayIntegrated, PrimaryUsagePage 0x0D, PrimaryUsage 4\) was a no-op stub, and the checkpoint was given the device instead of the event driver. A round with the split off and a finger on the panel has not been captured yet: every no-split capture shows low=0, which is the idle state, so the open question is where the reported x/y land \(top-left should read near 0,0 and the far corner near the axis maxima\) rather than whether reports are accepted.
+- Buttons, from the vendor tree: power and volume-down are the PM8150 PON's RT\_STS bits 0 and 1 \(alioth.dts:4193-4218, QPNP\_PON\_KPDPWR\_N\_SET and QPNP\_PON\_RESIN\_N\_SET at reference/k40-kernel/drivers/input/misc/qpnp-power-on.c:113-114\), and volume-up is PM8150 GPIO 6, declared GPIO\_ACTIVE\_LOW by gpio\_keys \(alioth.dts:39116-39128\). The arbiter keys on ppid = sid &lt;&lt; 8 \| \(addr &gt;&gt; 8\) \(spmi-pmic-arb.c:977 for v2, :996 for v5\), so the PON is 0x008 and GPIO 6 is 0x0c6; GPIO 6's own SPMI interrupt names peripheral 0xc6 \(alioth.dts:4261\). Copying sheng's 0x013 and 0x18d would ask this arbiter for peripheral pages this phone does not have.
+- This board's SPMI arbiter is not sheng's. alioth.dts:4172-4176 gives reg-names core/chnls/obsrvr/intr/cnfg as 0xc440000 / 0xc600000 / 0xe600000 / 0xe700000 / 0xc40a000, and its 32 MiB chnls window uses the version-5 layout: 0x10000 per apid with ACC\_ENABLE, IRQ\_STATUS and IRQ\_CLEAR at +0x100, +0x104 and +0x108 inside the channel, and the APID map at 0x900 + 4 \* n \(spmi-pmic-arb.c:1069-1105, 1113\). The v2 layout puts the channel at 0x1000 \* apid with the interrupt registers in the intr window instead, so the version has to be read at run time rather than assumed.
 
 ### 完成条件
 
@@ -312,15 +377,17 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 ### 当前范围
 
 - No HID report has reached the OS yet: native\_touch\_hid\_reports stays 0 while contacts arrive, so the remaining work is the publication path, not the sensor.
-- Buttons are not implemented on this board.
+- No button driver is on this branch. BootLog.c already prints a B row from native\_buttons\_stats and BootProgressStubs.c defines that array as a weak zero, so the row reads all zeros and no press can reach the HID device. The probe written for it is on branch claude/backlight-buttons, unmerged; the hardware facts below are from the vendor sources and hold regardless.
+- Only one probe argument fits the kernel command line at a time: board.toml's own argument list is 966 bytes of the 1000 DarwinBoot accepts, and the built line with --kernel-arg sheng-build-tag is 987, so a round carries one of the brightness or button arguments, not both.
 
 ### 下一步
 
 - Boot the image that carries the archived HID objects and confirm native\_touch\_hid\_reports rises and the UI responds to a swipe.
+- Merge or discard claude/backlight-buttons, then boot with the button probe at its interrupt mode and read native\_buttons\_stats: the two APID fields, the report count and the pressed mask.
 
 ### 证据
 
-- `source`: [Frame parsing treats an all-0xFF payload as no data, decodes 15-bit coordinates with the low bits in the pressure byte, and records the CRC it compared so 'passed' is visible rather than inferred.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/kits/alioth-touch/FocalTouchProtocol.c)
+- `source`: [Frame parsing treats an all-0xFF payload as no data, decodes 15-bit coordinates with the low bits in the pressure byte, and records the CRC it compared so 'passed' is visible rather than inferred.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/kits/alioth-touch/FocalTouchProtocol.c)
 
 ## GPU {#gpu}
 
@@ -393,6 +460,14 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 - backboardd then dies with SIGBUS: EXITCRASH pid 54 sig10 PC 0x106da915c LR 0x106dbbd24 ESR 0x82000007 \(data abort, translation fault level 3\) and the same backtrace every time; SpringBoard, PosterBoard and WidgetRenderer are terminated with it and the cycle repeats. ReportCrash itself dies the same way, so no crash report is written.
 - Metal needs the accelerator published plus the IOAccelerator class; until then the wallpaper overlay and poster rendering do not draw, and an app window opens with no content.
 - The wallpaper overlay itself is not an upstream capability: no porting page covers it and no device status table carries a wallpaper row. It arrives through zzy-native-gpu-addon-mount.patch, make-gpu-addon.py and make-wallpaper-overlay.py only, and the mount succeeds here \(WALLPAPER stage=5 status=0\) while the picture does not appear -- PosterBoard chooses the collection by device idiom, and this image carries only \~ipad collections.
+- Two client rows report different quantities and must not be compared directly. GPUCCLI's peak is an ABSOLUTE GPU address: NativeAdrenoPublish.cpp:303 takes core\_-&gt;windowPeak\(\), which NativeAdrenoUserClient.cpp:289 sets to the mapping's end iova, and stores peak&gt;&gt;20. GPUSLOT's hi is the WINDOW-RELATIVE value: NativeAdrenoUserClient.cpp:291 stores \(window\_peak\_ - window\_start\_\) &gt;&gt; 20. The two agree on every boot that carries both, which is what confirms the reading: u266 backboardd peak 754 - slot 0 start 512 = 242 = GPUSLOT s 0 hi 242; u258 peak 1048 - 512 = 536 = hi 536; u260 peak 1479 - 512 = 967 = hi 967; SpringBoard u266/u258 peak 1727 - slot 2 start 1706 = 21 = GPUSLOT s 2 hi 21. Read the absolute value only for coverage; read the relative value for capacity.
+- SpringBoard's peak 1727 is not a window overflow. It holds slot 2, whose window starts at 0x6AAA9000 \(1706 MiB\), and its offset is 21 MiB of that slot's 170 MiB. Every GPUSLOT row in that snapshot reports refused 0 and GPUSWAP reports rejected 0 \(GPUREASONS accepted 7 rejected 0 \| r0 7\), so no mapping was refused for leaving a window. The real slot-0 constraint is backboardd's 967 MiB offset in u260 \(GPUSLOT s 0 hi 967\), a boot that also drew fully \(GPUFB nonblack 990/1000 luma 246, GPUFRAME gpu offered 830 done 830 fail 0, no AegirPoster exit\), so a table that shrinks slot 0 below that is unsafe. scripts/check-gpu-client-windows.py replays this arithmetic from the captures without a device.
+- slot 255 in a GPUCCLI row means no LIVE connection at the moment the row printed, not that the process never got a slot. NativeAdrenoPublish.cpp:311 sets record-&gt;slot = 0xff on the successful clientClose path, so a process that mounted and closed shows 255. The counter-example is in docs/evidence/2026-10-29-gpu-gx-and-context.md: SpringBoard opens 2 refused 0 closes 1 slot 1 peak 1674 -- same code, slot 1 while live. Use closes to tell the two apart.
+- The GPUCCLI refusal code identifies which limit refused, and the poster extensions hit the per-process cap, not a full slot table. NativeAdrenoPublish.cpp:689 caps every non-backboardd process at 8 opens per boot and :692 refuses with kIOReturnBusy once record-&gt;opens reaches it; AegirPoster's last e00002d5 is kIOReturnBusy at opens 8. kIOReturnNoSpace \(e00002db\) appears only in GPUMOUNT fail 1/e00002db slot 4, which is the kernel client's own second mount and not a fault. A fifth process therefore does not currently meet NoSpace; the four slots are not the binding limit for the posters.
+- The client allow-list is no longer read by the plugin this image carries. drivers/AdrenoMetal/NativeAdrenoMetalPlugin.mm has no listedClient and no reference to NativeAdrenoMetal.clients, and :279 returns clientDevice\(port\) for every process whose name is not backboardd, so every process gets a device unconditionally. scripts/make-gpu-addon-alioth.sh still packs that file, so the old-list versus new-list rounds recorded above compared two identical behaviours; a client-list experiment needs the guard restored first.
+- All three boot-time addon mounts succeed on the current image, and the persistent log says so independently of the serial console. BootLog.c:365 writes the row A files=11 wr=3 same=8 fail=0 err=0 mount=5/0 mount2=5/0 mount3=5/0 for u266: plugin bundle, launchd daemons and wallpaper overlay each reach stage 5 with status 0. Earlier boots \(usb177 to usb191\) read mount=1/2 mount2=1/2 with files=5, i.e. the plugin bundle was not in the addon at all.
+- The os\_log export has never produced a file, because the daemon that runs it never starts. NativeOsLogExport.mm is compiled into adrenoprobed and NativeAdrenoProbeDaemon.cpp:27 calls it, and its launchd job is mounted \(mount2=5/0\), but adrenoprobed appears zero times in every persistent log under build/sheng-logs/ and in tmp/console-u266.log, and no oslog\*.gz exists in the workspace. Any diagnosis that needs a userspace process's own os\_log lines is blocked on this, not on the export's format.
+- The poster extensions open the GPU and map nothing before aborting, so their fault is not GPU allocation. AegirPoster's final u266 row is opens 8 refused 1 closes 8 slot 255 peak 0 last e00002d5: eight successful mounts and eight successful teardowns, and peak\_mib advances only on a successful BoMap \(NativeAdrenoPublish.cpp:453\) or clientClose \(:312\), so peak 0 means not one byte of GPU address space was mapped. PosterBoard is the same shape \(opens 1 closes 1 peak 0\). The same crash PC \(1e9af2f74\) repeats in all fifteen AegirPoster records. A client-visible OutOfMemory\(Device\) also cannot come from this driver in that boot: every GPUSLOT row reports refused 0, so no BoAlloc was refused.
 
 ### 下一步
 
@@ -400,26 +475,28 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ### 证据
 
-- `device`: [Mode 1 reads and mode 6 powers the CX domain with the SMMU and GMU clocks running: gcc=ok cc=ok smmu=ok cx1 clocks1.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [Mode 1 reads and mode 6 powers the CX domain with the SMMU and GMU clocks running: gcc=ok cc=ok smmu=ok cx1 clocks1.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>sh scripts/run-sheng-unattended.sh &lt;boot.img&gt; 180, then read GPUROW lines from the console capture of that run</code>. Revision: `002ccaa75267bcc70ea1ba97dfefea14c6f7211d`.
-- `device`: [Writes to SMR slot 5 \(0x8000007f\) and sCR0 \(0x0026040e\) both read back the pre-existing value while IDR0 reads 0x4c017e06 through the same window.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [GPUCCLI peak is absolute and GPUSLOT hi is window-relative, agreeing on all five cross-checked readings; SpringBoard's 1727 MiB is a 21 MiB offset in slot 2, not an overflow; backboardd's u260 offset is 967 MiB, so a 768 MiB slot 0 is unsafe; slot 255 is the successful-close marker and the poster refusals are kIOReturnBusy at the 8-open cap; all three addon mounts reach stage 5; the posters map zero bytes before aborting.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-30-gpu-client-windows-and-wallpaper.md)
+  Command: <code>read GPUCCLI, GPUSLOT, GPUSWAP, GPUFB, WALLPAPER and the persistent log's A row from a captured boot, then replay the arithmetic with scripts/check-gpu-client-windows.py</code>. Revision: `2af006db44f11e10ebdff213e7017a3ea02c3887`.
+- `device`: [Writes to SMR slot 5 \(0x8000007f\) and sCR0 \(0x0026040e\) both read back the pre-existing value while IDR0 reads 0x4c017e06 through the same window.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pipa-gpu=7 image and read the GPUROW14 line from the console capture</code>. Revision: `e240b0e810988bf1012b2aa37bd3ae4fd6d84e67`.
-- `device`: [routes 2, phase 5 with 13 writes, rb 1, en 1; GMU firmware 16 blocks, version 20010008, cm3 1, HFI acked c6.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-29-gpu-smmu-slot.md)
+- `device`: [routes 2, phase 5 with 13 writes, rb 1, en 1; GMU firmware 16 blocks, version 20010008, cm3 1, HFI acked c6.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-29-gpu-smmu-slot.md)
   Command: <code>boot a pipa-gpu=7 image built with the slot normalisation and read GPUROW13/14/15 from the console capture</code>. Revision: `7946cba83f32b768075a071a5d47bb0a2fd3eeb2`.
-- `device`: [GX on perf 7 vote 0 oob 2 gx 000000c0&gt;00000000 gdscr f8222800 rbbm 00000001 gbif halt 0/3 rbbm halt 0/0.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+- `device`: [GX on perf 7 vote 0 oob 2 gx 000000c0&gt;00000000 gdscr f8222800 rbbm 00000001 gbif halt 0/3 rbbm halt 0/0.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-29-gpu-gx-and-context.md)
   Command: <code>boot a pipa-gpu=8 image (usb191) and read GPUROW17 from the serial console capture</code>. Revision: `6642723982701653e2546fb4b83859bb3bf41a17`.
-- `device`: [GPUCTX step 7 status 0 routes 4; CP ok init 0 ring 0 fence 0/1 marker a6500c0d read back; rptr and wptr 0x1b, hwfault 0.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+- `device`: [GPUCTX step 7 status 0 routes 4; CP ok init 0 ring 0 fence 0/1 marker a6500c0d read back; rptr and wptr 0x1b, hwfault 0.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-29-gpu-gx-and-context.md)
   Command: <code>boot a pipa-gpu=9 image (usb192) and read GPUROW18/19/20 from the serial console capture</code>. Revision: `ce0c65a1cbe872e44da38cbe51812cdbc775f32a`.
-- `device`: [ZAP ok step 7 init 0/0 mem 0/0 auth 0/0 secure 0; IRQ attach 0 readback a002 count 1&gt;2 nop fence 1 seen 00100000 masked 0.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+- `device`: [ZAP ok step 7 init 0/0 mem 0/0 auth 0/0 secure 0; IRQ attach 0 readback a002 count 1&gt;2 nop fence 1 seen 00100000 masked 0.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-29-gpu-gx-and-context.md)
   Command: <code>boot a pipa-gpu=10 image with the re-laid zap image (usb194) and read GPUROW21/22 from the serial console capture</code>. Revision: `32cdcd97f19d21d8e684ca4670bf1c834d9e681d`.
-- `device`: [PUBLISH ok submit 0 timer 0 publish 0 \| uc 36/36 first 0 at 0 cpumap 0 \| rounds 4 4.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+- `device`: [PUBLISH ok submit 0 timer 0 publish 0 \| uc 36/36 first 0 at 0 cpumap 0 \| rounds 4 4.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-29-gpu-gx-and-context.md)
   Command: <code>boot a pipa-gpu=11 image (usb195) and read GPUROW23 from the serial console capture</code>. Revision: `1d954032604c986bd98de483447cb06ab8896cff`.
-- `device`: [METAL ok: accelerator registered \(IOGPUFamily loaded, class size 136\); LIVE moved from sub 2/2 uc 2/2 to sub 7/7 uc 4/4 with pool 128/128/768.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-29-gpu-gx-and-context.md)
+- `device`: [METAL ok: accelerator registered \(IOGPUFamily loaded, class size 136\); LIVE moved from sub 2/2 uc 2/2 to sub 7/7 uc 4/4 with pool 128/128/768.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-29-gpu-gx-and-context.md)
   Command: <code>boot a pipa-gpu=12 image (usb199) carrying the staged Data seed and read GPUROW24/25 from the serial console capture</code>. Revision: `fe2e366add2343efa48f8fe0cb01ff99ffa598d6`.
 
 ## 网络 {#network}
 
-`implemented`
+`planned`
 
 ### 硬件与依赖
 
@@ -462,11 +539,11 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ### 证据
 
-- `device`: [gcc pcie\_0\_gdscr reads 0x22f001, the value the ios-sweet series recorded for a fully collapsed controller.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [gcc pcie\_0\_gdscr reads 0x22f001, the value the ios-sweet series recorded for a fully collapsed controller.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=1 image and read the PCIE 1 lines from the console capture</code>. Revision: `dc3ab04aa4b05d38a1c372fa2ec257b3ae8547ce`.
-- `device`: [Writing 0x22f000 reads back 0xf822f000 within a millisecond: the controller has power.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [Writing 0x22f000 reads back 0xf822f000 within a millisecond: the controller has power.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=2 image and read the PCIE 2 lines from the console capture</code>. Revision: `28be364f4dc9223a006770635dbc0f352d230401`.
-- `device`: [With pcie\_skip=32 the PARF setup completes and parf\_mhi\_clock\_reset\_ctrl 0x3 becomes 0x13, matching the reference.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
+- `device`: [With pcie\_skip=32 the PARF setup completes and parf\_mhi\_clock\_reset\_ctrl 0x3 becomes 0x13, matching the reference.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-28-gpu-wifi-bringup.md)
   Command: <code>boot a pcie=9 pcie_skip=32 image and read the PCIE 9 lines from the console capture</code>. Revision: `eeda5a8139786ca8029044708679c40e7382eb1e`.
 
 ## 音频 {#audio}
@@ -543,39 +620,61 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ## 镜像组装 {#packaging}
 
-`planned`
+`device-verified`
+
+组件: `DarwinBoot`, `XnuPrelink`.
 
 ### 硬件与依赖
 
-- Identify the image assembly hardware, resources and existing component interfaces for this board.
+- The prelinked kernel from build kernel, the firmware volume from build firmware, the device tree the bootloader reads \(uefi-alioth/Resources/DTBs/alioth.dtb, 933,795 bytes, not the 3 KB hardware DTB the ADT is built from\), and the target IPSW's trust cache.
+- Inputs that are not in any repository: the Data seed \(--data-ramdisk\), the platform seed \(--unique-chip-id, board.toml marks it required\), and optionally a GPU addon \(--gpu-addon\).
+- The board's own inputs: 3 MiB firmware volume at 0x9FC00000, 180 MiB payload volume, boot\_a and boot\_b at 192 MiB each, and a 987-byte kernel command line against DarwinBoot's 1000-byte limit.
 
 ### 配置
 
-- Record the board.toml fields, DTS properties and defconfig values used for image assembly.
+- \[payload\]: volume ALIOTHESP, size\_mib 180, loader firmware, title Boot, dram\_size 0x200000000, skip\_setup\_tool scripts/seed-data-skip-setup.py. payload.py refuses content above 95 percent of size\_mib, which is 171 MiB.
+- size\_mib history: 192 does not fit with the shim, the FD and the appended device tree; 184 leaves less than the 8 MiB margin; 176 is what the archived port booted; 180 since the Metal staging took the payload files to 168 MiB.
+- \[payload\] trust\_cache\_sha256 names one accepted bundle, f8658bfc, the three-module owner bundle make-owner-trust-bundle.py builds from the two original 21H461 modules plus the Metal plugin's CDHash. payload.py refuses any other --trust-cache.
+- \[payload\] panic\_screen true patches the panic screen into a copy of the kernel. It shares the zero padding after \_start with one stage-4 probe cave, and a third cave pushes the screen past PANIC\_CAVE\_END, which scripts/patch-xnu-entry-probe.py then refuses.
+- boot image geometry comes from uefi-alioth/Resources/Configs/alioth.toml, not board.toml: header\_version 1, base 0x10000000, kernel\_offset 0x8000, ramdisk\_offset 0x16000000, tags\_offset 0x100, pagesize 2048. scripts/check-alioth.py refuses any other value.
 
 ### 操作步骤
 
-- Follow the image assembly stage in the porting guide and record the actual commands.
+- ./unixnu defconfig alioth\_defconfig -D ../UniXNU-alioth, then ./unixnu build kernel -D ../UniXNU-alioth --local-module driver:ShengUfs=../NativeUfs-alioth --local-module driver:ArmCpu=../ArmCpu-alioth.
+- ./unixnu build payload -D ../UniXNU-alioth --uefi ../uefi-alioth --unique-chip-id 0xe835c44a614a1914 --trust-cache &lt;owner bundle&gt; --data-ramdisk &lt;seed&gt; --gpu-addon &lt;addon&gt; --kernel-arg sheng-build-tag=uNNN.
+- ./unixnu bootimg -D ../UniXNU-alioth --uefi ../uefi-alioth --dtb ../uefi-alioth/Resources/DTBs/alioth.dtb -o tmp/boot-uNNN.img.
+- python3 scripts/check-payload-kernel.py --kernel out/DEVICE/OS/CONFIG/kernel/kernel.macho --image tmp/boot-uNNN.img, which must exit 0 before the image is flashed.
+- fastboot boot tmp/boot-uNNN.img, which loads the image into RAM and writes no slot; a flash goes to boot\_b. Read boot/boot.json and payload/payload.json for the hashes of the parts actually packed.
 
 ### 开发经验
 
-- Collect the first image assembly observation, its cause when established, and the resulting implementation decision.
+- The XNU kernel does not live in boot.img's kernel section. That section is the boot shim plus the UEFI firmware volume, gzipped, followed by the device tree; the kernel travels inside the payload ramdisk at EFI/UniXNU/Payloads/kernel.macho. Running build kernel and then bootimg without build payload therefore packs the previous kernel, and the device boots and looks healthy on stale code. That is what boot-usb65 did.
+- check-payload-kernel.py closes that hole by checking both links: payload.json kernel\_sha256 against the built kernel, and the kernel inside the image against payload.json payload\_kernel\_sha256. The two payload hashes differ from each other because build payload patches a staged copy of the kernel. Measured 2026-10-30: the check refuses boot-u269, whose payload carries a kernel the current payload record does not name, which is exactly the staleness it exists to catch.
+- The two reports name different things under the same key. boot.json kernel\_sha256 \(bootimg.py:134\) is the hash of the gzip kernel section, which is the boot shim plus the firmware volume plus the appended device tree; payload.json kernel\_sha256 is the prelinked XNU Mach-O. Comparing them across files says nothing. Read payload.json for the kernel, the ADT, the trust cache and the seed, and boot.json only for the header geometry, the FD and the ramdisk size.
+- The kernel command line is 987 bytes against a 1000-byte limit, so adding an argument means removing one. payload.py refuses a longer line before it writes the volume, and --kernel-arg NAME=VALUE replaces the board's argument of the same name instead of appending a second copy.
+- The device tree that bootimg packs must be uefi-alioth/Resources/DTBs/alioth.dtb \(933,795 bytes\), not the dtc output of dts/alioth.dts \(3,218 bytes\). The small tree is the hardware input the ADT is generated from; the bootloader needs the firmware tree, which is the phone's own. Passing the small one produced an image that never reached the kernel.
+- bootimg verifies its own output: it unpacks the image and compares the gzip stream, the firmware volume, the appended device tree and the ramdisk bytes with their inputs, and refuses a firmware volume whose size differs from \[uefi\_fd\]. The output is deterministic apart from the ADT's random seed.
 
 ### 完成条件
 
-- Kernel and prelink succeed, payload contains all declared inputs, and the boot image matches the bootloader format and size limit.
+- The kernel and prelink succeed, the payload contains all declared inputs, and the boot image matches the bootloader format and the 192 MiB partition limit.
+- Measured on the device: the image booted from fastboot, reached the lock screen at about 104 s, and the same build path has produced every image since, through the one that first published the GPU accelerator.
 
 ### 当前范围
 
-- Hardware inputs and implementation are pending for this example board.
+- The build inputs that no repository carries are passed on the command line every time: --unique-chip-id, --trust-cache, --data-ramdisk and --gpu-addon. A checkout alone cannot rebuild a given image byte for byte.
+- The payload volume is 180 MiB against a 192 MiB partition and the kernel command line has 13 bytes of head room, so the next added argument or asset needs something removed first.
+- The images at the end of the run have not all been booted: four in a row \(u268, u269 twice, u271\) failed to reach the kernel through fastboot boot while the same u269 image reached the GPU after a manual power cycle, and that load path is not yet attributed.
 
 ### 下一步
 
-- Inventory the required image assembly inputs before implementation.
+- Attribute the fastboot boot failures: read the persistent log's tag field on a boot that reaches the kernel, which says whether the board ran the booted image or the active slot.
 
 ### 证据
 
-按下一步操作收集证据。
+- `source`: [Refuses a boot image whose payload was not rebuilt from the kernel just built, by checking the record against the build and the image against the record; it refused boot-u269 on 2026-10-30.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/scripts/check-payload-kernel.py)
+- `device`: [boot-usb34 reached a stable lock screen: the date and time stayed drawn, SWAP calls=7 ok=7 rej=0, and backboardd created its resources with kret=0 -- the image assembly path produced a bootable image.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-27-boot-diagnostics.md)
+  Command: <code>./unixnu build kernel; ./unixnu build payload; ./unixnu bootimg; fastboot boot the image; photograph the panel and read the console</code>. Revision: `c207f91df6000038aac1b91f002a857c07de3b40`.
 
 ## 诊断 {#diagnostics}
 
@@ -603,6 +702,7 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ### 开发经验
 
+- package/tests/adt\_properties\_host.py covers scripts/check-adt-properties.py: one fixture node carrying a non-writable key must fail with that key named, one carrying only writable keys must pass. The checker runs the real read\_fdt and hardware\_properties path, so the test exercises the omission rather than a mock of it.
 - Four images in a row failed to reach the kernel through fastboot boot \(u268, u269 twice, u271\) while the same u269 image reached the GPU and the wallpaper after a manual power cycle. The four span different contents -- two carried timer rows, one was rebuilt without them, one differs by a single driver string -- so the content is not what decides it. What all four share is the load path: fastboot boot has the bootloader pull 182.4 MB over USB into memory and jump to it, while a power cycle reads the active slot from flash. Whether the board then runs the slot image rather than the booted one is unverified; the persistent log's tag field would say, and reading it needs a boot that reaches the kernel.
 - The timer rows were withdrawn the same day they were added. Two images carried them and both failed to reach a usable kernel, so they came out; but the same image booted to the GPU and the wallpaper after a manual power cycle, so the rows were not shown to be the cause and the withdrawal is a control, not a verdict. The instrument itself is sound: ArmCpu already counts the virtual timer's lead and its short deadlines, and re-adding it needs a boot that survives regardless.
 - The persistent log kept the oldest 128 KiB of the kernel message buffer, not the newest: copy\_msgbuf started at msg\_bufx, the ring's oldest byte, and stopped at the region's limit, so every read-back carried the start of the boot and dropped the seconds before a crash -- the only window an abort diagnosis needs. Every header from u250 to u255 reports msg\_bytes 131072, which is the cap, not the buffer. u259 starts at msg\_bufx + size - cap instead; its msgbuf covers a later slice of the kernel log than u258's on the same image family \(986..1126 s against 516..638 s\).
@@ -627,6 +727,10 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 - cryptexd's fault is not yet attributed: OWNER\_CRYPTEX\_FILES is 0 by design because UNION\_SYSTEMOS requires it off, so cryptexd's expected paths do not exist. Its crash PC is captured but not symbolicated.
 - The MAC exec refusal is intermittent. One boot showed backboardd, imagent, lockdownd, cfprefsd, sharingd and nfcd exiting with status=9 ns=9 code=8; the next showed none of them, so the errno the patch now reports has not been observed yet.
 - Symbolication of the crash PCs against the extracted dyld shared cache was attempted and produced implausible image names, so it is not reported as a result.
+- The iOS USB device stack is not in this kernel: the prelinked component list carries no USB kext \(IOUSBDeviceFamily, AppleUSBDeviceMux, AppleEmbeddedUSB, AppleSynopsysOTGDevice all count 0 in out/&lt;device&gt;/kernel/kernel.macho\), and the ADT has no usb-complex, usb-device or otgphyctrl node. The board's only USB path is QcomXnuUsbDebug, a self-written CDC-ACM console that owns the DWC3 controller. docs/evidence/2026-10-30-usb-stack-architecture.md records the chain and the two implementation constraints: devicetree.py emits platform nodes only for a fixed name list, so \[adt.\*\] cannot add a usb node \(it needs a DTS node with unixnu,adt-name\), and IONameMatch is exact string equality against the node name, not a compatible-list match. An offline prelink with four USB roots added resolves and links \(components 30 to 42, exit 0, AppleNubSynopsysOTGDevice present\); runtime behaviour is unverified, and t7000 versus SM8250 register offsets and PHY topology have not been compared.
+- usbmuxd is a host-side daemon, not a device component. macOS runs it at /var/run/usbmuxd from MobileDevice.framework, and the device-side peer is lockdownd, which listens on TCP 62078 \(com.apple.mobile.lockdown.plist Sockets\). The kernel AppleUSBDeviceMux is a client: sock\_connect appears twice in its code and sock\_bind, sock\_listen and sock\_accept appear zero times. An earlier analysis treated the absence of usbmuxd from the root volume as a hard blocker; that conclusion is withdrawn.
+- installd is not running on the board, and the usual count of processes is wrong. EXITLOG records only process exits \(BootProgress.c boot\_progress\_exit\), so it cannot enumerate running daemons: u266's EXITLOG yields 37 distinct names while its \[spawn\] census reports names=233. That census lists containermanagerd, misagent, appstored and lockdownd but not installd or afcd. com.apple.mobile.installd.plist carries MachServices and no RunAtLoad, so the job starts on demand; the board has not asked for it. Diagnosing why needs userspace os\_log, which has no channel today.
+- The Device documentation workflow fails on every push with 'unknown component QcomXnuUsbDebug'. The workflow reuses UniXNU/UniXNU's checker at main, whose catalog lists 25 components, all from the UniXNU organisation; QcomXnuUsbDebug is this port's own CDC-ACM console and exists only in the FFT-infra fork of the base repository. The checker tests 'component in catalog or allow\_custom\_components' and never passes the second argument. Locally the check passes because the fork's components.toml carries the entry. Resolving it needs a decision: contribute the component upstream, move the repository into the UniXNU organisation, or accept the red check. The record itself is not wrong; only the component's absence from the upstream catalog is.
 
 ### 下一步
 
@@ -636,9 +740,9 @@ UFS root, launchd, touch and a published GPU device with the staged Metal accele
 
 ### 证据
 
-- `device`: [Console enumerated as 1209:316d named QcomXnuUsbDebug; STATUS returned usb=3 er=0 with the worker polling, so the port is live in both directions.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-27-boot-diagnostics.md)
+- `device`: [Console enumerated as 1209:316d named QcomXnuUsbDebug; STATUS returned usb=3 er=0 with the worker polling, so the port is live in both directions.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-27-boot-diagnostics.md)
   Command: <code>read /dev/tty.usbmodem&lt;N&gt; at 115200 8N1 and send SXNU1 ... HELLO / STATUS</code>. Revision: `15a15d7cc526262a64531ff56b3a33bdbc46379c`.
-- `device`: [215 exit records captured. 180 xpcproxy status=0 \(normal\), 13 cryptexd ns=18 code=2, 11 liveactivitiesd sig5, 2 lsd sig11; each process repeats one fixed crash PC, so the faults are deterministic.](https://github.com/FFT-infra/UniXNU-alioth/blob/5dcdaca3287c4ca8f9ca15790ff87b9a7d469511/docs/evidence/2026-10-27-serial-exit-records.log)
+- `device`: [215 exit records captured. 180 xpcproxy status=0 \(normal\), 13 cryptexd ns=18 code=2, 11 liveactivitiesd sig5, 2 lsd sig11; each process repeats one fixed crash PC, so the faults are deterministic.](https://github.com/FFT-infra/UniXNU-alioth/blob/520581af69b6fc57d346b60d614756f04612823a/docs/evidence/2026-10-27-serial-exit-records.log)
   Command: <code>./unixnu build kernel; ./unixnu bootimg; fastboot flash boot_b; read the CDC-ACM console for 420 s</code>. Revision: `15a15d7cc526262a64531ff56b3a33bdbc46379c`.
 
 </div>

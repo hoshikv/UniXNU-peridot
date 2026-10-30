@@ -6,7 +6,7 @@
 
 Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with the proven iPadOS 17.7.11 profile, a dada-shaped AMFI+PMGR kernel configuration, SM8735 measured hardware facts, SHNGROOT/VerifiedRoot userdata recipe and Mu-Silicium UEFI + DarwinBoot. Every area is planned; no build or boot evidence exists yet.
 
-源记录: [porting.toml](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/porting.toml), `489a324d6ef7515f04703e4d63128b2d381ffb3b`.
+源记录: [porting.toml](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/porting.toml), `ea34e5b3843fd3f917ce381042e9480f6365f7ad`.
 
 本页按设备记录自动生成。
 
@@ -67,7 +67,7 @@ Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with th
 
 ### 证据
 
-- `source`: [Format-2 board configuration with pinned measured/placeholder values and sources](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/board.toml)
+- `source`: [Format-2 board configuration with pinned measured/placeholder values and sources](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/board.toml)
 
 ## 固件与启动 {#firmware}
 
@@ -110,7 +110,7 @@ Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with th
 
 ### 证据
 
-- `source`: [Firmware interface, required modules and Mu-Silicium patch set for the format-2 route](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/firmware/README.md)
+- `source`: [Firmware interface, required modules and Mu-Silicium patch set for the format-2 route](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/firmware/README.md)
 
 ## CPU 与中断 {#cpu}
 
@@ -151,7 +151,7 @@ Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with th
 
 ### 证据
 
-- `source`: [Measured CPU/timer/GIC facts with their source paths](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/docs/KNOWN-VALUES.md)
+- `source`: [Measured CPU/timer/GIC facts with their source paths](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/docs/KNOWN-VALUES.md)
 
 ## 内存与 DMA {#memory}
 
@@ -194,7 +194,7 @@ Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with th
 
 ### 证据
 
-- `source`: [DRAM window measurements and alignment risk \(sections 2-3\)](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/docs/KNOWN-VALUES.md)
+- `source`: [DRAM window measurements and alignment risk \(sections 2-3\)](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/docs/KNOWN-VALUES.md)
 
 ## 存储与根卷 {#storage}
 
@@ -241,7 +241,7 @@ Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with th
 
 ### 证据
 
-- `source`: [Storage facts, component work order and acceptance criteria](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/docs/UFS.md)
+- `source`: [Storage facts, component work order and acceptance criteria](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/docs/UFS.md)
 
 ## 显示 {#display}
 
@@ -280,7 +280,7 @@ Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with th
 
 ### 证据
 
-- `source`: [Display/input scope, inputs and missing-component note](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/drivers/LumingDisplayTouch/README.md)
+- `source`: [Display/input scope, inputs and missing-component note](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/drivers/LumingDisplayTouch/README.md)
 
 ## 输入 {#input}
 
@@ -507,7 +507,7 @@ Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with th
 
 ### 证据
 
-- `source`: [Ordered build commands, artifacts and validation gates G0-G5](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/docs/FIRST-BUILD-PLAN.md)
+- `source`: [Ordered build commands, artifacts and validation gates G0-G5](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/docs/FIRST-BUILD-PLAN.md)
 
 ## 诊断 {#diagnostics}
 
@@ -546,6 +546,6 @@ Xiaomi Civi 5 Pro format-2 bring-up skeleton: native 4K XNU + XnuPrelink with th
 
 ### 证据
 
-- `source`: [A-line fixes/findings classified for format 2 with landing points](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/489a324d6ef7515f04703e4d63128b2d381ffb3b/docs/A-FIX-CROSSWALK.md)
+- `source`: [A-line fixes/findings classified for format 2 with landing points](https://github.com/infinityEX-RSXQ/UniXNU-luming-f2-ci/blob/ea34e5b3843fd3f917ce381042e9480f6365f7ad/docs/A-FIX-CROSSWALK.md)
 
 </div>

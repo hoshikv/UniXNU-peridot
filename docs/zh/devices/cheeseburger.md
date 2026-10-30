@@ -6,7 +6,7 @@
 
 Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\); touch pending, guarded build migration in progress.
 
-源记录: [porting.toml](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/porting.toml), `ca295690b23d3bc39a849f1dd34faf2175f3ff05`.
+源记录: [porting.toml](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/porting.toml), `950b0df3bf326129c743f3415eececaceb2e4bec`.
 
 本页按设备记录自动生成。
 
@@ -62,7 +62,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 固件与启动 {#firmware}
 
@@ -100,7 +100,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## CPU 与中断 {#cpu}
 
@@ -136,7 +136,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 内存与 DMA {#memory}
 
@@ -172,7 +172,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 存储与根卷 {#storage}
 
@@ -210,7 +210,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 显示 {#display}
 
@@ -248,7 +248,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 输入 {#input}
 
@@ -284,7 +284,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## GPU {#gpu}
 
@@ -320,7 +320,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 网络 {#network}
 
@@ -356,7 +356,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 音频 {#audio}
 
@@ -392,7 +392,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 电源 {#power}
 
@@ -430,7 +430,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 镜像组装 {#packaging}
 
@@ -466,7 +466,7 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## 诊断 {#diagnostics}
 
@@ -502,6 +502,6 @@ Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\);
 
 ### 证据
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 </div>

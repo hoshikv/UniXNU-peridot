@@ -6,7 +6,7 @@
 
 Original iPadOS interface with time visible on hardware \(UP1, user-confirmed\); touch pending, guarded build migration in progress.
 
-Source record: [porting.toml](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/porting.toml), `ca295690b23d3bc39a849f1dd34faf2175f3ff05`.
+Source record: [porting.toml](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/porting.toml), `950b0df3bf326129c743f3415eececaceb2e4bec`.
 
 This page is generated from the device record.
 
@@ -62,7 +62,7 @@ Components: `ArmDTPlatform`, `ArmCpu`, `SoftwareAES`, `XnuPrelink`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Firmware and boot {#firmware}
 
@@ -100,7 +100,7 @@ Components: `DarwinBoot`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## CPU and interrupts {#cpu}
 
@@ -136,7 +136,7 @@ Components: `DarwinBoot`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Memory and DMA {#memory}
 
@@ -172,7 +172,7 @@ Components: `DarwinBoot`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Storage and root {#storage}
 
@@ -210,7 +210,7 @@ Components: `VerifiedRoot`, `RamBlock`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Display {#display}
 
@@ -248,7 +248,7 @@ Components: `GopFramebuffer`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Input {#input}
 
@@ -284,7 +284,7 @@ Components: `GopFramebuffer`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## GPU {#gpu}
 
@@ -320,7 +320,7 @@ Components: `GopFramebuffer`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Network {#network}
 
@@ -356,7 +356,7 @@ Components: `GopFramebuffer`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Audio {#audio}
 
@@ -392,7 +392,7 @@ Components: `GopFramebuffer`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Power {#power}
 
@@ -430,7 +430,7 @@ Components: `AppleKeyStoreState`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Image assembly {#packaging}
 
@@ -466,7 +466,7 @@ Components: `AppleKeyStoreState`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 ## Diagnostics {#diagnostics}
 
@@ -502,6 +502,6 @@ Components: `AppleKeyStoreState`.
 
 ### Evidence
 
-- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/ca295690b23d3bc39a849f1dd34faf2175f3ff05/docs/P21_OFFICIAL_ADAPTATION.md)
+- `source`: [当前适配与待办记录，非新镜像实机成功声明](https://github.com/DinnerABC/UniXNU-cheeseburger/blob/950b0df3bf326129c743f3415eececaceb2e4bec/docs/P21_OFFICIAL_ADAPTATION.md)
 
 </div>

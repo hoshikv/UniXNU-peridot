@@ -190,6 +190,11 @@
     "title_zh": "OnePlus 6 (keyfan)"
   },
   {
+    "name": "enchilada-wangshaofan82-png",
+    "title": "OnePlus 6 (wangshaofan82-png)",
+    "title_zh": "OnePlus 6 (wangshaofan82-png)"
+  },
+  {
     "name": "enuma",
     "title": "Xiaomi Pad 5 Pro 5G (enuma)",
     "title_zh": "小米平板 5 Pro 5G（enuma）"
@@ -268,6 +273,11 @@
     "name": "fuxi-xyvern08371",
     "title": "Xiaomi 13 (SM8550) (Xyvern08371)",
     "title_zh": "Xiaomi 13 (SM8550) (Xyvern08371)"
+  },
+  {
+    "name": "fuxi-yigezhong011-ops",
+    "title": "Xiaomi 13 (yigezhong011-ops)",
+    "title_zh": "Xiaomi 13 (yigezhong011-ops)"
   },
   {
     "name": "gauguin",
@@ -455,6 +465,11 @@
     "title_zh": "Redmi Note 12 Turbo / POCO F5（marble）"
   },
   {
+    "name": "marble-milacy",
+    "title": "Redmi Note 12 Turbo / POCO F5 (marble), Qualcomm SM7475 (Snapdragon 7+ Gen 2) (MiLacy)",
+    "title_zh": "Redmi Note 12 Turbo / POCO F5 (marble), Qualcomm SM7475 (Snapdragon 7+ Gen 2) (MiLacy)"
+  },
+  {
     "name": "merlinx",
     "title": "Xiaomi Redmi Note 9 (merlinx)",
     "title_zh": "Redmi Note 9（merlinx）"
@@ -470,9 +485,19 @@
     "title_zh": "Redmi K60 (mondrian/SM8475): UniXNU UEFI bring-up"
   },
   {
+    "name": "mondrian-mzyxsl",
+    "title": "Redmi K60 (mondrian/SM8475): UniXNU UEFI bring-up (mzyxsl)",
+    "title_zh": "Redmi K60 (mondrian/SM8475): UniXNU UEFI bring-up (mzyxsl)"
+  },
+  {
     "name": "mondrian-wohusaixing",
     "title": "Redmi K60 (mondrian/SM8475): UniXNU UEFI bring-up (wohusaixing)",
     "title_zh": "Redmi K60 (mondrian/SM8475): UniXNU UEFI bring-up (wohusaixing)"
+  },
+  {
+    "name": "mondrian-xtom0706",
+    "title": "Redmi K60 (mondrian/SM8475): UniXNU UEFI bring-up (XTOM0706)",
+    "title_zh": "Redmi K60 (mondrian/SM8475): UniXNU UEFI bring-up (XTOM0706)"
   },
   {
     "name": "munch",
@@ -483,6 +508,11 @@
     "name": "munch-erodenine",
     "title": "Xiaomi Redmi K40S (munch, 22021211RC) (ErodeNine)",
     "title_zh": "Xiaomi Redmi K40S (munch, 22021211RC) (ErodeNine)"
+  },
+  {
+    "name": "muyu",
+    "title": "Xiaomi Pad 7 Pro",
+    "title_zh": "Xiaomi Pad 7 Pro"
   },
   {
     "name": "myron",
@@ -770,6 +800,11 @@
     "title_zh": "小米 8 SE（sirius）"
   },
   {
+    "name": "sirius-dddqmmx",
+    "title": "Xiaomi Mi 8 SE (dddqmmx)",
+    "title_zh": "Xiaomi Mi 8 SE (dddqmmx)"
+  },
+  {
     "name": "sirius-huajifruit",
     "title": "Xiaomi Mi 8 SE (HuajiFruit)",
     "title_zh": "Xiaomi Mi 8 SE (HuajiFruit)"
@@ -918,6 +953,11 @@
     "name": "x9",
     "title": "OPPO Find X9 (x9)",
     "title_zh": "OPPO Find X9（x9）"
+  },
+  {
+    "name": "yunluo",
+    "title": "Redmi Pad format-2 qualification candidate; boot Mu and cust UniXNU must remain separate",
+    "title_zh": "Redmi Pad format-2 qualification candidate; boot Mu and cust UniXNU must remain separate"
   },
   {
     "name": "zeta",
