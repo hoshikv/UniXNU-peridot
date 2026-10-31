@@ -230,6 +230,11 @@
     "title_zh": "一加 6T（fajita）"
   },
   {
+    "name": "flashlm",
+    "title": "LG V50 ThinQ (LM-V500, flashlm)",
+    "title_zh": "LG V50 ThinQ (LM-V500, flashlm)"
+  },
+  {
     "name": "fuxi",
     "title": "Xiaomi 13 (fuxi)",
     "title_zh": "小米 13（fuxi）"
@@ -678,6 +683,11 @@
     "name": "polaris-puszekreksio",
     "title": "Xiaomi Mi MIX 2S (PuszekReksio)",
     "title_zh": "Xiaomi Mi MIX 2S (PuszekReksio)"
+  },
+  {
+    "name": "polaris-sprmd",
+    "title": "Xiaomi Mi MIX 2S (SPRMD)",
+    "title_zh": "Xiaomi Mi MIX 2S (SPRMD)"
   },
   {
     "name": "pong",

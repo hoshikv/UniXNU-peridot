@@ -23,7 +23,7 @@ Follow [Build and boot](/building), [porting steps](/porting/steps) and [log cap
 | [Xiaomi 10 Ultra \(cas\)](/devices/cas) | SM8250 | 2 | Porting record | [ht94911/UniXNU-cas](https://github.com/ht94911/UniXNU-cas) |
 | [Xiaomi Mi 10 Ultra \(pxl777806\)](/devices/cas-pxl777806) | SM8250 | 1 | Repository link | [pxl777806/UniXNU-cas](https://github.com/pxl777806/UniXNU-cas) |
 | [Xiaomi Mi 9 \(cepheus\)](/devices/cepheus) | SM8150 | 1 | Device notes | [sxl47/UniXNU-cepheus](https://github.com/sxl47/UniXNU-cepheus) |
-| [OnePlus 5 \(cheeseburger\)](/devices/cheeseburger) | MSM8998 | 2 | Porting record | [DinnerABC/UniXNU-cheeseburger](https://github.com/DinnerABC/UniXNU-cheeseburger) |
+| [OnePlus 5 \(cheeseburger\)](/devices/cheeseburger) | MSM8998 | 2 | Record pending | [DinnerABC/UniXNU-cheeseburger](https://github.com/DinnerABC/UniXNU-cheeseburger) |
 | [OnePlus 5 \(lss717\)](/devices/cheeseburger-lss717) | MSM8998 | 1 | Repository link | [lss717/UniXNU-cheeseburger](https://github.com/lss717/UniXNU-cheeseburger) |
 | [OnePlus 5 \(maozedongae\)](/devices/cheeseburger-maozedongae) | MSM8998 | 1 | Repository link | [maozedongae/UniXNU-cheeseburger](https://github.com/maozedongae/UniXNU-cheeseburger) |
 | [Xiaomi MIX 2 \(chiron\)](/devices/chiron) | MSM8998 | 1 | Device notes | [to-mid/ios-party](https://github.com/to-mid/ios-party) |
@@ -39,7 +39,7 @@ Follow [Build and boot](/building), [porting steps](/porting/steps) and [log cap
 | [DroidVM guest \(crosvm on Gunyah\)](/devices/droidvm) | crosvm-gunyah | 1 | Device notes | [Droid-VM/UniXNU-droidvm](https://github.com/Droid-VM/UniXNU-droidvm) |
 | [DroidVM guest \(crosvm on Gunyah\) \(lateautumn233\)](/devices/droidvm-lateautumn233) | crosvm-gunyah | 1 | Repository link | [lateautumn233/UniXNU-droidvm](https://github.com/lateautumn233/UniXNU-droidvm) |
 | [DroidVM guest \(crosvm on Gunyah\) \(Neko17awa\)](/devices/droidvm-neko17awa) | crosvm-gunyah | 1 | Repository link | [Neko17awa/UniXNU-droidvm](https://github.com/Neko17awa/UniXNU-droidvm) |
-| [Rongyue E5 \(e5\)](/devices/e5) | UMS9621 | 2 | Porting record | [Enceka/UniXNU-e5](https://github.com/Enceka/UniXNU-e5) |
+| [Rongyue E5 \(e5\)](/devices/e5) | UMS9621 | 2 | Record pending | [Enceka/UniXNU-e5](https://github.com/Enceka/UniXNU-e5) |
 | [Lenovo Legion Y700 Gen 4 \(elden\)](/devices/elden) | SM8750P | 2 | Porting record | [jerry-2009/UNIXNU_elden](https://github.com/jerry-2009/UNIXNU_elden) |
 | [Xiaomi Pad 5 Pro Wi-Fi \(elish\)](/devices/elish) | SM8250-AC | 1 | Device notes | [hpadmx/UniXNU-elish](https://github.com/hpadmx/UniXNU-elish) |
 | [OnePlus 6 \(enchilada\)](/devices/enchilada) | SDM845 | 1 | Device notes | [keyfan/UniXNU-enchilada](https://github.com/keyfan/UniXNU-enchilada) |
@@ -52,6 +52,7 @@ Follow [Build and boot](/building), [porting steps](/porting/steps) and [log cap
 | [Rockchip RK3588 EVB10 V10](/devices/evb10) | RK3588 | 2 | Porting record | [Ken-u/UniXNU-evb10](https://github.com/Ken-u/UniXNU-evb10) |
 | [OnePlus 15T \(fairlady\)](/devices/fairlady) | SM8850 | 1 | Device notes | [Osilvfe/UniXNU-fairlady](https://github.com/Osilvfe/UniXNU-fairlady) |
 | [OnePlus 6T \(fajita\)](/devices/fajita) | SDM845 | 1 | Device notes | [johnpanos/UniXNU-fajita](https://github.com/johnpanos/UniXNU-fajita) |
+| [LG V50 ThinQ \(LM-V500, flashlm\)](/devices/flashlm) | SM8150 | 1 | Repository link | [drx1x2/UniXNU-flashlm](https://github.com/drx1x2/UniXNU-flashlm) |
 | [Xiaomi 13 \(fuxi\)](/devices/fuxi) | SM8550 | 1 | Device notes | [matejkoo217/UniXNU-fuxi](https://github.com/matejkoo217/UniXNU-fuxi) |
 | [Xiaomi 13 \(0721GPT\)](/devices/fuxi-0721gpt) | SM8550 | 1 | Repository link | [0721GPT/UniXNU-fuxi](https://github.com/0721GPT/UniXNU-fuxi) |
 | [Xiaomi 13 \(hanzi123-bilp\)](/devices/fuxi-hanzi123-bilp) | SM8550 | 1 | Repository link | [hanzi123-bilp/unixnu-fuxi](https://github.com/hanzi123-bilp/unixnu-fuxi) |
@@ -142,6 +143,7 @@ Follow [Build and boot](/building), [porting steps](/porting/steps) and [log cap
 | [Xiaomi Pad 6 \(xVanTuring\)](/devices/pipa-xvanturing) | SM8250 | 1 | Repository link | [xVanTuring/UniXNU-pipa](https://github.com/xVanTuring/UniXNU-pipa) |
 | [Xiaomi Mi MIX 2S \(polaris\)](/devices/polaris) | SDM845 | 1 | Device notes | [luuu20309/UniXNU-polaris](https://github.com/luuu20309/UniXNU-polaris) |
 | [Xiaomi Mi MIX 2S \(PuszekReksio\)](/devices/polaris-puszekreksio) | SDM845 | 1 | Repository link | [PuszekReksio/UniXNU-judyln](https://github.com/PuszekReksio/UniXNU-judyln) |
+| [Xiaomi Mi MIX 2S \(SPRMD\)](/devices/polaris-sprmd) | SDM845 | 1 | Repository link | [SPRMD/UniXNU-polaris](https://github.com/SPRMD/UniXNU-polaris) |
 | [Nothing Phone \(2\) \(pong\)](/devices/pong) | SM8475 | 2 | Porting record | [Chengdong-Yu/UniXNU-pong](https://github.com/Chengdong-Yu/UniXNU-pong) |
 | [Nothing Phone \(2\): UniXNU UEFI bring-up \(hxzbaka\)](/devices/pong-hxzbaka) | SM8475 | 1 | Repository link | [hxzbaka/UniXNU-pong](https://github.com/hxzbaka/UniXNU-pong) |
 | [Nothing Phone \(2\): UniXNU UEFI bring-up \(Y3d4\)](/devices/pong-y3d4) | SM8475 | 1 | Repository link | [Y3d4/UniXNU-pong-clean](https://github.com/Y3d4/UniXNU-pong-clean) |

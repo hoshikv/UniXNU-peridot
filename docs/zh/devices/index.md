@@ -23,7 +23,7 @@
 | [小米 10 Ultra（cas）](/zh/devices/cas) | SM8250 | 2 | 适配记录 | [ht94911/UniXNU-cas](https://github.com/ht94911/UniXNU-cas) |
 | [Xiaomi Mi 10 Ultra \(pxl777806\)](/zh/devices/cas-pxl777806) | SM8250 | 1 | 仓库链接 | [pxl777806/UniXNU-cas](https://github.com/pxl777806/UniXNU-cas) |
 | [小米 9（cepheus）](/zh/devices/cepheus) | SM8150 | 1 | 设备说明 | [sxl47/UniXNU-cepheus](https://github.com/sxl47/UniXNU-cepheus) |
-| [一加 5（cheeseburger）](/zh/devices/cheeseburger) | MSM8998 | 2 | 适配记录 | [DinnerABC/UniXNU-cheeseburger](https://github.com/DinnerABC/UniXNU-cheeseburger) |
+| [一加 5（cheeseburger）](/zh/devices/cheeseburger) | MSM8998 | 2 | 记录待补齐 | [DinnerABC/UniXNU-cheeseburger](https://github.com/DinnerABC/UniXNU-cheeseburger) |
 | [OnePlus 5 \(lss717\)](/zh/devices/cheeseburger-lss717) | MSM8998 | 1 | 仓库链接 | [lss717/UniXNU-cheeseburger](https://github.com/lss717/UniXNU-cheeseburger) |
 | [OnePlus 5 \(maozedongae\)](/zh/devices/cheeseburger-maozedongae) | MSM8998 | 1 | 仓库链接 | [maozedongae/UniXNU-cheeseburger](https://github.com/maozedongae/UniXNU-cheeseburger) |
 | [小米 MIX 2（chiron）](/zh/devices/chiron) | MSM8998 | 1 | 设备说明 | [to-mid/ios-party](https://github.com/to-mid/ios-party) |
@@ -39,7 +39,7 @@
 | [DroidVM 客户机（Gunyah 上的 crosvm）](/zh/devices/droidvm) | crosvm-gunyah | 1 | 设备说明 | [Droid-VM/UniXNU-droidvm](https://github.com/Droid-VM/UniXNU-droidvm) |
 | [DroidVM guest \(crosvm on Gunyah\) \(lateautumn233\)](/zh/devices/droidvm-lateautumn233) | crosvm-gunyah | 1 | 仓库链接 | [lateautumn233/UniXNU-droidvm](https://github.com/lateautumn233/UniXNU-droidvm) |
 | [DroidVM guest \(crosvm on Gunyah\) \(Neko17awa\)](/zh/devices/droidvm-neko17awa) | crosvm-gunyah | 1 | 仓库链接 | [Neko17awa/UniXNU-droidvm](https://github.com/Neko17awa/UniXNU-droidvm) |
-| [Rongyue E5（e5）](/zh/devices/e5) | UMS9621 | 2 | 适配记录 | [Enceka/UniXNU-e5](https://github.com/Enceka/UniXNU-e5) |
+| [Rongyue E5（e5）](/zh/devices/e5) | UMS9621 | 2 | 记录待补齐 | [Enceka/UniXNU-e5](https://github.com/Enceka/UniXNU-e5) |
 | [联想拯救者 Y700 四代（elden）](/zh/devices/elden) | SM8750P | 2 | 适配记录 | [jerry-2009/UNIXNU_elden](https://github.com/jerry-2009/UNIXNU_elden) |
 | [小米平板 5 Pro Wi-Fi（elish）](/zh/devices/elish) | SM8250-AC | 1 | 设备说明 | [hpadmx/UniXNU-elish](https://github.com/hpadmx/UniXNU-elish) |
 | [一加 6（enchilada）](/zh/devices/enchilada) | SDM845 | 1 | 设备说明 | [keyfan/UniXNU-enchilada](https://github.com/keyfan/UniXNU-enchilada) |
@@ -52,6 +52,7 @@
 | [Rockchip RK3588 EVB10 V10](/zh/devices/evb10) | RK3588 | 2 | 适配记录 | [Ken-u/UniXNU-evb10](https://github.com/Ken-u/UniXNU-evb10) |
 | [一加 15T（fairlady）](/zh/devices/fairlady) | SM8850 | 1 | 设备说明 | [Osilvfe/UniXNU-fairlady](https://github.com/Osilvfe/UniXNU-fairlady) |
 | [一加 6T（fajita）](/zh/devices/fajita) | SDM845 | 1 | 设备说明 | [johnpanos/UniXNU-fajita](https://github.com/johnpanos/UniXNU-fajita) |
+| [LG V50 ThinQ \(LM-V500, flashlm\)](/zh/devices/flashlm) | SM8150 | 1 | 仓库链接 | [drx1x2/UniXNU-flashlm](https://github.com/drx1x2/UniXNU-flashlm) |
 | [小米 13（fuxi）](/zh/devices/fuxi) | SM8550 | 1 | 设备说明 | [matejkoo217/UniXNU-fuxi](https://github.com/matejkoo217/UniXNU-fuxi) |
 | [Xiaomi 13 \(0721GPT\)](/zh/devices/fuxi-0721gpt) | SM8550 | 1 | 仓库链接 | [0721GPT/UniXNU-fuxi](https://github.com/0721GPT/UniXNU-fuxi) |
 | [Xiaomi 13 \(hanzi123-bilp\)](/zh/devices/fuxi-hanzi123-bilp) | SM8550 | 1 | 仓库链接 | [hanzi123-bilp/unixnu-fuxi](https://github.com/hanzi123-bilp/unixnu-fuxi) |
@@ -142,6 +143,7 @@
 | [Xiaomi Pad 6 \(xVanTuring\)](/zh/devices/pipa-xvanturing) | SM8250 | 1 | 仓库链接 | [xVanTuring/UniXNU-pipa](https://github.com/xVanTuring/UniXNU-pipa) |
 | [小米 MIX 2S（polaris）](/zh/devices/polaris) | SDM845 | 1 | 设备说明 | [luuu20309/UniXNU-polaris](https://github.com/luuu20309/UniXNU-polaris) |
 | [Xiaomi Mi MIX 2S \(PuszekReksio\)](/zh/devices/polaris-puszekreksio) | SDM845 | 1 | 仓库链接 | [PuszekReksio/UniXNU-judyln](https://github.com/PuszekReksio/UniXNU-judyln) |
+| [Xiaomi Mi MIX 2S \(SPRMD\)](/zh/devices/polaris-sprmd) | SDM845 | 1 | 仓库链接 | [SPRMD/UniXNU-polaris](https://github.com/SPRMD/UniXNU-polaris) |
 | [Nothing Phone \(2\)（pong）](/zh/devices/pong) | SM8475 | 2 | 适配记录 | [Chengdong-Yu/UniXNU-pong](https://github.com/Chengdong-Yu/UniXNU-pong) |
 | [Nothing Phone \(2\): UniXNU UEFI bring-up \(hxzbaka\)](/zh/devices/pong-hxzbaka) | SM8475 | 1 | 仓库链接 | [hxzbaka/UniXNU-pong](https://github.com/hxzbaka/UniXNU-pong) |
 | [Nothing Phone \(2\): UniXNU UEFI bring-up \(Y3d4\)](/zh/devices/pong-y3d4) | SM8475 | 1 | 仓库链接 | [Y3d4/UniXNU-pong-clean](https://github.com/Y3d4/UniXNU-pong-clean) |
