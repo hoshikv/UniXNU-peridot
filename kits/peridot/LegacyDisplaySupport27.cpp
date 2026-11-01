@@ -47,3 +47,6 @@ extern "C" int boot_progress_prepare_scanout(void) {return 1;}
 extern "C" void boot_progress_cancel_scanout(void) {}
 extern "C" void boot_progress_stage(const char *) {}
 extern "C" int boot_progress_pulse_anchor(uintptr_t,uint64_t,unsigned,unsigned,unsigned) {return 0;}
+extern "C" __attribute__((weak)) bool native_adreno_fences(uint32_t *,uint32_t *) {return false;}
+extern "C" __attribute__((weak)) uint32_t native_ufs_dpu_map(unsigned,const uint64_t *,unsigned) {return 0;}
+extern "C" __attribute__((weak)) volatile uint32_t native_ufs_dpu_state = 0;
