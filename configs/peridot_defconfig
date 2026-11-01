@@ -12,7 +12,8 @@ CONFIG_XNU_ARMVIRT_PLATFORM=n
 # prelinked kernelcache, while the UFS transport and owner policy runtime are built
 # from source into a separate archive.
 CONFIG_XNU_BUILD_ARCHIVES=y
-CONFIG_XNU_KERNEL_CHAINED_FIXUPS=y
+# The prelink tool matches a classic MH_EXECUTE; chained fixups are for a fileset boot.
+CONFIG_XNU_KERNEL_CHAINED_FIXUPS=n
 CONFIG_XNU_EXTRA_LD_ARCHIVES="-Wl,-force_load,{tree}/build/sheng-source-storage/libShengSourceStorage.a"
 CONFIG_XNU_SOURCE_STORAGE=y
 # Peridot does not select the sheng board diagnostics that own the GPU/HID/IPC rings.
