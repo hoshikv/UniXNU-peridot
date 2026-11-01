@@ -105,6 +105,7 @@ kernel_args = [
   "-apfs_shared_datavolume",
   "offline-key-events=1",
   "native-ufs-root=1",
+  "peridot-touch=4",
 ]
 
 [payload.adt]
