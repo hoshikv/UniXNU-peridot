@@ -136,7 +136,7 @@ uint32_t rpmhAddress(const char *name)
         const struct cmd_db_slave *slave = &db->slave[s];
         const struct cmd_db_entry *entry;
 
-        if (slave->id == 0 || slave->header_offset >= TB_CMD_DB_SIZE - 0x1000 || slave->count > 512) {
+        if (slave->id == 0 || (uint32_t)slave->header_offset >= TB_CMD_DB_SIZE - 0x1000 || slave->count > 512) {
             continue;
         }
         entry = reinterpret_cast<const struct cmd_db_entry *>(data + slave->header_offset);
