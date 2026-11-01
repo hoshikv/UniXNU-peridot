@@ -53,7 +53,9 @@
     "patches/mesa/turnip-graphics-cache-feedback.patch",
     "patches/mesa/turnip-empty-scissor.patch",
     "patches/mesa/turnip-builtin-shader-pack.patch",
-    "patches/mesa/turnip-host-import-images.patch"
+    "patches/mesa/turnip-host-import-images.patch",
+    "patches/mesa/turnip-render-mode-for-attachment-memory.patch",
+    "patches/mesa/turnip-gmem-mutable-swap.patch"
   ],
   "integer_fma_reference": {
     "repository": "https://github.com/ucb-bar/berkeley-softfloat-3",

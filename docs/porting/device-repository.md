@@ -15,10 +15,12 @@ UniXNU-<device>/
   board.toml
   porting.toml
   .github/workflows/porting-record.yml
+  .github/workflows/package.yml
   feeds.toml
   configs/<device>_defconfig
   dts/<device>.dts
   patches/xnu/series
+  scripts/package.sh
   proprietary-files.txt
   package/
   local.toml.example
@@ -52,6 +54,7 @@ and update existing files in place. Review these groups:
 | `package/`, board code and build recipes | Selected components and board services have build recipes, startup integration and required OS ABI inputs |
 | `proprietary-files.txt`, firmware configuration | Required firmware sources and hashes, DSC/FDF integration, partition geometry and image inputs |
 | `porting.toml`, `.github/workflows/porting-record.yml` | Every selected component and dependency covered by an area; actual source, host and device results; record check enabled |
+| `.github/workflows/package.yml` | The packaging action of [the packaging script](/porting/packaging) |
 | `README.md`, `AGENTS.md` | Board scope, prerequisites, build commands and links to the common guides and device record |
 | `.gitignore`, `local.toml.example` | Local override file and generated output directories ignored; example paths documented |
 
@@ -82,6 +85,8 @@ areas checked. Resolve each reported error before publication.
 
 Compile the [board DTS](/porting/device-tree), then follow
 [Building](/building) for kernel, package, firmware, payload and boot image.
+The repository also carries the [device packaging script](/porting/packaging)
+that produces the same two artifacts from a clean checkout with no edit.
 Record each command, revision, output and result. Record hardware checkpoints
 separately using [bring-up](/porting/bring-up) and [log capture](/porting/log-capture).
 Assign each area its supported [completion level](/porting/records#completion-levels).
@@ -211,13 +216,11 @@ fetch = ["KernelCache", "DeviceTree", "StaticTrustCache", "Cryptex1,SystemTrustC
 first_lba = 0x0
 last_lba = 0x0
 lba_bytes = 4096
-windows = [
-  { name = "OS", component = "OS" },
-  { name = "SystemOS", component = "Cryptex1,SystemOS" },
-]
 ```
 
-`first_lba` and `last_lba` come from the GPT entry named `userdata`. `lba_bytes` is the logical block size. Each window names a disk image component from the IPSW.
+`first_lba` and `last_lba` come from the GPT entry named `userdata`. `lba_bytes` is the logical block size.
+
+The OS profile lists the IPSW disk images in `[userdata] windows`. A window with `optional = true` is skipped when the IPSW does not have it.
 
 ### Kernel
 

@@ -4,16 +4,16 @@
 
 <div v-pre>
 
-Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch driver and its staged kernel probe. No device boot evidence yet.
+Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch driver and its staged kernel probe; CI builds the kernel, the payload, the DEBUG firmware and the fastboot boot image. No device boot evidence yet.
 
-Source record: [porting.toml](https://github.com/OddlyLabs/unixnu-fuxi/blob/72300f2b07ccee230e07caa7b31f5af269b4f942/porting.toml), `72300f2b07ccee230e07caa7b31f5af269b4f942`.
+Source record: [porting.toml](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/porting.toml), `77c0a035d49008df4ccafe617456c3c2e62d1dc0`.
 
 This page is generated from the device record.
 
 | Area | Status |
 | --- | --- |
 | [Configuration](#configuration) | `implemented` |
-| [Firmware and boot](#firmware) | `implemented` |
+| [Firmware and boot](#firmware) | `host-verified` |
 | [CPU and interrupts](#cpu) | `planned` |
 | [Memory and DMA](#memory) | `planned` |
 | [Storage and root](#storage) | `planned` |
@@ -23,7 +23,7 @@ This page is generated from the device record.
 | [Network](#network) | `planned` |
 | [Audio](#audio) | `planned` |
 | [Power](#power) | `planned` |
-| [Image assembly](#packaging) | `implemented` |
+| [Image assembly](#packaging) | `host-verified` |
 | [Diagnostics](#diagnostics) | `implemented` |
 
 ## Configuration {#configuration}
@@ -52,6 +52,8 @@ Components: `ArmDTPlatform`, `ArmCpu`, `SoftwareAES`, `XnuPrelink`, `DarwinBoot`
 ### Development findings
 
 - CI \(.github/workflows/build.yml\) pins OddlyLabs/UniXNU and OddlyLabs/uefi-fuxi at full revisions; after merging upstream into either fork, update UNIXNU\_REF or UEFI\_REF and let the image job run again.
+- The image job installs Homebrew's openssl@3 itself rather than relying on the runner image: the encryption step uses OpenSSL 3 \(PBKDF2 for the image, RSA-OAEP with SHA-256 for its key\).
+- The host tests byte-compile scripts/\*.py and ci/\*.py and parse ci/decrypt-boot-image.sh with bash -n, so the image tools are checked on every push.
 - The merged configuration is the arch, SoC and OS fragments followed by the defconfig; the archive list has to cover every archive the merged options require, not only those of the template defconfig.
 - CONFIG\_XNU\_SOURCE\_MOCKFS \(OS fragment\) makes vfs\_conf.o reference mockfs, so the link needs build/mockfs-fixture/libmockfs\_fixture.a: the first CI kernel build at 450f518 applied all 62 patches and built every listed archive, then stopped at that missing archive.
 - ArmCpu needs the source corecrypto provider, so corecrypto is built before the components, as in UniXNU-sheng.
@@ -70,13 +72,13 @@ Components: `ArmDTPlatform`, `ArmCpu`, `SoftwareAES`, `XnuPrelink`, `DarwinBoot`
 
 ### Evidence
 
-- `source`: [Board selection and archive order](https://github.com/OddlyLabs/unixnu-fuxi/blob/72300f2b07ccee230e07caa7b31f5af269b4f942/board.toml)
+- `source`: [Board selection and archive order](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/board.toml)
 - `host`: [All sources resolved, 62 patches applied, nine archives built, kernel linked and prelinked](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41261795785)
   Command: <code>./unixnu defconfig fuxi_defconfig; ./unixnu build kernel</code>. Revision: `8b4c03f69fc15878d7ee92c0f157215fa235d78d`.
 
 ## Firmware and boot {#firmware}
 
-`implemented`
+`host-verified`
 
 Components: `DarwinBoot`.
 
@@ -99,6 +101,8 @@ Components: `DarwinBoot`.
 - UniXNU provides the boot menu \(UniXNUPkg\) and the XNU loader \(DarwinBoot\) as UEFI modules; the board firmware that runs them on the phone is a Mu-Silicium platform, and upstream Mu-Silicium has no fuxi platform.
 - Measured on hardware in matejkoo217/uefi-fuxi: with text offset 0 in the shim's ARM64 header the ABL loads the image and the firmware's DEBUG console prints on the panel; with the firmware address there the ABL answers Load Error.
 - The firmware's FdtBlob \(sm8550-xiaomi-fuxi.dtb, model 8550 fuxi, msm-id 0x207, board-id 0x10008\) carries the root properties the ABL selects an appended DTB by; the DTB merged from OS3.0.309 keeps the base DTB's board-id 0 and is not used for the boot image.
+- fuxiPkg Include/RAW.inc listed the vendor raw files SecParti.cfg, uefipil.cfg and QcomChargerCfg.cfg outside the FUXI\_VENDOR\_HW gate, so the first firmware build in CI \(run 41268231266 at 72300f2\) stopped at the missing Binaries/nuwa/RawFiles/SecParti.cfg; uefi-fuxi 87554bf9 gates them with their drivers.
+- With FUXI\_VENDOR\_HW = 0 the volume holds UniXNU, UniXNUDxe, DarwinBoot, FuxiBootMemoryDxe, SimpleFbDxe, FAT, PartitionDxe and DiskIoDxe. FuxiGopLogDxe and FuxiDisplayDepexDxe are compiled but enter the volume only with USE\_CUSTOM\_DISPLAY\_DRIVER = 1.
 
 ### Completion criteria
 
@@ -115,6 +119,10 @@ Components: `DarwinBoot`.
 ### Evidence
 
 - `source`: [Firmware fork with the fuxi platform](https://github.com/OddlyLabs/uefi-fuxi/tree/fuxi)
+- `host`: [DEBUG SILICIUM\_UEFI.fd built at 0x300000 bytes with the UniXNU menu, UniXNUDxe, DarwinBoot and FuxiBootMemoryDxe in the volume](https://github.com/OddlyLabs/uefi-fuxi/commit/87554bf90a6f5707ceeb3720b3dc507de914db94)
+  Command: <code>./unixnu build firmware --uefi ../uefi-fuxi --target DEBUG (Ubuntu 26.04, clang 21.1.8, uefi-fuxi 87554bf90a6f5707ceeb3720b3dc507de914db94, UniXNU 6ae4c252937ae1920ab68eaded10fc78447e0194)</code>. Revision: `72300f2b07ccee230e07caa7b31f5af269b4f942`.
+- `host`: [DEBUG firmware from uefi-fuxi 87554bf9 built on macOS 26 at 0x300000 bytes \(fd\_sha256 627fe52af360...\) and packed into the boot image](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41273003819)
+  Command: <code>./unixnu build firmware --uefi ../uefi-fuxi --target DEBUG</code>. Revision: `2bbd3993e97081db16d8ecc00c58c78f53200b8e`.
 
 ## CPU and interrupts {#cpu}
 
@@ -260,7 +268,7 @@ Collect evidence using the next action.
 
 ### Evidence
 
-- `source`: [Panel facts with sources \(section 3\)](https://github.com/OddlyLabs/unixnu-fuxi/blob/72300f2b07ccee230e07caa7b31f5af269b4f942/fuxi_touch_panel_porting.md)
+- `source`: [Panel facts with sources \(section 3\)](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/fuxi_touch_panel_porting.md)
 
 ## Input {#input}
 
@@ -311,8 +319,8 @@ Components: `QcomGeniSpi`, `FuxiFtsTouch`.
 ### Evidence
 
 - `source`: [FTM5 protocol and contact tracking with host tests](https://github.com/OddlyLabs/FuxiFtsTouch)
-- `source`: [Staged board probe](https://github.com/OddlyLabs/unixnu-fuxi/blob/72300f2b07ccee230e07caa7b31f5af269b4f942/package/FuxiTouchProbe.cpp)
-- `source`: [Touch facts with sources and the Android measurements \(sections 2 and 6\)](https://github.com/OddlyLabs/unixnu-fuxi/blob/72300f2b07ccee230e07caa7b31f5af269b4f942/fuxi_touch_panel_porting.md)
+- `source`: [Staged board probe](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/package/FuxiTouchProbe.cpp)
+- `source`: [Touch facts with sources and the Android measurements \(sections 2 and 6\)](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/fuxi_touch_panel_porting.md)
 
 ## GPU {#gpu}
 
@@ -460,7 +468,7 @@ Collect evidence using the next action.
 
 ## Image assembly {#packaging}
 
-`implemented`
+`host-verified`
 
 Components: `XnuPrelink`.
 
@@ -484,6 +492,8 @@ Components: `XnuPrelink`.
 - fuxi-touch-probe.patch keeps only original XNU lines as context, so changes to the shared series around it do not break it.
 - Measured on hardware in matejkoo217/uefi-fuxi: the ABL's fastboot boot refuses a header v4 image \(Invalid Parameter\), so the fastboot image uses the v0 container; and the ABL keeps the boot image ramdisk in vendor\_boot, so the payload follows the firmware volume and the image size at header offset 0x10 covers it \(Kerfand: 0x0C300200 for a 192 MiB payload\).
 - The first kernel build in CI at 8b4c03f linked and prelinked; bsd\_init calls native\_touch\_probe in the linked kernel.
+- The CI image at 2bbd399 advertises image size 0x0C300200 \(shim 0x200, firmware 0x300000, payload 0xC000000\), the value Kerfand measured for a booting 192 MiB payload. gzip brings the whole image to 11.1 MiB because the payload volume is mostly free space.
+- The payload's ADT has dram-size 0x80000000 and darwinboot-memory-size 0x130000000, the values of UniXNU-sheng and of both community fuxi ports.
 
 ### Completion criteria
 
@@ -496,12 +506,14 @@ Components: `XnuPrelink`.
 
 ### Next action
 
-- Run the image job, decrypt the artifact and boot it with fastboot boot.
+- Boot the decrypted image with fastboot boot \(the owner's decision\) and photograph the panic screen.
 
 ### Evidence
 
 - `host`: [Kernel linked and prelinked; bsd\_init calls \_native\_touch\_probe](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41261795785)
   Command: <code>./unixnu build kernel --device fuxi</code>. Revision: `8b4c03f69fc15878d7ee92c0f157215fa235d78d`.
+- `host`: [boot.img v0, 11677696 bytes \(sha256 931ac9582632...\), uploaded encrypted; decrypted with ci/decrypt-boot-image.sh, ci/check-boot-image.py passes: text offset 0, firmware and 192 MiB FUXIESP payload in the kernel image, FdtBlob appended, kernel.macho with the touch probe, its ADT and the boot arguments of board.toml](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41273003819)
+  Command: <code>./unixnu build payload --uefi ../uefi-fuxi --unique-chip-id 0x0123456789abcdef; ./unixnu bootimg --uefi ../uefi-fuxi --target DEBUG --dtb &lt;FdtBlob&gt;</code>. Revision: `2bbd3993e97081db16d8ecc00c58c78f53200b8e`.
 
 ## Diagnostics {#diagnostics}
 
@@ -524,6 +536,7 @@ Components: `XnuPrelink`.
 - The other fuxi ports read their results from panic screen photographs as well.
 - The DEBUG firmware prints its log on the panel before the handoff \(matejkoo217/uefi-fuxi\), the only console before the touch report.
 - The earlier ci/ scripts compiled the probe inside a UniXNU-sheng build; the fuxi kernel build replaces them.
+- ci/check-boot-image.py checks a decrypted image before fastboot boot against boot.json, board.toml and the firmware checkout: container and load addresses, the shim header, the firmware volume, the payload files, the ADT root and /chosen values, and the boot arguments.
 
 ### Completion criteria
 
@@ -539,6 +552,8 @@ Components: `XnuPrelink`.
 
 ### Evidence
 
-- `source`: [Panic report and kernel log rows](https://github.com/OddlyLabs/unixnu-fuxi/blob/72300f2b07ccee230e07caa7b31f5af269b4f942/package/FuxiTouchProbe.cpp)
+- `source`: [Panic report and kernel log rows](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/package/FuxiTouchProbe.cpp)
+- `host`: [The image artifact decrypts with the owner's key \(sha256 matches boot.img.sha256\) and every check passes; a tampered boot.json fails two checks](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41273003819)
+  Command: <code>bash ci/decrypt-boot-image.sh &lt;key&gt; &lt;artifact&gt;; python3 ci/check-boot-image.py boot.img boot.json ../uefi-fuxi</code>. Revision: `2bbd3993e97081db16d8ecc00c58c78f53200b8e`.
 
 </div>

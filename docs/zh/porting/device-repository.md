@@ -14,10 +14,12 @@ UniXNU-<device>/
   board.toml
   porting.toml
   .github/workflows/porting-record.yml
+  .github/workflows/package.yml
   feeds.toml
   configs/<device>_defconfig
   dts/<device>.dts
   patches/xnu/series
+  scripts/package.sh
   proprietary-files.txt
   package/
   local.toml.example
@@ -47,6 +49,7 @@ UniXNU-<device>/
 | `package/`、板级代码和构建配方 | 所选组件与板级服务具备构建配方、启动接入和所需 OS ABI 输入 |
 | `proprietary-files.txt`、固件配置 | 固件来源与哈希、DSC/FDF 集成、分区几何和镜像输入完整 |
 | `porting.toml`、`.github/workflows/porting-record.yml` | 每个所选组件及依赖都有对应区域；记录实际源码、主机和设备结果；启用记录检查 |
+| `.github/workflows/package.yml` | [设备打包脚本](/zh/porting/packaging)的打包 action |
 | `README.md`、`AGENTS.md` | 设备范围、前置条件、构建命令，以及通用指南和设备记录链接 |
 | `.gitignore`、`local.toml.example` | 忽略本机覆盖文件与生成目录；说明示例路径 |
 
@@ -73,7 +76,8 @@ python3 scripts/porting-record.py check --device "$DEVICE_DIR"
 `tree/kits/<board.kit>/`。记录检查器输出已检查的结构化区域数量；发布前解决报告的错误。
 
 编译[板级 DTS](/zh/porting/device-tree)，再按[构建指南](/zh/building)生成内核、package、
-固件、payload 和启动镜像。记录每条命令、版本、输出与结果。按[启动验证](/zh/porting/bring-up)
+固件、payload 和启动镜像。设备仓库还带有[设备打包脚本](/zh/porting/packaging)，
+从干净检出、无需修改即可产出同样两项产物。记录每条命令、版本、输出与结果。按[启动验证](/zh/porting/bring-up)
 和[日志抓取](/zh/porting/log-capture)单独记录硬件检查点，并为各区域填写有证据支持的
 [完成等级](/zh/porting/records#completion-levels)。
 
@@ -217,13 +221,11 @@ fetch = ["KernelCache", "DeviceTree", "StaticTrustCache", "Cryptex1,SystemTrustC
 first_lba = 0x0
 last_lba = 0x0
 lba_bytes = 4096
-windows = [
-  { name = "OS", component = "OS" },
-  { name = "SystemOS", component = "Cryptex1,SystemOS" },
-]
 ```
 
-`first_lba` 和 `last_lba` 来自名为 `userdata` 的 GPT 条目，`lba_bytes` 是逻辑块大小。每个窗口指定 IPSW 磁盘镜像组件。
+`first_lba` 和 `last_lba` 来自名为 `userdata` 的 GPT 条目，`lba_bytes` 是逻辑块大小。
+
+OS 配置在 `[userdata] windows` 中列出 IPSW 磁盘镜像。IPSW 没有某个 `optional = true` 的窗口时跳过它。
 
 ### 内核
 

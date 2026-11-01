@@ -635,6 +635,11 @@
     "title_zh": "小米 17 Pro（pandora）"
   },
   {
+    "name": "pd2049",
+    "title": "vivo iQOO 7 V2049A early XNU bring-up",
+    "title_zh": "vivo iQOO 7 V2049A early XNU bring-up"
+  },
+  {
     "name": "pdx203",
     "title": "Sony Xperia 1 II (pdx203)",
     "title_zh": "Sony Xperia 1 II（pdx203）"
@@ -770,6 +775,11 @@
     "title_zh": "Realme 5 Pro"
   },
   {
+    "name": "rmx3823",
+    "title": "realme GT5 240W (RMX3823), kalama, 24 GiB, 1240x2772 AMOLED",
+    "title_zh": "realme GT5 240W (RMX3823), kalama, 24 GiB, 1240x2772 AMOLED"
+  },
+  {
     "name": "ruyi",
     "title": "Xiaomi MIX Flip (ruyi)",
     "title_zh": "小米 MIX Flip（ruyi）"
@@ -840,9 +850,19 @@
     "title_zh": "Xiaomi Pad 6S Pro (TheArchitectEngineer)"
   },
   {
+    "name": "sheng-tkings4chan",
+    "title": "Xiaomi Pad 6S Pro (tkings4chan)",
+    "title_zh": "Xiaomi Pad 6S Pro (tkings4chan)"
+  },
+  {
     "name": "sheng-v1-727",
     "title": "Xiaomi Pad 6S Pro (v1-727)",
     "title_zh": "Xiaomi Pad 6S Pro (v1-727)"
+  },
+  {
+    "name": "sheng-yeyingjun-codes",
+    "title": "Xiaomi Pad 6S Pro (yeyingjun-codes)",
+    "title_zh": "Xiaomi Pad 6S Pro (yeyingjun-codes)"
   },
   {
     "name": "sheng-yuyaukong",

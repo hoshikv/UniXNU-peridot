@@ -63,6 +63,14 @@ the corresponding error path on timeout or failure.
 **Expected result:** XNU publishes the display, presents frames and completes
 swaps. Record requested refresh and measured frame timing separately.
 
+The 24A446 adapter supplies the default surface through the original IOSurfaceRoot
+factory and validates its backing memory and geometry before transferring ownership
+to the display family. The family's `create_default_fb_surface()` slot returns void;
+its residual return register is not an object pointer. A captured 300-second boot
+completed three swaps without a kernel panic and displayed the Apple logo.
+Home-screen startup remains unverified; capture the display-server and SpringBoard
+wait chains before treating a stationary logo as a framebuffer transfer failure.
+
 ### Read the display pipes {#dpu-pipes}
 
 Before changing what the display fetches, read how firmware left it.
@@ -80,6 +88,16 @@ panel refreshes by itself. The display context bank starts with translation off.
 Direct scanout (`sheng-dpu-scanout=2`) is experimental and off by default: it
 gives the display bank a stage 1 window (ShengUfs) and points the pipes at the
 compositor's surfaces. Any failure falls back to the GPU copy.
+
+The window's TCR2 sets the sign extension field (SEP, bits 17:15) to 7, as
+arm-smmu does for AArch64 contexts; with SEP 0 an address with bit 31 set faults
+at level 0. The compositor submits a swap when its command buffer is scheduled,
+not when the GPU finished it, so the display driver flips only after the GPU
+wrote everything handed to it before the swap arrived (the Adreno driver exports
+the newest and the completed fence). Without that wait the pipes scan a surface
+the GPU is still writing and the panel flickers. The boot log row
+`[direct scanout]` shows flips, mapped surfaces, latch times and the time the
+flips waited for the GPU. The framebuffer must be 8-bit BGRA.
 
 ## 3. Identify the brightness transport
 
