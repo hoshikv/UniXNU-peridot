@@ -25,22 +25,22 @@ trustcache_tag = "xnu-8796.101.5"    # earlier tag that still has EXTERNAL_HEADE
 name = "libplatform"
 kind = "refer"
 git = "https://github.com/apple-oss-distributions/libplatform.git"
-ref = "libplatform-316.100.10"
-commit = "a00a4cc36da2110578bcf3b8eeeeb93dcc7f4e11"
+ref = "libplatform-375.120.2"
+commit = "b7ed7cf5cf7dd12b98672435db2225a860f199d8"
 
 [[source]]
 name = "libdispatch"
 kind = "refer"
 git = "https://github.com/apple-oss-distributions/libdispatch.git"
-ref = "libdispatch-1477.100.9"
-commit = "30fe6a7d945340ce69cef121132f049e810089a5"
+ref = "libdispatch-1542.100.32"
+commit = "701f4d1a24ae9c6863901bbbb22624b7d1b87321"
 
 [[source]]
 name = "AvailabilityVersions"
 kind = "refer"
 git = "https://github.com/apple-oss-distributions/AvailabilityVersions.git"
-ref = "AvailabilityVersions-141.1"
-commit = "933f9360f1b70dfbda5548386a3d65e0358b4f7d"
+ref = "AvailabilityVersions-157.2"
+commit = "149b1777f3e8c2133042d8e188f72e3adf6a7110"
 
 [[source]]
 name = "edk2"
@@ -60,8 +60,8 @@ submodules = [
 name = "libpthread"
 kind = "refer"
 git = "https://github.com/apple-oss-distributions/libpthread.git"
-ref = "libpthread-519.120.4"
-commit = "c0e60fb5ecfc54cf379c261d3f9572cc22ded891"
+ref = "libpthread-539.100.4"
+commit = "1f4f5265b319111142f1bf3a27d4484ef5a98314"
 
 [[source]]
 name = "corecrypto-2023"
@@ -73,5 +73,5 @@ commit = "11fba65b12d8830630e248dfa8344caf8b065f26"
 name = "IOStorageFamily"
 kind = "refer"
 git = "https://github.com/apple-oss-distributions/IOStorageFamily.git"
-ref = "main"
-commit = "e45fbe30a7879e0b16e26dddb78538f1b00e0bff"
+ref = "IOStorageFamily-337.100.1"
+commit = "7edb88fbae296fb7c8ce2f64e115e116e566d51c"
