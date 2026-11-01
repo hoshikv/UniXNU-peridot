@@ -182,10 +182,14 @@ if [ -d "$CRYPTO_OBJECT_DIR" ]; then
 fi
 if [ "$CRYPTO_BOOTSTRAP_MODE" = prelinked ]; then
   # The original component must initialize through real OSKext startup.
-  # Keep the source-provider bootstrap out of this kernel, but keep the
-  # lookup/start-once helpers OSKext calls to share that original start.
-  EXTRA_MAKE_ARGS+=("prng_random.o_CFLAGS_ADD=")
-  EXTRA_CFLAGS="${EXTRA_CFLAGS:-} -DXNU_SOURCE_CORECRYPTO14_PRELINKED=1"
+  # The bootstrap pass only leaves compile records, so omit the source provider
+  # there; the link pass keeps the lookup/start-once helpers OSKext calls.
+  if [ "$BOOTSTRAP" = 1 ]; then
+    EXTRA_MAKE_ARGS+=("prng_random.o_CFLAGS_ADD=-UXNU_SOURCE_CORECRYPTO14")
+  else
+    EXTRA_MAKE_ARGS+=("prng_random.o_CFLAGS_ADD=-DXNU_SOURCE_CORECRYPTO14_PRELINKED=1")
+    find build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837 -name prng_random.o -delete 2>/dev/null || true
+  fi
 else
   EXTRA_MAKE_ARGS+=("prng_random.o_CFLAGS_ADD=")
 fi

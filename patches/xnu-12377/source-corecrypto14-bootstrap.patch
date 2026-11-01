@@ -2,7 +2,7 @@ diff --git a/osfmk/prng/prng_random.c b/osfmk/prng/prng_random.c
 index 504b3fa..310719a 100644
 --- a/osfmk/prng/prng_random.c
 +++ b/osfmk/prng/prng_random.c
-@@ -502,3 +502,122 @@ random_bool_gen_bits(struct bool_gen * bg, unsigned int * buffer, unsigned int c
+@@ -502,3 +502,124 @@ random_bool_gen_bits(struct bool_gen * bg, unsigned int * buffer, unsigned int c
  	}
  	return rbits;
  }
