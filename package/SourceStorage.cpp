@@ -24,6 +24,22 @@ extern "C" const char *volatile native_ufs_root_failure;
 // minimal kernel does not include it; a weak definition keeps the archive
 // linkable and is replaced when the diagnostic component is built in.
 extern "C" __attribute__((weak)) void boot_progress_poll(void) {}
+
+// Optional sheng diagnostics (BootLog.c, BootDiagExport.c) reference rings and
+// hooks that only the sheng board components define. Weak zero definitions keep
+// the source archive linkable on boards that do not build those components.
+extern "C" {
+__attribute__((weak)) volatile uint32_t native_touch_report_count;
+__attribute__((weak)) volatile uint64_t *native_touch_report_ring = nullptr;
+__attribute__((weak)) void *sheng_ipc_trace_task = nullptr;
+__attribute__((weak)) void *sheng_ipc_trace_task2 = nullptr;
+__attribute__((weak)) void (*sheng_ipc_send_hook)(uint32_t, void *, uint32_t) = nullptr;
+__attribute__((weak)) void (*sheng_contig_hook)(unsigned int, int, uint64_t, uint64_t, const uintptr_t *, unsigned int) = nullptr;
+__attribute__((weak)) volatile uint32_t sheng_idle_sigp_cleared;
+__attribute__((weak)) volatile uint32_t sheng_idle_sigp_refused;
+__attribute__((weak)) volatile uint32_t sheng_idle_enter[8];
+__attribute__((weak)) volatile uint32_t sheng_idle_disallowed[8];
+}
 // Starts the sheng-log writer (BootLog.c); the board page calls it when that page is built in.
 extern "C" void boot_log_tick(unsigned now);
 extern "C" volatile uint32_t boot_log_state, boot_log_rounds, boot_log_errors;
