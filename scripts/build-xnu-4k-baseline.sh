@@ -182,9 +182,10 @@ if [ -d "$CRYPTO_OBJECT_DIR" ]; then
 fi
 if [ "$CRYPTO_BOOTSTRAP_MODE" = prelinked ]; then
   # The original component must initialize through real OSKext startup.
-  # Only this source-provider entry is omitted; no POST or missing-provider
-  # failure is suppressed, and no replacement crypto callbacks are supplied.
-  EXTRA_MAKE_ARGS+=("prng_random.o_CFLAGS_ADD=-UXNU_SOURCE_CORECRYPTO14")
+  # Keep the source-provider bootstrap out of this kernel, but keep the
+  # lookup/start-once helpers OSKext calls to share that original start.
+  EXTRA_MAKE_ARGS+=("prng_random.o_CFLAGS_ADD=")
+  EXTRA_CFLAGS="${EXTRA_CFLAGS:-} -DXNU_SOURCE_CORECRYPTO14_PRELINKED=1"
 else
   EXTRA_MAKE_ARGS+=("prng_random.o_CFLAGS_ADD=")
 fi

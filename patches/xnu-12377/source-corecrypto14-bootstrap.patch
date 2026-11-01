@@ -95,6 +95,7 @@ index 504b3fa..310719a 100644
 +	return source_corecrypto14_status;
 +}
 +
++#if !defined(XNU_SOURCE_CORECRYPTO14_PRELINKED)
 +static void
 +source_corecrypto14_bootstrap(void)
 +{
@@ -124,4 +125,5 @@ index 504b3fa..310719a 100644
 +}
 +/* PE_init_iokit hashes the platform UUID through the crypto KPIs before EARLY_BOOT runs. */
 +STARTUP(SYSCTL, STARTUP_RANK_LAST, source_corecrypto14_bootstrap);
++#endif
 +#endif
