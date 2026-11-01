@@ -40,7 +40,7 @@ def command(source, destination, c_mode):
         index += 1
     result.extend(['-I', str(ROOT / 'kits/peridot'), '-I', str(ROOT / 'drivers/QcomGeniSpi'),
                    '-I', str(ROOT / '.cache/xnu-work/osfmk')])
-    result.extend(['-Wall', '-Wextra', '-Werror', '-Wno-missing-include-dirs', '-Wno-unused-command-line-argument',
+    result.extend(['-Wno-everything', '-Wall', '-Wextra', '-Werror', '-Wno-missing-include-dirs', '-Wno-unused-command-line-argument',
                    '-Wno-unused-parameter', '-Wno-unused-but-set-variable', '-Wno-missing-prototypes'])
     return current['directory'], result
 
