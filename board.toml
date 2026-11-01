@@ -135,7 +135,7 @@ BUILDID_STRING = "peridot-unixnu"
 
 [payload]
 volume = "PERIDOTES"
-size_mib = 64
+size_mib = 32
 loader = "firmware"
 title = "peridot first boot: UniXNU"
 dram_size = "0x380000000"
