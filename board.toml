@@ -6,6 +6,57 @@ soc = "SM8635"
 description = "Xiaomi Poco F6 / Redmi Turbo 3"
 kit = "peridot"
 
+# Adreno 735 (SM8635, Cliffs): the GPU block is gen7_11_0 with the shared
+# A7XX GMU, so the uke A732 gen71100 kit applies. These values come from the
+# peridot DTB; no GPU memory pool is reserved yet, so the driver allocates its
+# context from the kernel VM until the ADT/UEFI pool is added.
+[gpu]
+model = "Adreno735"
+chip_id = "0x43030b00"
+compatible = "qcom,adreno-gpu-gen7-11-0"
+family = "ADRENO_7XX_GEN2"
+gpu_base = "0x3d00000"
+gpu_size = "0x40000"
+gmu_base = "0x3d68000"
+gmu_size = "0x37000"
+gmu_pdc_base = "0xb280000"
+gmu_pdc_size = "0x10000"
+gpucc_base = "0x3d90000"
+gpucc_size = "0xa000"
+gcc_base = "0x100000"
+smmu_base = "0x3da0000"
+smmu_size = "0x40000"
+sid_user = 0x00
+sid_secure = 0x02
+sid_gmu = 0x05
+gmem_bytes = "0x180000"
+gmu_chip_id = "0x70b0000"
+gmu_cgc_mode = "0x00020202"
+preempt_record_bytes = "0x225000"
+ubwc_version = 4
+ubwc_swizzle = 3
+highest_bank_bit = 16
+num_pwrlevels = 13
+initial_pwrlevel = 10
+min_pwrlevel = 12
+max_pwrlevel = 0
+firmware_sqe = ["gen71100_sqe.fw"]
+firmware_gmu = ["gen71100_gmu.bin"]
+firmware_zap = ["gen71100_zap.mbn"]
+firmware_source = "/vendor/firmware + /odm/firmware"
+
+[gpu.firmware_pins."gen71100_sqe.fw"]
+bytes = 66036
+sha256 = "b6df660d109504dbea5a266910b037a33d893a11c6de52f524a5fd112008c401"
+
+[gpu.firmware_pins."gen71100_gmu.bin"]
+bytes = 80680
+sha256 = "435c7bac9a328b8a100df930b84b65b4d579e42be44785d0e60e3729291bb864"
+
+[gpu.firmware_pins."gen71100_zap.mbn"]
+bytes = 12088
+sha256 = "1294992888e8c7c7fcd8a6d0a672cc666eff3c95e666ce5840db7e03edcc500d"
+
 # Target OS image: iPhone X (d22ap) iOS 16.7.16 restore image.
 [ipsw]
 url = "https://updates.cdn-apple.com/2025FallFCS/fullrestores/122-77006/1158E502-D76D-4226-AA06-ED5E30CD1111/iPhone10,3,iPhone10,6_16.7.16_20H392_Restore.ipsw"

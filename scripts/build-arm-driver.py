@@ -102,8 +102,11 @@ if component in ('NativeLegacyDisplay','NativeHidInput'):
     command += ['-I', str(out)]
 if component == 'NativeAdreno':
     command += ['-I', str(ROOT / 'kits/ArmSmmu4K'), '-I', str(ROOT / 'kits/AdrenoPM4'),
-                '-I', str(ROOT / 'kits/sheng'), '-I', str(ROOT / 'kits/Sm8550Platform'), '-I', str(ROOT / 'kits/AdrenoFirmware'),
+                '-I', str(ROOT / 'kits/AdrenoFirmware'),
                 '-I', str(ROOT / 'build/sheng-gmu'), '-I', str(ROOT / 'build/adreno740/include')]
+    for kit in ('peridot', 'sheng', 'Sm8550Platform'):
+        if (ROOT / 'kits' / kit).is_dir():
+            command += ['-I', str(ROOT / 'kits' / kit)]
 (out / 'compile-command.json').write_text(json.dumps(command, indent=2) + '\n')
 result = subprocess.run(command, cwd=record['directory'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 (out / 'compile.log').write_text(result.stdout)

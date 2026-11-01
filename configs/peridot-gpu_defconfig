@@ -1,0 +1,20 @@
+# peridot GPU bring-up configuration: the peridot kernel plus NativeAdreno
+# for the Adreno 735 (gen7_11_0, A7XX GMU). The A732 gen71100 profile matches
+# the chip id in the peridot DTB. This proves the build and link path only:
+# scripts/prepare-peridot-gmu.py writes the GMU/vote headers from the recorded
+# board facts, and the vendor firmware is embedded only when present under
+# .cache/firmware/peridot-gpu. Without those files the kernel links with weak
+# empty firmware and the GMU cold start refuses at runtime.
+# Kernel configuration of the peridot image. CONFIG_XNU_<NAME> becomes XNU_<NAME> for the kernel build.
+
+CONFIG_XNU_SOURCE_CORECRYPTO14=y
+CONFIG_XNU_SOURCE_PTHREAD=y
+CONFIG_XNU_ARM_DT_PLATFORM=y
+CONFIG_XNU_ARMCPU=y
+
+CONFIG_XNU_CRYPTO_BOOTSTRAP="prelinked"
+CONFIG_XNU_ARMVIRT_PLATFORM=n
+
+CONFIG_XNU_PERIDOT_TOUCH=y
+
+CONFIG_XNU_NATIVE_ADRENO=y

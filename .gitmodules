@@ -15,7 +15,7 @@
 	url = https://github.com/UniXNU/SoftwareAES.git
 [submodule "drivers/Adreno740"]
 	path = drivers/Adreno740
-	url = https://github.com/UniXNU/Adreno740.git
+	url = https://github.com/Allenwdk/NativeAdreno.git
 [submodule "drivers/QcomGeniSpi"]
 	path = drivers/QcomGeniSpi
 	url = https://github.com/UniXNU/QcomGeniSpi.git
