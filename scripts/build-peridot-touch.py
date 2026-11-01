@@ -19,7 +19,8 @@ CXX_ONLY = ('-fno-rtti', '-fno-exceptions', '-fno-threadsafe-statics', '-fno-c++
 
 
 def command(source, destination, c_mode):
-    arguments = (json.loads(C_RECORD.read_text().strip().rstrip(',')) if c_mode else record)['arguments']
+    current = json.loads(C_RECORD.read_text().strip().rstrip(',')) if c_mode else record
+    arguments = current['arguments']
     result = []
     index = 0
     while index < len(arguments):
@@ -40,12 +41,12 @@ def command(source, destination, c_mode):
                    '-I', str(ROOT / '.cache/xnu-work/osfmk')])
     result.extend(['-Wall', '-Wextra', '-Werror', '-Wno-missing-include-dirs', '-Wno-unused-command-line-argument',
                    '-Wno-unused-parameter', '-Wno-unused-but-set-variable'])
-    return result
+    return current['directory'], result
 
 
-def run(parts):
+def run(parts, cwd=ROOT):
     print(' '.join(str(part) for part in parts))
-    subprocess.run([str(part) for part in parts], check=True, cwd=ROOT)
+    subprocess.run([str(part) for part in parts], check=True, cwd=cwd)
 
 
 objects = []
@@ -54,7 +55,8 @@ sources = ((ROOT / 'kits/peridot/GoodixBerlin.c', True),
            (ROOT / 'kits/peridot/TouchProbe.cpp', False))
 for source, c_mode in sources:
     destination = OUT / (source.stem + '.o')
-    run(command(source, destination, c_mode))
+    directory, parts = command(source, destination, c_mode)
+    run(parts, cwd=directory)
     objects.append(destination)
 
 archive = OUT / 'libPeridotTouch.a'
