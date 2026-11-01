@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'build/peridot-touch'
 RECORD = ROOT / 'build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/iokit/DEVELOPMENT/IOPlatformExpert.cpo.json'
+C_RECORD = ROOT / 'build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/bsd/DEVELOPMENT/bsd_init.o.json'
 
 if not RECORD.is_file():
     raise SystemExit(f'{RECORD} missing; build the kernel once first')
@@ -18,7 +19,7 @@ CXX_ONLY = ('-fno-rtti', '-fno-exceptions', '-fno-threadsafe-statics', '-fno-c++
 
 
 def command(source, destination, c_mode):
-    arguments = record['arguments']
+    arguments = (json.loads(C_RECORD.read_text().strip().rstrip(',')) if c_mode else record)['arguments']
     result = []
     index = 0
     while index < len(arguments):
@@ -37,7 +38,8 @@ def command(source, destination, c_mode):
         index += 1
     result.extend(['-I', str(ROOT / 'kits/peridot'), '-I', str(ROOT / 'drivers/QcomGeniSpi'),
                    '-I', str(ROOT / '.cache/xnu-work/osfmk')])
-    result.extend(['-Wall', '-Wextra', '-Werror', '-Wno-unused-parameter', '-Wno-unused-but-set-variable'])
+    result.extend(['-Wall', '-Wextra', '-Werror', '-Wno-missing-include-dirs', '-Wno-unused-command-line-argument',
+                   '-Wno-unused-parameter', '-Wno-unused-but-set-variable'])
     return result
 
 
