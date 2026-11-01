@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: BSD-2-Clause-Patent */
 #include "GoodixBerlin.h"
-#include <stdio.h>
-#include <string.h>
+#include "TouchKernelLibc.h"
 
 static uint16_t
 le16(const uint8_t *p)

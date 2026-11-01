@@ -5,7 +5,7 @@
 #include <IOKit/IOService.h>
 #include <IOKit/IOLib.h>
 #include <IOKit/IOMemoryDescriptor.h>
-#include <string.h>
+#include "TouchKernelLibc.h"
 #include <libkern/c++/OSSharedPtr.h>
 #include <kern/thread.h>
 #include <pexpert/pexpert.h>
