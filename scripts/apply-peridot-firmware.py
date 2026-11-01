@@ -63,6 +63,7 @@ def main():
     if not (uefi / 'Resources/Scripts/mkbootimg.py').is_file():
         parser.error(f'{uefi} is not a Mu-Silicium checkout')
     changed = copy_tree(FILES / 'Platforms', uefi)
+    changed += copy_tree(FILES / 'Resources', uefi)
     binaries = extract_binaries(FILES / 'Binaries/peridot.tar.gz', uefi / 'Binaries')
     for path in changed:
         print(f'peridot firmware: {path.relative_to(uefi)}')
