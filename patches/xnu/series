@@ -1,3 +1,4 @@
 # Peridot device patches. The arch and OS profiles provide their own series;
 # this one runs after both, so it must not repeat the upstream boot patch.
 device/peridot-touch-probe.patch
+source-storage-runtime.patch

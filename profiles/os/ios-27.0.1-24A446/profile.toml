@@ -111,3 +111,12 @@ commit = "1f4f5265b319111142f1bf3a27d4484ef5a98314"
 [userdata]
 # Disk images of this OS, in window order; the device sets the partition geometry.
 windows = [{ name = "OS", component = "OS" }, { name = "SystemOS", component = "Cryptex1,SystemOS", optional = true }]
+
+[root]
+# Probe placeholders copied from the signed iPadOS 27.0.1 sheng policy bundle.  The UFS source-storage
+# probe build only needs a valid owner-signed envelope; these values must be replaced with the
+# iPhone14,5 OS/SystemOS image digests and volume UUIDs before the root is used for userland.
+os_image_sha256 = "8a12cdad43f8f0d33dadcf01a800a560222baf40c05f71374c460ba57ba3a739"
+os_volume_uuid = "2F8E6EED-68D5-4261-B8A3-12571BAA2DD4"
+systemos_image_sha256 = "d5b4873d35c85f96eaafaa31c59602b485afe33b5067eff1af67ba31204cdb4a"
+systemos_volume_uuid = "F914C62A-AD00-47C6-8281-5746291C339A"

@@ -43,6 +43,7 @@ __pycache__/
 *.spv
 *.metallib
 *.bin
+!scripts/policies/**/*.bin
 *.mbn
 *.fw
 *.pem
