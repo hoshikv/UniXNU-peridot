@@ -85,6 +85,11 @@
     "title_zh": "小米 9（cepheus）"
   },
   {
+    "name": "cepheus-c0der88",
+    "title": "Xiaomi Mi 9 (c0der88)",
+    "title_zh": "Xiaomi Mi 9 (c0der88)"
+  },
+  {
     "name": "cepheus-yangqi0408",
     "title": "Xiaomi Mi 9 (cepheus) (YangQi0408)",
     "title_zh": "Xiaomi Mi 9 (cepheus) (YangQi0408)"
@@ -275,6 +280,11 @@
     "title_zh": "Xiaomi 13 (mouse233)"
   },
   {
+    "name": "fuxi-oddlylabs",
+    "title": "Xiaomi 13 (OddlyLabs)",
+    "title_zh": "Xiaomi 13 (OddlyLabs)"
+  },
+  {
     "name": "fuxi-sohytrs",
     "title": "Xiaomi 13 (Sohytrs)",
     "title_zh": "Xiaomi 13 (Sohytrs)"
@@ -363,6 +373,11 @@
     "name": "houji-kizashi3",
     "title": "Xiaomi 14 houji SM8650 (Kizashi3)",
     "title_zh": "Xiaomi 14 houji SM8650 (Kizashi3)"
+  },
+  {
+    "name": "houji-sakayorilroha",
+    "title": "Xiaomi 14 houji SM8650 (SAKAYORILROHA)",
+    "title_zh": "Xiaomi 14 houji SM8650 (SAKAYORILROHA)"
   },
   {
     "name": "hummer",
@@ -785,6 +800,11 @@
     "title_zh": "Xiaomi Pad 6S Pro (alghiffaryfa19)"
   },
   {
+    "name": "sheng-bai805",
+    "title": "Xiaomi Pad 6S Pro (bai805)",
+    "title_zh": "Xiaomi Pad 6S Pro (bai805)"
+  },
+  {
     "name": "sheng-fft-infra",
     "title": "Xiaomi Pad 6S Pro (FFT-infra)",
     "title_zh": "Xiaomi Pad 6S Pro (FFT-infra)"
@@ -818,6 +838,11 @@
     "name": "sheng-thearchitectengineer",
     "title": "Xiaomi Pad 6S Pro (TheArchitectEngineer)",
     "title_zh": "Xiaomi Pad 6S Pro (TheArchitectEngineer)"
+  },
+  {
+    "name": "sheng-v1-727",
+    "title": "Xiaomi Pad 6S Pro (v1-727)",
+    "title_zh": "Xiaomi Pad 6S Pro (v1-727)"
   },
   {
     "name": "sheng-yuyaukong",
