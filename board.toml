@@ -77,9 +77,6 @@ archives = [
   "build-virtio-mmio-bindings.py --component RamBlock --directory build/ram-block",
   "build-virtio-mmio-bindings.py --component VirtioMmioBlock",
   "build-mockfs-fixture.py",
-  "build-arm-driver.py Adreno740",
-  "build-adreno740-kits.py",
-  "build-adreno740-accelerator.py",
   "build-gop-legacy-display.py",
   "build-peridot-touch.py",
 ]
@@ -87,7 +84,7 @@ config_fragments = ["arch:configs/common.config", "soc:configs/sm8550.config", "
 patch_series = ["arch:patches/xnu/series", "soc:patches/xnu-12377/series", "os:patches/xnu/series", "device:patches/xnu/series"]
 
 [components]
-include = ["ArmDTPlatform", "ArmCpu", "SoftwareAES", "VirtioMmioBlock", "RamBlock", "Adreno740", "AdrenoMetal", "GopFramebuffer", "QcomGeniSpi", "AppleKeyStoreState", "XnuPrelink", "DarwinBoot", "VerifiedRoot", "AirNir"]
+include = ["ArmDTPlatform", "ArmCpu", "SoftwareAES", "VirtioMmioBlock", "RamBlock", "GopFramebuffer", "QcomGeniSpi", "AppleKeyStoreState", "XnuPrelink", "DarwinBoot", "VerifiedRoot", "AirNir"]
 
 [device_tree]
 source = "device:dts/peridot.dts"
