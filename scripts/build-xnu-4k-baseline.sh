@@ -74,6 +74,9 @@ if [ "$BOOTSTRAP" != 0 ] && [ "$BOOTSTRAP" != 1 ]; then
   echo 'XNU_BOOTSTRAP must be 0 or 1' >&2
   exit 1
 fi
+# The link pass uses LTO so the native __DATA_CONST fits the kernelcache's
+# pre-existing gap. The bootstrap compile-record pass does not need it.
+KERNEL_LTO=${XNU_KERNEL_LTO:-$((1 - BOOTSTRAP))}
 BOOT_PROGRESS=${XNU_BOOT_PROGRESS:-0}
 if [ "$BOOT_PROGRESS" != 0 ] && [ "$BOOT_PROGRESS" != 1 ]; then
   echo 'XNU_BOOT_PROGRESS must be 0 or 1' >&2
@@ -827,6 +830,9 @@ if not stamp.exists() or stamp.read_text() != identity:
     stamp.write_text(identity)
 PY
 EXTRA_CFLAGS="$EXTRA_CFLAGS -DXNU_BOOT_PROGRESS=$BOOT_PROGRESS"
+if [ "$KERNEL_LTO" = 1 ]; then
+  EXTRA_MAKE_ARGS+=("LDFLAGS_KERNEL_LTO=-miphoneos-version-min=$IOS_VERSION -Wl,-mllvm,-inline-threshold=100")
+fi
 make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iphoneos}" ARCH_CONFIGS=ARM64 \
   MACHINE_CONFIGS=BCM2837 KERNEL_CONFIGS=DEVELOPMENT \
   ARCH_STRING_FOR_CURRENT_MACHINE_CONFIG="$XNU_ARCH_STRING" LARGE_MEMORY_DEFINE=-UARM_LARGE_MEMORY \
@@ -834,9 +840,12 @@ make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iph
   DEPLOYMENT_TARGET_FLAGS="-miphoneos-version-min=$IOS_VERSION -DXNU_TARGET_OS_IOS" \
   DEPLOYMENT_LINKER_FLAGS="-Wl,-ios_version_min,$IOS_VERSION" \
   RC_DARWIN_KERNEL_VERSION="$XNU_DARWIN" RC_ProjectSourceVersion="$XNU_VERSION" \
-  BUILD_LTO=0 BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" \
+  BUILD_LTO=$KERNEL_LTO BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" \
   CFLAGS_EXTRA="$EXTRA_CFLAGS" "${EXTRA_MAKE_ARGS[@]}" ${XNU_HOST_MAKE_ARGS[@]+"${XNU_HOST_MAKE_ARGS[@]}"} \
   OBJROOT="$ROOT/build/xnu/ios-obj" SYMROOT="$ROOT/build/xnu/ios-sym" DSTROOT="$ROOT/build/xnu/ios-dst"
+if [ "$BOOTSTRAP" = 0 ] && [ -f build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/mach.development.bcm2837.unstripped ]; then
+  xcrun --sdk iphoneos otool -l build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/mach.development.bcm2837.unstripped 2>/dev/null |     awk '/segname __DATA_CONST/{p=1} p&&/vmsize|filesize|segname/{print} p&&/^$/{p=0}' >&2 || true
+fi
 if [ "${XNU_SOURCE_CORECRYPTO14:-0}" = 1 ] && [ "$CRYPTO_BOOTSTRAP_MODE" = source ]; then
   python3 scripts/seal-source-crypto-kernel.py \
     build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/mach.development.bcm2837.unstripped
