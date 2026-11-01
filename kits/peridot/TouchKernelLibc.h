@@ -8,6 +8,7 @@
 __BEGIN_DECLS
 int printf(const char *, ...) __printflike(1, 2);
 void *memcpy(void *, const void *, size_t);
+int memcmp(const void *, const void *, size_t);
 void *memset(void *, int, size_t);
 __END_DECLS
 
