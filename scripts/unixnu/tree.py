@@ -78,6 +78,12 @@ def assemble(ctx, modules):
     for module, name in components.aliases(ctx, modules):
         if module.path is not None:
             _link(module.path, tree / {'driver': 'drivers', 'kit': 'kits'}[module.kind] / name)
+    # A combined device repository keeps its board kit next to package/; the device package alias only exists
+    # for a separate device checkout, so publish the local kit under the name the build scripts use.
+    for base in (ctx.root, ctx.device):
+        local_kit = base / 'kits' / kit
+        if local_kit.is_dir() and not (tree / 'kits' / kit).exists():
+            _link(local_kit, tree / 'kits' / kit)
     if not (tree / 'package').is_symlink():
         raise Error('no package module: this repository or --local-package must provide package/')
     (tree / 'scripts').mkdir(exist_ok=True)
