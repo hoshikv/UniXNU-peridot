@@ -42,16 +42,15 @@ def compile_shim(uefi, base, size, requires_header, scratch):
     return shim
 
 
-def ensure_node(fdtput, fdtget, work, path):
+def ensure_node(fdtput, work, path):
     """Create a node and any missing ancestors without failing on an existing node."""
     if path == '/':
         return
-    parent, _, name = path.rpartition('/')
-    parent = parent or '/'
-    ensure_node(fdtput, fdtget, work, parent)
-    listed = subprocess.run([fdtget, '-l', str(work), parent], capture_output=True, text=True)
-    if name not in listed.stdout.split():
-        run([fdtput, '-c', work, path], capture=True)
+    parent, _, _ = path.rpartition('/')
+    ensure_node(fdtput, work, parent or '/')
+    result = subprocess.run([fdtput, '-c', work, path], capture_output=True, text=True)
+    if result.returncode and 'FDT_ERR_EXISTS' not in result.stderr:
+        raise Error(f'fdtput failed ({result.returncode}): {result.stderr.strip()}')
 
 
 def patch_dtb(dtb, nodes, scratch):
@@ -62,7 +61,7 @@ def patch_dtb(dtb, nodes, scratch):
     work = scratch / 'device.dtb'
     work.write_bytes(dtb)
     for node in nodes:
-        ensure_node(fdtput, fdtget, work, node['path'])
+        ensure_node(fdtput, work, node['path'])
         for prop in node.get('props', []):
             values = prop['value'] if isinstance(prop['value'], list) else [prop['value']]
             run([fdtput, '-t', prop.get('type', 's'), work, node['path'], prop['name'], *[str(v) for v in values]], capture=True)
