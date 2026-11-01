@@ -41,9 +41,10 @@ __attribute__((weak)) volatile uint32_t sheng_idle_enter[8];
 __attribute__((weak)) volatile uint32_t sheng_idle_disallowed[8];
 }
 // Starts the sheng-log writer (BootLog.c); the board page calls it when that page is built in.
-extern "C" void boot_log_tick(unsigned now);
-extern "C" volatile uint32_t boot_log_state, boot_log_rounds, boot_log_errors;
-extern "C" const char *volatile boot_log_open_refusal;
+// A board that leaves the optional diagnostics out keeps these weak zero definitions.
+extern "C" __attribute__((weak)) void boot_log_tick(unsigned) {}
+extern "C" __attribute__((weak)) volatile uint32_t boot_log_state, boot_log_rounds, boot_log_errors;
+extern "C" __attribute__((weak)) const char *volatile boot_log_open_refusal = nullptr;
 
 // Without the board page nothing shows the writer's state, so a log that cannot be written stops the boot
 // with the reason on the panic screen instead of leaving an unattended run without a log.

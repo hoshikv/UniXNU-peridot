@@ -104,6 +104,7 @@ def main():
     os.environ['UNIXNU_XNU_ARCH'] = 'arm64e'
     if int(os.environ.get('UNIXNU_IOS_VERSION', '0').split('.')[0]) < 26:
         parser.error('This adapter requires iPadOS 26 or later')
+    diagnostics = os.environ.get('XNU_SOURCE_STORAGE_DIAG', '1').lower() not in ('0', 'n', 'no', 'false')
     build = helper('source_compile', ROOT / 'scripts/build-sheng-source-drivers.py')
     headers = helper('source_headers', ROOT / 'scripts/prepare-storage-headers.py')
     target = helper('source_target', ROOT / 'scripts/kernel_target.py')
@@ -159,8 +160,10 @@ def main():
     (out / 'root-policies.bin').write_bytes(bundle)
     # Only the independent trust anchor is linked into the kernel. The large
     # signed hash tables are a separate firmware handoff, authenticated in XNU.
-    boot_log_defaults = out / 'BootLogDefaults.c'
-    boot_log_defaults.write_text(weak_defaults(device_source('BootLog.c')))
+    boot_log_defaults = None
+    if diagnostics:
+        boot_log_defaults = out / 'BootLogDefaults.c'
+        boot_log_defaults.write_text(weak_defaults(device_source('BootLog.c')))
     anchor = out / 'RootAnchor.c'
     anchor.write_text('#include <stdint.h>\nconst uint8_t verified_root_key[395] = {' +
                       ','.join(str(b) for b in key) + '};\n')
@@ -190,10 +193,12 @@ OSDefineOperatorMethods(IOBlockStorageDevice)
     # The RAM disk carries the Data seed; like NativeUfs its class registers with the source storage classes.
     sources = [base, device / 'drivers/ShengUfs/NativeUfs.cpp', ROOT / 'drivers/RamBlock/NativeRamBlock.cpp',
                device_source('SourceStorage.cpp'), device_source('SourceRootPolicies.cpp'),
-               device_source('SourceRootBinding.cpp'), device_source('BootLog.c'), boot_log_defaults, device_source('BootReset.c'),
+               device_source('SourceRootBinding.cpp'), device_source('BootReset.c'),
                ROOT / 'kits/VerifiedRoot/src/verified_root.c',
                ROOT / 'kits/VerifiedRoot/adapters/xnu_crypto.c', anchor]
-    if int(os.environ['UNIXNU_IOS_VERSION'].split('.')[0]) >= 27:
+    if diagnostics:
+        sources += [device_source('BootLog.c'), boot_log_defaults]
+    if diagnostics and int(os.environ['UNIXNU_IOS_VERSION'].split('.')[0]) >= 27:
         # The source path does not run BootProgress's process worker. Reuse its
         # native capture code in a separate worker owned by the UFS log.
         flags.append('-DNATIVE_BOOT_PROCESS_CAPTURE=1')
