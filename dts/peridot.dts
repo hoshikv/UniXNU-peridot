@@ -1,0 +1,22 @@
+/dts-v1/;
+
+/include/ "sm8550.dtsi"
+
+/ {
+    model = "Xiaomi Poco F6 / Redmi Turbo 3";
+    compatible = "xiaomi,peridot", "qcom,sm8635";
+
+    memory@80000000 {
+        device_type = "memory";
+        reg = <0x0 0x80000000 0x3 0x80000000>;
+    };
+};
+
+&cpu0 { compatible = "arm,cortex-a520"; };
+&cpu1 { compatible = "arm,cortex-a520"; };
+&cpu2 { compatible = "arm,cortex-a520"; };
+&cpu3 { compatible = "arm,cortex-a720"; };
+&cpu4 { compatible = "arm,cortex-a720"; };
+&cpu5 { compatible = "arm,cortex-a720"; };
+&cpu6 { compatible = "arm,cortex-a720"; };
+&cpu7 { compatible = "arm,cortex-x4"; };

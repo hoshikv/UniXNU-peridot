@@ -1,3 +1,9 @@
+[[source]]
+kind = "soc"
+name = "sm8550"
+git = "https://github.com/UniXNU/UniXNU-sm8550-common.git"
+commit = "a9f45dc60c035084b95463781538380f4c3606c9"
+
 # External sources of UniXNU. "commit" pins a source; "path" (optional) fetches only that
 # subdirectory with a shallow, blobless, sparse checkout. A device repository may add its own
 # feeds.toml, and a local = "DIR" entry (or the unixnu command line) points a source at a local tree.

@@ -1,10 +1,16 @@
+schema_version = 2
+
 # Board description of the Xiaomi Poco F6 / Redmi Turbo 3 (peridot, SM8635), read by the unixnu build driver.
+# Schema 2 uses the iPhone 13 (D17AP) iOS 27.0.1 profile for the kernel/ADT
+# source while the hardware device tree remains peridot.
 
 [board]
 name = "peridot"
 soc = "SM8635"
 description = "Xiaomi Poco F6 / Redmi Turbo 3"
 kit = "peridot"
+soc_source = "sm8550"
+os_profile = "ios-27.0.1-24A446"
 
 # Adreno 735 (SM8635, Cliffs): the GPU block is gen7_11_0 with the shared
 # A7XX GMU, so the uke A732 gen71100 kit applies. These values come from the
@@ -57,17 +63,6 @@ sha256 = "435c7bac9a328b8a100df930b84b65b4d579e42be44785d0e60e3729291bb864"
 bytes = 12088
 sha256 = "1294992888e8c7c7fcd8a6d0a672cc666eff3c95e666ce5840db7e03edcc500d"
 
-# Target OS image: iPhone X (d22ap) iOS 16.7.16 restore image.
-[ipsw]
-url = "https://updates.cdn-apple.com/2025FallFCS/fullrestores/122-77006/1158E502-D76D-4226-AA06-ED5E30CD1111/iPhone10,3,iPhone10,6_16.7.16_20H392_Restore.ipsw"
-product = "iPhone10,3"
-version = "16.7.16"
-build = "20H392"
-device_class = "d22ap"
-chip_id = 0x8015
-board_id = 6
-fetch = ["KernelCache", "DeviceTree", "StaticTrustCache", "Cryptex1,SystemTrustCache"]
-
 [kernel]
 defconfig = "peridot_defconfig"
 archives = [
@@ -88,14 +83,33 @@ archives = [
   "build-gop-legacy-display.py",
   "build-peridot-touch.py",
 ]
+config_fragments = ["arch:configs/common.config", "soc:configs/sm8550.config", "os:configs/ipados.config"]
+patch_series = ["arch:patches/xnu/series", "soc:patches/xnu-12377/series", "os:patches/xnu/series", "device:patches/xnu/series"]
 
-[kernel.prelink]
-tool = "kits/NativePrelink/emit_prelink.py"
-kernel = "build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/mach.development.bcm2837.unstripped.noctf"
-kernelcache_sha256 = "0000000000000000000000000000000000000000000000000000000000000000"
-slide = "-0x1000000"
-early_security_init = "com.apple.driver.AppleMobileFileIntegrity=0xfffffff005ab4ae0"
-roots = []
+[components]
+include = ["ArmDTPlatform", "ArmCpu", "SoftwareAES", "VirtioMmioBlock", "RamBlock", "Adreno740", "AdrenoMetal", "GopFramebuffer", "QcomGeniSpi", "AppleKeyStoreState", "XnuPrelink", "DarwinBoot", "VerifiedRoot", "AirNir"]
+
+[device_tree]
+source = "device:dts/peridot.dts"
+include_dirs = ["soc:dts"]
+
+[adt.product]
+[adt.product.string]
+model = "xiaomi,peridot"
+artwork-display-gamut = "sRGB"
+[adt.product.u32]
+thin-bezel = 1
+[adt.defaults]
+[adt.defaults.u32]
+sleep-disabled = 1
+[adt.buttons]
+[adt.buttons.string]
+compatible = "buttons"
+device_type = "buttons"
+[adt.buttons.strings]
+button-names = ["hold", "voldown", "volup"]
+[adt.buttons.u32]
+home-button-type = 2
 
 [firmware]
 config = "peridot"
@@ -160,11 +174,8 @@ kernel_args = [
 ]
 
 [payload.adt]
-tool = "scripts/make-peridot-adt.py"
-chip_id = "8015"
-owned_memory_size = "0x380000000"
-cpu_regs = "0,0x100,0x200,0x300,0x400,0x500,0x600,0x700"
-psci_method = "smc"
+chip_id = "0x8110"
+owned_memory_size = "0x200000000"
 packed_data_ramdisk = true
 persistent_data = false
 
