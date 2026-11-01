@@ -9,6 +9,7 @@ import hashlib
 import json
 import shutil
 import struct
+import subprocess
 import tempfile
 import zlib
 from pathlib import Path
@@ -34,9 +35,23 @@ def compile_shim(uefi, base, size, requires_header, scratch):
     offset = next((int(line.split()[0], 16) for line in symbols.splitlines() if line.endswith(' _Payload')), None)
     if offset != len(shim):
         raise Error('a literal pool or padding separates the _Payload label from the appended firmware volume')
-    if requires_header and (shim[56:60] != b'ARM\x64' or struct.unpack_from('<QQ', shim, 8) != (base, len(shim) + size)):
-        raise Error('the ARM64 image header does not describe the shim plus the firmware volume')
+    if requires_header:
+        image_base, image_size = struct.unpack_from('<QQ', shim, 8)
+        if shim[56:60] != b'ARM\x64' or image_base != base or image_size not in (size, len(shim) + size):
+            raise Error('the ARM64 image header does not describe the shim plus the firmware volume')
     return shim
+
+
+def ensure_node(fdtput, fdtget, work, path):
+    """Create a node and any missing ancestors without failing on an existing node."""
+    if path == '/':
+        return
+    parent, _, name = path.rpartition('/')
+    parent = parent or '/'
+    ensure_node(fdtput, fdtget, work, parent)
+    listed = subprocess.run([fdtget, '-l', str(work), parent], capture_output=True, text=True)
+    if name not in listed.stdout.split():
+        run([fdtput, '-c', work, path], capture=True)
 
 
 def patch_dtb(dtb, nodes, scratch):
@@ -47,7 +62,7 @@ def patch_dtb(dtb, nodes, scratch):
     work = scratch / 'device.dtb'
     work.write_bytes(dtb)
     for node in nodes:
-        run([fdtput, '-c', work, node['path']], capture=True)
+        ensure_node(fdtput, fdtget, work, node['path'])
         for prop in node.get('props', []):
             values = prop['value'] if isinstance(prop['value'], list) else [prop['value']]
             run([fdtput, '-t', prop.get('type', 's'), work, node['path'], prop['name'], *[str(v) for v in values]], capture=True)
@@ -119,11 +134,24 @@ def build(ctx, uefi, fd, dtb, ramdisk=None, output=None):
 def verify(path, combined, tree, ramdisk_path, image):
     """Unpack the image and compare every part with its input."""
     data = Path(path).read_bytes()
-    kernel_size, kernel_address, ramdisk_size, _, second_size, _, tags, page, version, _ = struct.unpack_from('<10I', data, 8)
-    if data[:8] != b'ANDROID!' or second_size or version != image['header_version'] or page != image['pagesize']:
+    if data[:8] != b'ANDROID!':
         raise Error('boot image header does not match the requested parameters')
-    if kernel_address != image['base'] + image['kernel_offset'] or tags != image['base'] + image['tags_offset']:
-        raise Error('boot image load addresses do not match the requested offsets')
+    version = struct.unpack_from('<I', data, 40)[0]
+    if version >= 3:
+        kernel_size, ramdisk_size = struct.unpack_from('<II', data, 8)
+        header_size = struct.unpack_from('<I', data, 20)[0]
+        page = struct.unpack_from('<I', data, 1580)[0]
+        if header_size != 0x630 or version != image['header_version'] or page != image['pagesize']:
+            raise Error('boot image header does not match the requested parameters')
+        addresses = {}
+    else:
+        (kernel_size, kernel_address, ramdisk_size, _, second_size, _, tags, page,
+         version, _) = struct.unpack_from('<10I', data, 8)
+        if second_size or version != image['header_version'] or page != image['pagesize']:
+            raise Error('boot image header does not match the requested parameters')
+        if kernel_address != image['base'] + image['kernel_offset'] or tags != image['base'] + image['tags_offset']:
+            raise Error('boot image load addresses do not match the requested offsets')
+        addresses = {'kernel_address': hex(kernel_address), 'tags_address': hex(tags)}
     kernel = data[page:page + kernel_size]
     unpacker = zlib.decompressobj(16 + zlib.MAX_WBITS)
     if unpacker.decompress(kernel) != combined or not unpacker.eof or unpacker.unused_data != tree:
@@ -132,4 +160,4 @@ def verify(path, combined, tree, ramdisk_path, image):
     if data[start:start + ramdisk_size] != Path(ramdisk_path).read_bytes():
         raise Error('ramdisk bytes differ')
     return {'kernel_sha256': hashlib.sha256(kernel).hexdigest(), 'ramdisk_bytes': ramdisk_size,
-            'header_version': version, 'kernel_address': hex(kernel_address), 'tags_address': hex(tags)}
+            'header_version': version, **addresses}

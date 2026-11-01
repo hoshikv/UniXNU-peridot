@@ -135,12 +135,12 @@ BUILDID_STRING = "peridot-unixnu"
 
 [payload]
 volume = "PERIDOTES"
-size_mib = 192
+size_mib = 64
 loader = "firmware"
 title = "peridot first boot: UniXNU"
 dram_size = "0x380000000"
 skip_setup_tool = "scripts/seed-data-skip-setup.py"
-panic_screen = true
+panic_screen = false
 trust_cache_sha256 = []
 kernel_args = [
   "-v",
@@ -163,7 +163,6 @@ kernel_args = [
   "boot-progress=2",
   "-apfs_shared_datavolume",
   "offline-key-events=1",
-  "native-ufs-root=1",
   "peridot-touch=4",
 ]
 
