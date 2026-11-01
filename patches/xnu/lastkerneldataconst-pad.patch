@@ -1,0 +1,12 @@
+diff --git a/libsa/lastkerneldataconst.c b/libsa/lastkerneldataconst.c
+--- a/libsa/lastkerneldataconst.c
++++ b/libsa/lastkerneldataconst.c
+@@ -41,7 +41,7 @@
+ 
+ #if defined(__arm64__)
+ /* PAGE_SIZE on ARM64 is an expression derived from a non-const global variable */
+-#define PAD_SIZE        PAGE_MAX_SIZE
++#define PAD_SIZE        (PAGE_MIN_SIZE / 4)
+ #else
+ #define PAD_SIZE        PAGE_SIZE
+ #endif
