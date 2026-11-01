@@ -172,6 +172,10 @@ owned_memory_size = "0x200000000"
 packed_data_ramdisk = true
 persistent_data = false
 
+[bootimg.image]
+os_version = "15.0.0"
+os_patch_level = "2025-06"
+
 [[bootimg.dtb_node]]
 path = "/reserved-memory/splash_region"
 props = [
