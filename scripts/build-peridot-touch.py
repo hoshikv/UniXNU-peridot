@@ -25,7 +25,8 @@ def command(source, destination, c_mode):
     index = 0
     while index < len(arguments):
         value = arguments[index]
-        if value == record['file']:
+        if value == current['file'] or (value.endswith(('.c', '.cpp', '.cc', '.mm')) and
+                                        value.split('/')[-1] == Path(current['file']).name):
             result.append(str(source))
         elif value == '-o':
             result.extend(['-o', str(destination)])
@@ -40,7 +41,7 @@ def command(source, destination, c_mode):
     result.extend(['-I', str(ROOT / 'kits/peridot'), '-I', str(ROOT / 'drivers/QcomGeniSpi'),
                    '-I', str(ROOT / '.cache/xnu-work/osfmk')])
     result.extend(['-Wall', '-Wextra', '-Werror', '-Wno-missing-include-dirs', '-Wno-unused-command-line-argument',
-                   '-Wno-unused-parameter', '-Wno-unused-but-set-variable'])
+                   '-Wno-unused-parameter', '-Wno-unused-but-set-variable', '-Wno-missing-prototypes'])
     return current['directory'], result
 
 
