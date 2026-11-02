@@ -136,7 +136,7 @@ BUILDID_STRING = "peridot-unixnu"
 
 [payload]
 volume = "PERIDOTES"
-size_mib = 64
+size_mib = 80
 root_policies = "{tree}/build/sheng-source-storage/root-policies.bin"
 loader = "firmware"
 title = "peridot first boot: UniXNU"
