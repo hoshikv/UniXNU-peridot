@@ -90,6 +90,11 @@
     "title_zh": "Xiaomi Mi 9 (c0der88)"
   },
   {
+    "name": "cepheus-didazhiqian",
+    "title": "Xiaomi Mi 9 (cepheus) (didazhiqian)",
+    "title_zh": "Xiaomi Mi 9 (cepheus) (didazhiqian)"
+  },
+  {
     "name": "cepheus-yangqi0408",
     "title": "Xiaomi Mi 9 (cepheus) (YangQi0408)",
     "title_zh": "Xiaomi Mi 9 (cepheus) (YangQi0408)"
@@ -288,6 +293,11 @@
     "name": "fuxi-oddlylabs",
     "title": "Xiaomi 13 (OddlyLabs)",
     "title_zh": "Xiaomi 13 (OddlyLabs)"
+  },
+  {
+    "name": "fuxi-sadnutwall",
+    "title": "Xiaomi 13 (SadNutWall)",
+    "title_zh": "Xiaomi 13 (SadNutWall)"
   },
   {
     "name": "fuxi-sohytrs",
@@ -635,6 +645,11 @@
     "title_zh": "nubia RedMagic 9 Pro / 9 Pro+ / 9S Pro / 9S Pro+ (NX769J)"
   },
   {
+    "name": "odin3",
+    "title": "AYN Odin 3 (Dragonwing Q8, SM8750), 16 GiB",
+    "title_zh": "AYN Odin 3 (Dragonwing Q8, SM8750), 16 GiB"
+  },
+  {
     "name": "oneplus13t",
     "title": "OnePlus 13T (oneplus13t)",
     "title_zh": "一加 13T（oneplus13t）"
@@ -748,6 +763,11 @@
     "name": "pong",
     "title": "Nothing Phone (2) (pong)",
     "title_zh": "Nothing Phone (2)（pong）"
+  },
+  {
+    "name": "pong-agxmx666",
+    "title": "Nothing Phone (2): UniXNU UEFI bring-up (AGXMX666)",
+    "title_zh": "Nothing Phone (2): UniXNU UEFI bring-up (AGXMX666)"
   },
   {
     "name": "pong-hxzbaka",
@@ -878,6 +898,11 @@
     "name": "sheng-lilinnan",
     "title": "Xiaomi Pad 6S Pro (lilinnan)",
     "title_zh": "Xiaomi Pad 6S Pro (lilinnan)"
+  },
+  {
+    "name": "sheng-lithosss",
+    "title": "Xiaomi Pad 6S Pro (Lithosss)",
+    "title_zh": "Xiaomi Pad 6S Pro (Lithosss)"
   },
   {
     "name": "sheng-macos",
@@ -1078,6 +1103,11 @@
     "name": "vermeer-yyx2025",
     "title": "Redmi K70 (yyx2025)",
     "title_zh": "Redmi K70 (yyx2025)"
+  },
+  {
+    "name": "vili",
+    "title": "Xiaomi 11T Pro (vili, 2107113SG), SM8350 / Snapdragon 888",
+    "title_zh": "Xiaomi 11T Pro (vili, 2107113SG), SM8350 / Snapdragon 888"
   },
   {
     "name": "wayne",

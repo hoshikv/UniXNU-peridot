@@ -4,9 +4,9 @@
 
 <div v-pre>
 
-Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch driver and its staged kernel probe; CI builds the kernel, the payload, the DEBUG firmware and the fastboot boot image. No device boot evidence yet.
+Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch driver and its staged kernel probe; CI builds the kernel, the payload, the DEBUG firmware and the fastboot boot image. First device boot \(2026-11-02\): the firmware and DarwinBoot hand over to XNU, which stopped in ml\_parse\_cpu\_topology because the board lacked UniXNU-sheng's AMP patch; the patch is now in the series.
 
-源记录: [porting.toml](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/porting.toml), `77c0a035d49008df4ccafe617456c3c2e62d1dc0`.
+源记录: [porting.toml](https://github.com/OddlyLabs/unixnu-fuxi/blob/e90113974b1186120e4eb4c3f77bfb8d909934bf/porting.toml), `e90113974b1186120e4eb4c3f77bfb8d909934bf`.
 
 本页按设备记录自动生成。
 
@@ -14,7 +14,7 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 | --- | --- |
 | [配置](#configuration) | `implemented` |
 | [固件与启动](#firmware) | `host-verified` |
-| [CPU 与中断](#cpu) | `planned` |
+| [CPU 与中断](#cpu) | `implemented` |
 | [内存与 DMA](#memory) | `planned` |
 | [存储与根卷](#storage) | `planned` |
 | [显示](#display) | `planned` |
@@ -53,6 +53,8 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 - CI \(.github/workflows/build.yml\) pins OddlyLabs/UniXNU and OddlyLabs/uefi-fuxi at full revisions; after merging upstream into either fork, update UNIXNU\_REF or UEFI\_REF and let the image job run again.
 - The image job installs Homebrew's openssl@3 itself rather than relying on the runner image: the encryption step uses OpenSSL 3 \(PBKDF2 for the image, RSA-OAEP with SHA-256 for its key\).
+- configs/fuxi\_defconfig sets CONFIG\_XNU\_DT\_PANIC\_REGION. The template and the arch, SoC and OS fragments leave it off, and then the BCM2837 target uses its fixed panic log address \(see memory\); every other SM8550 defconfig in reach \(UniXNU-sheng, Kerfand, MinecraftVM\) sets it. The kernel check of the image job fails if PE\_create\_console mentions 0x3c0f.
+- The image job also uploads the unpatched prelinked kernel \(gzip\) and payload.json, the kernel encrypted with the image key, so payload variants such as entry-probe images are built without macOS.
 - The host tests byte-compile scripts/\*.py and ci/\*.py and parse ci/decrypt-boot-image.sh with bash -n, so the image tools are checked on every push.
 - The merged configuration is the arch, SoC and OS fragments followed by the defconfig; the archive list has to cover every archive the merged options require, not only those of the template defconfig.
 - CONFIG\_XNU\_SOURCE\_MOCKFS \(OS fragment\) makes vfs\_conf.o reference mockfs, so the link needs build/mockfs-fixture/libmockfs\_fixture.a: the first CI kernel build at 450f518 applied all 62 patches and built every listed archive, then stopped at that missing archive.
@@ -72,7 +74,7 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 证据
 
-- `source`: [Board selection and archive order](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/board.toml)
+- `source`: [Board selection and archive order](https://github.com/OddlyLabs/unixnu-fuxi/blob/e90113974b1186120e4eb4c3f77bfb8d909934bf/board.toml)
 - `host`: [All sources resolved, 62 patches applied, nine archives built, kernel linked and prelinked](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41261795785)
   Command: <code>./unixnu defconfig fuxi_defconfig; ./unixnu build kernel</code>. Revision: `8b4c03f69fc15878d7ee92c0f157215fa235d78d`.
 
@@ -103,6 +105,7 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 - The firmware's FdtBlob \(sm8550-xiaomi-fuxi.dtb, model 8550 fuxi, msm-id 0x207, board-id 0x10008\) carries the root properties the ABL selects an appended DTB by; the DTB merged from OS3.0.309 keeps the base DTB's board-id 0 and is not used for the boot image.
 - fuxiPkg Include/RAW.inc listed the vendor raw files SecParti.cfg, uefipil.cfg and QcomChargerCfg.cfg outside the FUXI\_VENDOR\_HW gate, so the first firmware build in CI \(run 41268231266 at 72300f2\) stopped at the missing Binaries/nuwa/RawFiles/SecParti.cfg; uefi-fuxi 87554bf9 gates them with their drivers.
 - With FUXI\_VENDOR\_HW = 0 the volume holds UniXNU, UniXNUDxe, DarwinBoot, FuxiBootMemoryDxe, SimpleFbDxe, FAT, PartitionDxe and DiskIoDxe. FuxiGopLogDxe and FuxiDisplayDepexDxe are compiled but enter the volume only with USE\_CUSTOM\_DISPLAY\_DRIVER = 1.
+- On the device \(2026-11-02, image 931ac958 of run 41273003819\): the ABL accepts the v0 image \(fastboot boot answers OKAY\), the DEBUG firmware log appears on the panel, the UniXNU entry starts DarwinBoot, and DarwinBoot exits boot services and paints its green band. The log ends with SecurityLock LockCapsuleInterface, the normal exit-boot-services message; the DARWINBOOT lines above it are covered by the bands.
 
 ### 完成条件
 
@@ -110,15 +113,17 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 当前范围
 
-- No device evidence with this exact checkout: the hardware results above are matejkoo217's and Kerfand's \(who reached XNU with the same commits through a fork\).
+- Memory reservations after the handoff are not checked on the device. DarwinBoot's window is the one 4.75 GiB conventional run of the fuxiPkg map, 0x8C0000000 + 5 GiB, read from the map rather than observed.
 
 ### 下一步
 
-- Boot the CI image with fastboot boot and confirm the UniXNU menu and the DarwinBoot handoff.
+- Photograph the DARWINBOOT lines \(kernel entry, window, video\) on a boot that stops before the green band, or record them through the entry probes.
 
 ### 证据
 
 - `source`: [Firmware fork with the fuxi platform](https://github.com/OddlyLabs/uefi-fuxi/tree/fuxi)
+- `device`: [ABL Sending OKAY, Booting OKAY \(product fuxi, unlocked, slot a\); panel: DEBUG firmware log, then the DarwinBoot green band](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41273003819)
+  Command: <code>fastboot boot boot.img</code>. Revision: `2bbd3993e97081db16d8ecc00c58c78f53200b8e`.
 - `host`: [DEBUG SILICIUM\_UEFI.fd built at 0x300000 bytes with the UniXNU menu, UniXNUDxe, DarwinBoot and FuxiBootMemoryDxe in the volume](https://github.com/OddlyLabs/uefi-fuxi/commit/87554bf90a6f5707ceeb3720b3dc507de914db94)
   Command: <code>./unixnu build firmware --uefi ../uefi-fuxi --target DEBUG (Ubuntu 26.04, clang 21.1.8, uefi-fuxi 87554bf90a6f5707ceeb3720b3dc507de914db94, UniXNU 6ae4c252937ae1920ab68eaded10fc78447e0194)</code>. Revision: `72300f2b07ccee230e07caa7b31f5af269b4f942`.
 - `host`: [DEBUG firmware from uefi-fuxi 87554bf9 built on macOS 26 at 0x300000 bytes \(fd\_sha256 627fe52af360...\) and packed into the boot image](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41273003819)
@@ -126,7 +131,7 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ## CPU 与中断 {#cpu}
 
-`planned`
+`implemented`
 
 ### 硬件与依赖
 
@@ -142,7 +147,10 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 开发经验
 
-- No fuxi CPU observation yet.
+- On the device the boot CPU runs the XNU entry with the MMU off \(blue band\) and reaches the instruction before the MMU enable \(magenta band\). The image has no reset probe, so nothing marks later progress; no XNU console text and no panic screen appear, and the phone stays off USB. The stop therefore lies between the MMU enable and PE\_init\_printf in arm\_init, the first point that can draw \(xnu d8b80295 arm\_init order: Apple register setup, DT init, ml\_parse\_cpu\_topology, thread and CPU bootstrap, arm\_vm\_init, serial\_init, PE\_create\_console, PE\_init\_printf\).
+- Entry-probe resets located the stop \(2026-11-02\): the kernel reaches the MMU enable, arm\_init, cpu\_data\_init, PE\_init\_platform and configure\_misc\_apple\_regs, and never returns from ml\_parse\_cpu\_topology. The ADT gives cpu0-2 cluster-type E and cpu3-7 P \(dts/fuxi.dts, copied from sheng\), so the parser builds two clusters, while BCM2837 keeps MAX\_CPU\_CLUSTERS 1 \(sm8550-common raises only MAX\_CPUS to 8\); the DEVELOPMENT kernel asserts cluster\_id &lt; MAX\_CPU\_CLUSTERS and panics before any console exists. UniXNU-sheng carries the fix as its board patch zzyf-sheng-amp.patch \(\_\_ARM\_AMP\_\_, MAX\_CPU\_CLUSTERS 2, Edge scheduler defaults without a performance controller\); fuxi now carries it unchanged.
+- With the AMP patch \(65c4f4e\) the reset probes after ml\_parse\_cpu\_topology, thread\_bootstrap, cpu\_bootstrap, rtclock\_early\_init, kernel\_startup\_bootstrap, timer\_call\_init, cpu\_init, processor\_bootstrap, arm\_vm\_init, serial\_init, kernel\_startup\_initialize\_upto and PE\_create\_console all rebooted the phone. The probe after PE\_init\_printf, the next call, did not \(one run\), and the official image stayed on the bands with no kernel text and no panic screen. A reset probe only shows that the phone reset, so the PE\_create\_console result is weak evidence: that call is the one that touches 0x3C0FC000 \(see memory\). Unexplained until the fixed kernel is tested.
+- Two community fuxi kernels get past this point on the same SoC with the same dram-size and window size: mouse233 \(iPadOS 17.7.11, own firmware with a USB RAM receiver\) and Kerfand \(iOS 16.7.16, the same payload-in-image layout\). Both build the sheng kit; this board builds the template components ArmDTPlatform and ArmCpu.
 
 ### 完成条件
 
@@ -154,11 +162,16 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 下一步
 
-- Record the CPU and GIC nodes from the stock device tree.
+- Boot the image with CONFIG\_XNU\_DT\_PANIC\_REGION: the kernel should reach its console \(-v text\) and the touch probe's panic report. If the screen stays on the bands, repeat the reset probe after PE\_init\_printf and continue the ladder after it.
 
 ### 证据
 
-按下一步操作收集证据。
+- `device`: [Blue band \(XNU entry, MMU off\) and magenta band \(before the MMU enable\) appear; nothing after them](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41273003819)
+  Command: <code>fastboot boot boot.img</code>. Revision: `2bbd3993e97081db16d8ecc00c58c78f53200b8e`.
+- `device`: [Reset 6 s after the MMU enable and after arm\_set\_kernel\_tbi, cpu\_data\_init, PE\_init\_platform and configure\_misc\_apple\_regs in arm\_init \(the phone rebooted to the system each time\); no reset after ml\_parse\_cpu\_topology, processor\_bootstrap, set\_mmu\_ttb or arm\_vm\_init](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41363175206)
+  Command: <code>fastboot boot of entry-probe reset images (local payloads from the run 41363175206 kernel, firmware 627fe52a)</code>. Revision: `12f9f38d63e4642d335583e159603cfcea2c3744`.
+- `device`: [Reset after ml\_parse\_cpu\_topology through PE\_create\_console \(12 images\); no reset after PE\_init\_printf \(one run\); official image: panel photograph shows the three bands and the end of the firmware log, no kernel text, no panic screen, no USB device for 5 min](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41372182658)
+  Command: <code>fastboot boot of entry-probe reset images and of the official image (run 41372182658, AMP patch)</code>. Revision: `65c4f4e4c59f08e81b6790fe75d4c3eaaf04e794`.
 
 ## 内存与 DMA {#memory}
 
@@ -179,6 +192,8 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 ### 开发经验
 
 - fuxi and sheng share the touch engine's SMMU stream \(0xa3\).
+- The kernel at 65c4f4e had no CONFIG\_XNU\_DT\_PANIC\_REGION, so PE\_create\_console \(check\_for\_panic\_log, xnu d8b80295 pexpert/arm/pe\_init.c\) mapped BCM2837's PLATFORM\_PANIC\_LOG\_PADDR 0x3C0FC000 write-combined, read a word there and called bzero for 16 KiB, before initialize\_screen \(disassembly of the CI kernel\). No RAM range in /proc/iomem and no node of the live device tree covers that address; the nearest nodes are the NSP interconnect at 0x320C0000 and the CDSP at 0x32300000. Three boots ran this code on 2026-11-02 \(probes a2-console and b11-createcons, and the official image\); the phone booted Android normally after the first two; the third stays on the bands until it is forced to restart. Whether the access faults, hangs or is ignored was not measured.
+- This unit has 12 GB and its /memory node differs from the firmware map \(from an 8 GB unit\): in the map 0x8B9D00000 + 2 MiB and 0x8BBD00000 up to 0x8BD300000 are conventional memory, but on this phone they are not RAM. UniXNU-sheng records a synchronous external abort from touching such a range at 0x8BB300000, so these holes differ per unit. The window DarwinBoot takes \(0x8C007C000 + 0x130000000\) is inside the /memory node of this phone. Live data: /proc/iomem and /sys/firmware/fdt read with root on OS4.0.0.32.
 
 ### 完成条件
 
@@ -190,7 +205,7 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 下一步
 
-- Record the DRAM size and reservations of the device.
+- Remove the two ranges above from the fuxiPkg memory map, or derive the map from the device tree the ABL passes, and rebuild the firmware.
 
 ### 证据
 
@@ -268,7 +283,7 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 证据
 
-- `source`: [Panel facts with sources \(section 3\)](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/fuxi_touch_panel_porting.md)
+- `source`: [Panel facts with sources \(section 3\)](https://github.com/OddlyLabs/unixnu-fuxi/blob/e90113974b1186120e4eb4c3f77bfb8d909934bf/fuxi_touch_panel_porting.md)
 
 ## 输入 {#input}
 
@@ -319,8 +334,8 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 ### 证据
 
 - `source`: [FTM5 protocol and contact tracking with host tests](https://github.com/OddlyLabs/FuxiFtsTouch)
-- `source`: [Staged board probe](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/package/FuxiTouchProbe.cpp)
-- `source`: [Touch facts with sources and the Android measurements \(sections 2 and 6\)](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/fuxi_touch_panel_porting.md)
+- `source`: [Staged board probe](https://github.com/OddlyLabs/unixnu-fuxi/blob/e90113974b1186120e4eb4c3f77bfb8d909934bf/package/FuxiTouchProbe.cpp)
+- `source`: [Touch facts with sources and the Android measurements \(sections 2 and 6\)](https://github.com/OddlyLabs/unixnu-fuxi/blob/e90113974b1186120e4eb4c3f77bfb8d909934bf/fuxi_touch_panel_porting.md)
 
 ## GPU {#gpu}
 
@@ -478,7 +493,7 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 配置
 
-- patches/xnu/series applies fuxi-touch-probe.patch after the arch, SoC and OS series.
+- patches/xnu/series applies zzyf-sheng-amp.patch \(unchanged from UniXNU-sheng 08cde20\) and fuxi-touch-probe.patch after the arch, SoC and OS series.
 - \[payload\] kernel\_args set the touch probe stage and its panic report; panic\_screen = true; \[payload.adt\] owned\_memory\_size 0x130000000.
 - \[bootimg\] payload = "image" and \[bootimg.image\]: header v0 \(fuxi-legacy.toml's container\), text\_offset 0. The options are in OddlyLabs/UniXNU branch fuxi \(scripts/unixnu/bootimg.py\).
 
@@ -494,6 +509,8 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 - The first kernel build in CI at 8b4c03f linked and prelinked; bsd\_init calls native\_touch\_probe in the linked kernel.
 - The CI image at 2bbd399 advertises image size 0x0C300200 \(shim 0x200, firmware 0x300000, payload 0xC000000\), the value Kerfand measured for a booting 192 MiB payload. gzip brings the whole image to 11.1 MiB because the payload volume is mostly free space.
 - The payload's ADT has dram-size 0x80000000 and darwinboot-memory-size 0x130000000, the values of UniXNU-sheng and of both community fuxi ports.
+- zzyf-sheng-amp.patch belongs with the E/P cluster types of dts/fuxi.dts: without it the kernel panics in ml\_parse\_cpu\_topology \(see cpu\). Both boards pin sm8550-common 23b2049, so the patch context is the same.
+- Probe variants reuse the tested firmware: ci/check-boot-image.py --fd-out writes the firmware volume of a checked image \(627fe52a for run 41273003819\), and ci/decrypt-boot-image.sh writes the unpatched kernel next to the image when the artifact carries it.
 
 ### 完成条件
 
@@ -502,11 +519,11 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 ### 当前范围
 
 - The platform seed in CI is a fixed bring-up value, not the phone's own; replace it before booting to userland.
-- No boot image has been started on the device.
+- The boot image starts on the device; XNU stops before its console \(see cpu\).
 
 ### 下一步
 
-- Boot the decrypted image with fastboot boot \(the owner's decision\) and photograph the panic screen.
+- Build entry-probe variants locally from the decrypted kernel: probe keys in \[payload\] of a scratch copy, ./unixnu build payload --kernel kernel.macho, ./unixnu bootimg --fd with the firmware volume of the tested image.
 
 ### 证据
 
@@ -537,6 +554,9 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 - The DEBUG firmware prints its log on the panel before the handoff \(matejkoo217/uefi-fuxi\), the only console before the touch report.
 - The earlier ci/ scripts compiled the probe inside a UniXNU-sheng build; the fuxi kernel build replaces them.
 - ci/check-boot-image.py checks a decrypted image before fastboot boot against boot.json, board.toml and the firmware checkout: container and load addresses, the shim header, the firmware volume, the payload files, the ADT root and /chosen values, and the boot arguments.
+- The panic screen draws through the kernel's frame buffer mapping in vinfo, which initialize\_screen sets at the end of PE\_create\_console, so a panic before that leaves the panel as it was. A reset probe cannot tell its own reset from one caused by the code it wraps.
+- The entry probe bands work on this panel: DarwinBoot's green band and the probe's blue and magenta bands appear in order, each 1/16 of the screen height, so the probe's use of the boot-args video geometry is right for fuxi.
+- ci/decrypt-boot-image.sh also decrypts the kernel \(kernel.macho.gz.enc\) when the artifact carries it.
 
 ### 完成条件
 
@@ -544,7 +564,7 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 当前范围
 
-- No device log has been captured.
+- The only device record is a panel photograph of the first boot \(the bands and the last firmware log lines\), kept by the owner; no kernel log exists yet.
 
 ### 下一步
 
@@ -552,7 +572,9 @@ Xiaomi 13 \(fuxi\). Board files from the UniXNU device template, the FTM5 touch 
 
 ### 证据
 
-- `source`: [Panic report and kernel log rows](https://github.com/OddlyLabs/unixnu-fuxi/blob/77c0a035d49008df4ccafe617456c3c2e62d1dc0/package/FuxiTouchProbe.cpp)
+- `source`: [Panic report and kernel log rows](https://github.com/OddlyLabs/unixnu-fuxi/blob/e90113974b1186120e4eb4c3f77bfb8d909934bf/package/FuxiTouchProbe.cpp)
+- `device`: [Panel photograph: green, blue and magenta bands, then the end of the firmware log; no kernel text or panic screen; no USB device for 2.5 min](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41273003819)
+  Command: <code>fastboot boot boot.img</code>. Revision: `2bbd3993e97081db16d8ecc00c58c78f53200b8e`.
 - `host`: [The image artifact decrypts with the owner's key \(sha256 matches boot.img.sha256\) and every check passes; a tampered boot.json fails two checks](https://github.com/OddlyLabs/unixnu-fuxi/actions/runs/41273003819)
   Command: <code>bash ci/decrypt-boot-image.sh &lt;key&gt; &lt;artifact&gt;; python3 ci/check-boot-image.py boot.img boot.json ../uefi-fuxi</code>. Revision: `2bbd3993e97081db16d8ecc00c58c78f53200b8e`.
 
