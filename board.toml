@@ -146,6 +146,7 @@ panic_screen = false
 trust_cache_sha256 = []
 kernel_args = [
   "-v",
+  "fastbootdebug=1",
   "serial=3",
   "debug=0x14e",
   "kt_fixed_zones=120",
