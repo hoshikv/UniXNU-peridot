@@ -474,10 +474,9 @@ index 878b515..d22ac8d 100644
  osfmk/arm64/start.s	optional nos_arm_asm config_pmap_ppl
  osfmk/arm64/pinst.s	optional nos_arm_asm
 diff --git a/pexpert/arm/pe_kprintf.c b/pexpert/arm/pe_kprintf.c
-index 7a4bbd3..0d1ac94 100644
 --- a/pexpert/arm/pe_kprintf.c
 +++ b/pexpert/arm/pe_kprintf.c
-@@ -32,6 +32,7 @@ SECURITY_READ_ONLY_LATE(bool) enable_dklog_serial_output = false;
+@@ -33,6 +33,7 @@
  static SIMPLE_LOCK_DECLARE(kprintf_lock, 0);
  
  static void serial_putc_crlf(char c);
@@ -485,7 +484,7 @@ index 7a4bbd3..0d1ac94 100644
  
  __startup_func
  static void
-@@ -41,6 +42,15 @@ PE_init_kprintf_config(void)
+@@ -42,6 +43,15 @@
  		panic("Platform Expert not initialized");
  	}
  
@@ -501,17 +500,17 @@ index 7a4bbd3..0d1ac94 100644
  	if (debug_boot_arg & (DB_KPRT | DB_PRT)) {
  		disable_serial_output = false;
  	}
-@@ -61,7 +71,12 @@ __startup_func
+@@ -62,6 +72,13 @@
  static void
  PE_init_kprintf(void)
  {
--	if (serial_init()) {
 +	uint32_t fastbootdebug = 0;
 +
 +	if (PE_parse_boot_argn("fastbootdebug", &fastbootdebug, sizeof(fastbootdebug)) &&
 +	    fastbootdebug != 0) {
 +		PE_kputc = loader_log_putc;
-+	} else if (serial_init()) {
++		return;
++	}
+ 	if (boot_progress_active()) { PE_kputc = boot_progress_putc; return; }
+ 	if (serial_init()) {
  		PE_kputc = serial_putc_crlf;
- 	} else {
- 		/**
