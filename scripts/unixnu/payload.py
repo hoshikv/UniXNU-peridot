@@ -58,15 +58,32 @@ def check_native_root(kernel, arguments, vmm_present=False):
         raise Error('the native UFS root kernel lacks the linked sheng PMGR integration')
 
 
+def check_fat16(image):
+    boot = image.read_bytes()[:512]
+    if len(boot) < 512 or boot[510:512] != b'\x55\xaa':
+        raise Error(f'{image} has no FAT boot-sector signature')
+    bytes_per_sector = int.from_bytes(boot[11:13], 'little')
+    sectors_per_cluster = boot[13]
+    reserved = int.from_bytes(boot[14:16], 'little')
+    fats = boot[16]
+    root_entries = int.from_bytes(boot[17:19], 'little')
+    fat16 = int.from_bytes(boot[22:24], 'little')
+    if bytes_per_sector not in (512, 1024, 2048, 4096) or sectors_per_cluster == 0 or reserved == 0 or fats == 0:
+        raise Error(f'{image} has an invalid FAT boot sector')
+    if fat16 == 0 or root_entries == 0:
+        raise Error(f'{image} is not FAT16; the UEFI FAT driver requires FAT16')
+
+
 def write_volume(stage, image, label, size_mib):
     for tool_name in ('mformat', 'mcopy'):
         tool(tool_name, 'brew install mtools')
     image.unlink(missing_ok=True)
     env = dict(os.environ, MTOOLS_SKIP_CHECK='1', TZ='UTC')
     sectors = size_mib * 2048
-    run(['mformat', '-C', '-F', '-T', str(sectors), '-v', label, '-N', '53484e47', '-i', image, '::'], env=env, capture=True)
+    run(['mformat', '-C', '-T', str(sectors), '-v', label, '-N', '53484e47', '-i', image, '::'], env=env, capture=True)
     for entry in sorted(stage.iterdir()):
         run(['mcopy', '-i', image, '-s', '-Q', '-m', entry, '::/'], env=env, capture=True)
+    check_fat16(image)
 
 
 def skip_setup_seed(ctx, base, tool_path, tool_args=()):
