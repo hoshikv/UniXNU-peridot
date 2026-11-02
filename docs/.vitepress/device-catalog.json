@@ -30,6 +30,11 @@
     "title_zh": "Xiaomi Redmi K40 (alioth, M2012K11AC) (songchiyu)"
   },
   {
+    "name": "alioth-taishang1024",
+    "title": "Xiaomi Redmi K40 (alioth, M2012K11AC) (Taishang1024)",
+    "title_zh": "Xiaomi Redmi K40 (alioth, M2012K11AC) (Taishang1024)"
+  },
+  {
     "name": "alioth-yang232138",
     "title": "Xiaomi Redmi K40 (alioth, M2012K11AC) (yang232138)",
     "title_zh": "Xiaomi Redmi K40 (alioth, M2012K11AC) (yang232138)"
@@ -455,6 +460,11 @@
     "title_zh": "realme GT8 Pro (lafa) RMX5200: UniXNU bring-up"
   },
   {
+    "name": "lavender",
+    "title": "Xiaomi Redmi Note 7 (eMMC, 4 GB DRAM, 1080x2340 panel)",
+    "title_zh": "Xiaomi Redmi Note 7 (eMMC, 4 GB DRAM, 1080x2340 panel)"
+  },
+  {
     "name": "lemonades",
     "title": "OnePlus 9R (lemonades)",
     "title_zh": "一加 9R（lemonades）"
@@ -600,6 +610,11 @@
     "title_zh": "Xiaomi Pad 5 (zzc775)"
   },
   {
+    "name": "nabu-zzweiqing",
+    "title": "Xiaomi Pad 5 (zzweiqing)",
+    "title_zh": "Xiaomi Pad 5 (zzweiqing)"
+  },
+  {
     "name": "nash",
     "title": "Motorola Moto Z2 Force (nash)",
     "title_zh": "摩托罗拉 Moto Z2 Force（nash）"
@@ -608,6 +623,11 @@
     "name": "negroni",
     "title": "OnePlus 10 Pro 5G (negroni)",
     "title_zh": "一加 10 Pro 5G（negroni）"
+  },
+  {
+    "name": "nio",
+    "title": "MOTO Edge S (XT2125-4) / SM8250-AC UniXNU bring-up",
+    "title_zh": "MOTO Edge S (XT2125-4) / SM8250-AC UniXNU bring-up"
   },
   {
     "name": "nuwa",
@@ -643,6 +663,11 @@
     "name": "nx769j",
     "title": "nubia RedMagic 9 Pro / 9 Pro+ / 9S Pro / 9S Pro+ (NX769J)",
     "title_zh": "nubia RedMagic 9 Pro / 9 Pro+ / 9S Pro / 9S Pro+ (NX769J)"
+  },
+  {
+    "name": "odin",
+    "title": "Xiaomi Mi MIX 4 (odin, Snapdragon 888+ / SM8350)",
+    "title_zh": "Xiaomi Mi MIX 4 (odin, Snapdragon 888+ / SM8350)"
   },
   {
     "name": "odin3",
@@ -845,6 +870,11 @@
     "title_zh": "Xiaomi Pad 6S Pro (16Crow)"
   },
   {
+    "name": "sheng-airalex002",
+    "title": "Xiaomi Pad 6S Pro (airalex002)",
+    "title_zh": "Xiaomi Pad 6S Pro (airalex002)"
+  },
+  {
     "name": "sheng-alghiffaryfa19",
     "title": "Xiaomi Pad 6S Pro (alghiffaryfa19)",
     "title_zh": "Xiaomi Pad 6S Pro (alghiffaryfa19)"
@@ -853,6 +883,11 @@
     "name": "sheng-bai805",
     "title": "Xiaomi Pad 6S Pro (bai805)",
     "title_zh": "Xiaomi Pad 6S Pro (bai805)"
+  },
+  {
+    "name": "sheng-chenjin1494",
+    "title": "Xiaomi Pad 6S Pro (chenjin1494)",
+    "title_zh": "Xiaomi Pad 6S Pro (chenjin1494)"
   },
   {
     "name": "sheng-fft-infra",
