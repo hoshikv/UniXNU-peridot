@@ -105,6 +105,7 @@ def main():
     if int(os.environ.get('UNIXNU_IOS_VERSION', '0').split('.')[0]) < 26:
         parser.error('This adapter requires iPadOS 26 or later')
     diagnostics = os.environ.get('XNU_SOURCE_STORAGE_DIAG', '1').lower() not in ('0', 'n', 'no', 'false')
+    sanitize = os.environ.get('XNU_SOURCE_STORAGE_SANITIZE', '1').lower() not in ('0', 'n', 'no', 'false')
     build = helper('source_compile', ROOT / 'scripts/build-sheng-source-drivers.py')
     headers = helper('source_headers', ROOT / 'scripts/prepare-storage-headers.py')
     target = helper('source_target', ROOT / 'scripts/kernel_target.py')
@@ -215,6 +216,8 @@ OSDefineOperatorMethods(IOBlockStorageDevice)
         record = (bsd if source.name in bsd_sources else c) if source.suffix == '.c' else cpp
         output = out / (source.stem + '.o')
         command = build.compile_command(record, source, output, includes, flags)
+        if not sanitize:
+            command = [argument for argument in command if not argument.startswith('-fsanitize')]
         if source == base:
             command.append('-Wno-error')
         result = subprocess.run(command, cwd=record['directory'], text=True,

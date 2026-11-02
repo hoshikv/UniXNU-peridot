@@ -18,6 +18,7 @@ CONFIG_XNU_EXTRA_LD_ARCHIVES="-Wl,-force_load,{tree}/build/sheng-source-storage/
 CONFIG_XNU_SOURCE_STORAGE=y
 # Peridot does not select the sheng board diagnostics that own the GPU/HID/IPC rings.
 CONFIG_XNU_SOURCE_STORAGE_DIAG=n
+CONFIG_XNU_SOURCE_STORAGE_SANITIZE=n
 CONFIG_XNU_SOURCE_STORAGE_TABLES="userdata"
 CONFIG_XNU_OWNER_ROOT_AUDIT=y
 CONFIG_XNU_OWNER_ROOT_TRUST=y
