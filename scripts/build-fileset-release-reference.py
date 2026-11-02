@@ -42,6 +42,10 @@ sdk = root / '.cache/fakeroot'
 archives = [root/'build/corecrypto-2023/libcorecrypto_kernel_noasm-namespaced.a']
 forced = [root/f'build/{folder}/{name}' for folder,name in (
     ('libpthread-kernel','libpthread_kernel.a'),('armdt-platform','libArmDTPlatform.a'),('armcpu','libArmCpu.a'))]
+source_storage = root/'build/sheng-source-storage/libShengSourceStorage.a'
+if source_storage.is_file():
+    archives.append(source_storage)
+    forced.append(source_storage)
 assert all(p.is_file() for p in archives+forced)
 env = dict(os.environ, KERNEL_SDKROOT=str(sdk),
            XNU_AVAILABILITY_PL=str(sdk/'usr/local/libexec/availability.pl'))

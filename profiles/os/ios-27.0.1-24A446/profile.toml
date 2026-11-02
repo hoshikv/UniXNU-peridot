@@ -28,7 +28,7 @@
 
 ["kernel"."prelink"]
 "tool" = "kits/XnuPrelink/emit_prelink.py"
-"kernel" = "build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/mach.development.bcm2837.unstripped.noctf"
+"kernel" = "build/xnu/fileset-reference/mach.release.bcm2837.unstripped.noctf"
 "kernelcache_sha256" = "d99b7719ad4b367db264a7682806aecaf6e0621c6761d07325a58337319d4238"
 "slide" = "-0x1000000"
 # The AMFI wrapper that calls _initializeAppleMobileFileIntegrity and returns 0; the kernel patch calls it early.
