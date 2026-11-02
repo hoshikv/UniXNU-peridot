@@ -1,0 +1,517 @@
+diff --git a/osfmk/arm64/loader_return.c b/osfmk/arm64/loader_return.c
+new file mode 100644
+index 0000000..68b7f78
+--- /dev/null
++++ b/osfmk/arm64/loader_return.c
+@@ -0,0 +1,267 @@
++/*
++ * Return-to-loader debug channel.
++ *
++ * DarwinBoot leaves UEFI resident and starts this kernel on a secondary CPU.
++ * The loader publishes the physical address of its return stub in
++ * loader_stub_slot (see start.s).  When the kernel is done, panics, or the
++ * host asks it to stop, it cleans its log back to RAM, maps the stub 1:1 and
++ * jumps to it.  The stub switches the MMU off and returns the log to the
++ * waiting UEFI core, which serves it over fastboot.
++ */
++#include <mach/mach_types.h>
++#include <mach/mach_time.h>
++#include <machine/atomic.h>
++#include <kern/debug.h>
++#include <kern/startup.h>
++#include <kern/thread_call.h>
++#include <kern/clock.h>
++#include <pexpert/pexpert.h>
++#include <arm64/proc_reg.h>
++
++#define LOADER_LOG_SIZE (1024 * 1024)
++
++/* Also referenced from the early exception vector in start.s. */
++char     loader_log[LOADER_LOG_SIZE];
++uint32_t loader_log_len;
++
++static bool loader_return_entered;
++
++/* One L1 table and one L2 table map a single 2 MB block around the stub. */
++static uint64_t loader_l1[512] __attribute__((aligned(4096)));
++static uint64_t loader_l2[512] __attribute__((aligned(4096)));
++
++static uint32_t loader_log_lock;
++
++static void
++loader_log_put_locked(char c)
++{
++	if (loader_log_len < LOADER_LOG_SIZE) {
++		loader_log[loader_log_len++] = c;
++	}
++}
++
++void
++loader_log_putc(char c)
++{
++	uint64_t daif;
++	bool locked = false;
++
++	if (c == '\r') {
++		return;
++	}
++	daif = __builtin_arm_rsr64("DAIF");
++	__builtin_arm_wsr("DAIFSet", DAIFSC_IRQF | DAIFSC_FIQF);
++	for (uint32_t tries = 0; !locked && tries < 10000000; tries++) {
++		locked = os_atomic_cmpxchg(&loader_log_lock, 0, 1, acquire);
++	}
++	loader_log_put_locked(c);
++	if (locked) {
++		os_atomic_store(&loader_log_lock, 0, release);
++	}
++	__builtin_arm_wsr64("DAIF", daif);
++}
++
++static void
++loader_log_puts(const char *s)
++{
++	for (; *s != 0; s++) {
++		loader_log_putc(*s);
++	}
++}
++
++/* Patched by the loader: { magic, PA of return stub, checkpoint, PA - VA }. */
++extern uint64_t loader_stub_slot[4];
++
++struct loader_live {
++	uint64_t magic;                 /* "XNULIVE!" */
++	uint64_t heartbeat;             /* incremented once a second */
++	const char *log;                /* loader_log */
++	const uint32_t *log_len;        /* bytes used */
++	uint64_t reason;
++	volatile uint64_t stop;         /* the loader asks for the run to end */
++	uint64_t reserved[10];
++};
++
++struct loader_live loader_live = {
++	.magic = 0x214556494c554e58ULL,
++	.log = loader_log,
++	.log_len = &loader_log_len,
++};
++
++/* Valid from the first instruction of C code: does not need gVirtBase. */
++static inline uint64_t
++static_kvtophys(const void *va)
++{
++	return (uint64_t)va + loader_stub_slot[3];
++}
++
++/*
++ * Jump to the loader's return stub.  reason: 0 = orderly end, 2 = checkpoint.
++ * Returns only if no loader is listening.
++ */
++static void
++loader_jump(uint64_t reason, uint64_t code)
++{
++#if ARM_PGSHIFT == 12
++	uint64_t stub = loader_stub_slot[1];
++	uint64_t tcr, t0sz;
++
++	if (stub == 0 || loader_return_entered) {
++		return;
++	}
++
++	tcr = __builtin_arm_rsr64("TCR_EL1");
++	t0sz = tcr & 0x3f;
++	/* The TTBR0 walk must start at L1 (1 GB per entry) and reach the stub. */
++	if (t0sz < 25 || t0sz > 33 || (stub >> (64 - t0sz)) != 0) {
++		return;
++	}
++	loader_return_entered = true;
++
++	loader_l1[stub >> 30] = static_kvtophys(loader_l2) |
++	    ARM_TTE_TYPE_TABLE | ARM_TTE_VALID;
++	loader_l2[(stub >> 21) & 0x1ff] = (stub & ~0x1fffffULL) |
++	    ARM_TTE_VALID | ARM_TTE_TYPE_BLOCK | ARM_TTE_BLOCK_AF |
++	    ARM_TTE_BLOCK_SH(SH_OUTER_MEMORY) | ARM_TTE_BLOCK_AP(AP_RWNA) |
++	    ARM_TTE_BLOCK_ATTRINDX(CACHE_ATTRINDX_WRITEBACK);
++
++	/*
++	 * The stub turns the MMU off; dirty cache lines do not survive that.
++	 * Write the log back to RAM first.
++	 */
++	for (uintptr_t p = (uintptr_t)loader_log & ~63UL;
++	    p < (uintptr_t)loader_log + loader_log_len; p += 64) {
++		__asm__ volatile ("dc cvac, %0" : : "r" (p));
++	}
++	__asm__ volatile ("dsb sy");
++
++	register uint64_t r_ttbr0 __asm__("x0") = static_kvtophys(loader_l1);
++	register uint64_t r_log __asm__("x2") = static_kvtophys(loader_log);
++	register uint64_t r_len __asm__("x3") = loader_log_len;
++	register uint64_t r_tcr __asm__("x4") = tcr;
++	register uint64_t r_stub __asm__("x5") = stub;
++	register uint64_t r_reason __asm__("x6") = reason;
++	register uint64_t r_code __asm__("x7") = code;
++
++	__asm__ volatile (
++		"msr DAIFSet, #0xf\n"
++		"bic x4, x4, #0x80\n"           /* TCR_EL1.EPD0: allow TTBR0 walks */
++		"msr TCR_EL1, x4\n"
++		"msr TTBR0_EL1, x0\n"
++		"isb\n"
++		"tlbi vmalle1\n"
++		"dsb sy\n"
++		"isb\n"
++		"mov x0, x2\n"
++		"mov x1, x3\n"
++		"mov x2, x6\n"
++		"mov x3, x7\n"
++		"br x5\n"
++		: : "r" (r_ttbr0), "r" (r_log), "r" (r_len), "r" (r_tcr),
++		"r" (r_stub), "r" (r_reason), "r" (r_code));
++	__builtin_unreachable();
++#else
++	(void)reason;
++	(void)code;
++#endif /* ARM_PGSHIFT == 12 */
++}
++
++extern char *debug_buf_base, *debug_buf_ptr;
++
++struct loader_msgbuf {
++	int   msg_magic;
++	int   msg_size;
++	int   msg_bufx;
++	int   msg_bufr;
++	char *msg_bufc;
++};
++extern struct loader_msgbuf *msgbufp;
++
++static void
++loader_log_append_msgbuf(void)
++{
++	struct loader_msgbuf *mb = msgbufp;
++
++	if (mb == NULL || mb->msg_bufc == NULL || mb->msg_size <= 0 ||
++	    mb->msg_bufx < 0 || mb->msg_bufx > mb->msg_size) {
++		return;
++	}
++	loader_log_puts("\n--- kernel message buffer ---\n");
++	for (int pass = 0; pass < 2; pass++) {
++		int from = pass == 0 ? mb->msg_bufx : 0;
++		int to = pass == 0 ? mb->msg_size : mb->msg_bufx;
++		for (int i = from; i < to; i++) {
++			if (mb->msg_bufc[i] != 0) {
++				loader_log_putc(mb->msg_bufc[i]);
++			}
++		}
++	}
++}
++
++void
++loader_return(void)
++{
++	if (!loader_return_entered) {
++		loader_log_append_msgbuf();
++	}
++	if (!loader_return_entered && debug_buf_base != NULL &&
++	    debug_buf_ptr > debug_buf_base &&
++	    (size_t)(debug_buf_ptr - debug_buf_base) < 256 * 1024) {
++		loader_log_puts("\n--- panic buffer ---\n");
++		for (const char *c = debug_buf_base; c < debug_buf_ptr; c++) {
++			loader_log_putc(*c);
++		}
++	}
++	loader_jump(0, 0);
++}
++
++void
++loader_checkpoint(uint64_t n)
++{
++	if (loader_stub_slot[2] == n) {
++		loader_jump(2, n);
++	}
++}
++
++static thread_call_t loader_watch_call;
++static uint64_t loader_return_deadline;
++static uint32_t loader_return_after;
++
++static void
++loader_watch(__unused thread_call_param_t p0, __unused thread_call_param_t p1)
++{
++	uint64_t deadline;
++
++	if (loader_live.stop) {
++		loader_log_puts("\n--- the host asked for the end of the run ---\n");
++		loader_return();
++	}
++	loader_live.heartbeat++;
++	if (loader_return_after != 0 && mach_absolute_time() >= loader_return_deadline) {
++		loader_log_puts("\n--- loader_return_after expired ---\n");
++		loader_return();
++	}
++	clock_interval_to_deadline(1, NSEC_PER_SEC, &deadline);
++	thread_call_enter_delayed(loader_watch_call, deadline);
++}
++
++__startup_func
++static void
++loader_watch_init(void)
++{
++	uint32_t enabled = 0;
++
++	if (!PE_parse_boot_argn("fastbootdebug", &enabled, sizeof(enabled)) || enabled == 0) {
++		return;
++	}
++	if (PE_parse_boot_argn("loader_return_after", &loader_return_after,
++	    sizeof(loader_return_after)) && loader_return_after != 0) {
++		clock_interval_to_deadline(loader_return_after, NSEC_PER_SEC,
++		    &loader_return_deadline);
++	}
++	loader_watch_call = thread_call_allocate(loader_watch, NULL);
++	if (loader_watch_call != NULL) {
++		loader_watch(NULL, NULL);
++	}
++}
++STARTUP(EARLY_BOOT, STARTUP_RANK_LAST, loader_watch_init);
+diff --git a/osfmk/arm64/start.s b/osfmk/arm64/start.s
+index 6aa6fe4..545c8b1 100644
+--- a/osfmk/arm64/start.s
++++ b/osfmk/arm64/start.s
+@@ -243,40 +243,86 @@ LEXT(_start)
+ 	.global	EXT(LowExceptionVectorBase)
+ LEXT(LowExceptionVectorBase)
+ 	/* EL1 SP 0 */
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	/* EL1 SP1 */
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	/* EL0 64 */
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	/* EL0 32 */
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
+ 	.align	7
+-	b		.
++	b		Lloader_early_exception
++
++/*
++ * Early-boot exceptions used to spin here.  When the loader has patched
++ * the address of its return stub into the slot below, report the exception
++ * to it instead (see loader_return.c):
++ *   x0/x1 = PA/length of the captured kernel log, x2 = 1 (early exception),
++ *   x3 = ESR, x4 = ELR, x5 = FAR, x6 = LR, x7 = SP
++ */
++	.align	3
++Lloader_early_exception:
++	mov		x6, lr
++	mov		x7, sp
++	mrs		x3, ESR_EL1
++	mrs		x4, ELR_EL1
++	mrs		x5, FAR_EL1
++	adrp	x0, EXT(loader_log)@page
++	add		x0, x0, EXT(loader_log)@pageoff
++	adrp	x1, EXT(loader_log_len)@page
++	add		x1, x1, EXT(loader_log_len)@pageoff
++	ldr		w1, [x1]
++	/* Write the log back to RAM: dirty lines are lost once the MMU is off. */
++	mov		x9, x0
++	add		x10, x0, x1
++1:
++	dc		cvac, x9
++	add		x9, x9, #64
++	cmp		x9, x10
++	b.lo	1b
++	dsb		sy
++	mov		x2, #1
++	mrs		x9, SCTLR_EL1
++	bic		x9, x9, #1
++	msr		SCTLR_EL1, x9
++	isb
++	adr		x9, Lloader_stub_slot
++	ldr		x9, [x9, #8]
++	cbz		x9, .
++	br		x9
++	.align	3
++	.globl	EXT(loader_stub_slot)
++LEXT(loader_stub_slot)
++Lloader_stub_slot:
++	.ascii	"XNULDRST"				// magic the loader searches for
++	.quad	0						// PA of the loader's return stub
++	.quad	0						// checkpoint number to stop at (0 = none)
++	.quad	0						// (physical - virtual) offset of the kernel
+ 	.align 12, 0
+ 
+ #if defined(KERNEL_INTEGRITY_KTRR) || defined(KERNEL_INTEGRITY_CTRR) || defined(KERNEL_INTEGRITY_PV_CTRR)
+@@ -458,6 +504,31 @@ start_cpu:
+ 2:
+ .endmacro
+ 
++/*
++ * LOADER_CHECKPOINT n
++ *   Bring-up aid: if the loader asked to stop at checkpoint n, return to it
++ *   right here (reason 2, code n).  Usable with the MMU off or on (V=P).
++ *   Clobbers x0-x3, x9-x11.
++ */
++.macro LOADER_CHECKPOINT
++	adrp	x9, EXT(loader_stub_slot)@page
++	add		x9, x9, EXT(loader_stub_slot)@pageoff
++	ldr		x10, [x9, #16]
++	cmp		x10, #$0
++	b.ne	1f
++	mov		x0, #0
++	mov		x1, #0
++	mov		x2, #2
++	mov		x3, #$0
++	mrs		x11, SCTLR_EL1
++	bic		x11, x11, #1
++	msr		SCTLR_EL1, x11
++	isb
++	ldr		x9, [x9, #8]
++	br		x9
++1:
++.endmacro
++
+ /*
+  * _start_first_cpu
+  * Cold boot init routine.  Called from __start
+@@ -467,18 +538,21 @@ start_cpu:
+ 	.globl EXT(start_first_cpu)
+ LEXT(start_first_cpu)
+ 
+-	// Unlock the core for debugging
+-	msr		OSLAR_EL1, xzr
+ 	msr		DAIFSet, #(DAIFSC_ALL)				// Disable all interrupts
+ 
+ 	mov		x20, x0
+ 	mov		x21, #0
++	LOADER_CHECKPOINT 1
+ 
+-	// Set low reset vector before attempting any loads
++	// Set low reset vector before attempting anything that might trap
+ 	adrp	x0, EXT(LowExceptionVectorBase)@page
+ 	add		x0, x0, EXT(LowExceptionVectorBase)@pageoff
+ 	MSR_VBAR_EL1_X0
+ 
++	// Unlock the core for debugging
++	msr		OSLAR_EL1, xzr
++	LOADER_CHECKPOINT 2
++
+ 
+ 	// Get the kernel memory parameters from the boot args
+ 	ldr		x22, [x20, BA_VIRT_BASE]			// Get the kernel virt base
+@@ -623,6 +697,7 @@ Lkernelcache_base_found:
+ 	/* Ensure TTEs are visible */
+ 	dsb		ish
+ 
++	LOADER_CHECKPOINT 3
+ 
+ 	b		common_start
+ 
+@@ -747,10 +822,17 @@ common_start:
+ 	PAC_INIT_KEY_STATE tmp=x0, tmp2=x1
+ #endif /* HAS_APPLE_PAC */
+ 
++	cbnz	x21, 2f								// boot CPU cold start only
++	LOADER_CHECKPOINT 4
++2:
+ 	// Enable caches, MMU, ROP and JOP
+ 	MOV64   x0, SCTLR_EL1_DEFAULT
+ 	MSR_SCTLR_EL1_X0
+ 	isb		sy
++	cbnz	x21, 3f
++	LOADER_CHECKPOINT 5
++	MOV64   x0, SCTLR_EL1_DEFAULT				// restore what the checkpoint clobbered
++3:
+ 
+ #if !VMAPPLE
+ 	MOV64	x1, SCTLR_EL1_DEFAULT
+diff --git a/osfmk/conf/files.arm64 b/osfmk/conf/files.arm64
+index 878b515..d22ac8d 100644
+--- a/osfmk/conf/files.arm64
++++ b/osfmk/conf/files.arm64
+@@ -61,6 +61,7 @@ osfmk/arm64/iofilter_asm.s	optional nos_arm_asm
+ osfmk/arm64/iofilter.c	optional nos_arm_asm
+ osfmk/arm64/gxf_exceptions.s	optional nos_arm_asm
+ osfmk/arm64/lowmem_vectors.c	standard
++osfmk/arm64/loader_return.c	standard
+ osfmk/arm64/sleh.c			standard
+ osfmk/arm64/start.s	optional nos_arm_asm config_pmap_ppl
+ osfmk/arm64/pinst.s	optional nos_arm_asm
+diff --git a/pexpert/arm/pe_kprintf.c b/pexpert/arm/pe_kprintf.c
+index 7a4bbd3..0d1ac94 100644
+--- a/pexpert/arm/pe_kprintf.c
++++ b/pexpert/arm/pe_kprintf.c
+@@ -32,6 +32,7 @@ SECURITY_READ_ONLY_LATE(bool) enable_dklog_serial_output = false;
+ static SIMPLE_LOCK_DECLARE(kprintf_lock, 0);
+ 
+ static void serial_putc_crlf(char c);
++extern void loader_log_putc(char c);
+ 
+ __startup_func
+ static void
+@@ -41,6 +42,15 @@ PE_init_kprintf_config(void)
+ 		panic("Platform Expert not initialized");
+ 	}
+ 
++	uint32_t fastbootdebug = 0;
++
++	if (PE_parse_boot_argn("fastbootdebug", &fastbootdebug, sizeof(fastbootdebug)) &&
++	    fastbootdebug != 0) {
++		disable_serial_output = false;
++		disable_kprintf_output = false;
++		return;
++	}
++
+ 	if (debug_boot_arg & (DB_KPRT | DB_PRT)) {
+ 		disable_serial_output = false;
+ 	}
+@@ -61,7 +71,12 @@ __startup_func
+ static void
+ PE_init_kprintf(void)
+ {
+-	if (serial_init()) {
++	uint32_t fastbootdebug = 0;
++
++	if (PE_parse_boot_argn("fastbootdebug", &fastbootdebug, sizeof(fastbootdebug)) &&
++	    fastbootdebug != 0) {
++		PE_kputc = loader_log_putc;
++	} else if (serial_init()) {
+ 		PE_kputc = serial_putc_crlf;
+ 	} else {
+ 		/**

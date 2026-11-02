@@ -3,3 +3,6 @@
 device/peridot-touch-probe.patch
 lastkerneldataconst-pad.patch
 source-storage-runtime.patch
+
+# Resident UEFI fastboot: XNU log/checkpoint return path.
+loader-return.patch
