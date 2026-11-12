@@ -193,7 +193,6 @@ jobs:
             curl -fsSL --retry 3 "$data_seed_url" -o "$RUNNER_TEMP/data.dbr"
             if [ -n "$GROW_GIB" ]; then
               # seed-data-grow.py imports drivers/DarwinBoot/Test and keeps its scratch image in build/.
-              git submodule update --init --depth 1 drivers/DarwinBoot
               mkdir -p build
               python3 scripts/seed-data-grow.py --gib "$GROW_GIB" "$RUNNER_TEMP/data.dbr" "$RUNNER_TEMP/data-grow.dbr"
               mv "$RUNNER_TEMP/data-grow.dbr" "$RUNNER_TEMP/data.dbr"
