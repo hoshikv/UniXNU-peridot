@@ -95,6 +95,8 @@ READ_LOCK_STATUS   = TRUE
   # UniXNU
   INF UniXNUPkg/Application/UniXNU/UniXNU.inf
   INF UniXNUPkg/Driver/UniXNUDxe/UniXNUDxe.inf
+  # Tools -> Advanced Logger, exported as OneSend QR frames.
+  INF UniXNUPkg/Driver/AdvancedLogDxe/AdvancedLogDxe.inf
 
   # ACPI
   INF MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf

@@ -98,3 +98,55 @@
   UniXNUPkg/Driver/UniXNUDxe/UniXNUDxe.inf
   UniXNUPkg/Driver/UniXNURamDiskDxe/UniXNURamDiskDxe.inf
   DarwinBootPkg/Driver/DarwinBoot.inf
+
+#
+# Advanced Logger and the UniXNU firmware log exporter
+# (https://unixnu.com/porting/log-capture#firmware-setup).
+#
+# The DXE Core instance reserves PcdAdvancedLoggerPages (4 MiB by default)
+# from the DXE heap and installs gAdvancedLoggerProtocolGuid, which is the
+# exporter's Depex. PcdAdvancedLoggerBase stays 0: no fixed RAM address is
+# invented. The hardware port mirrors the log through SerialPortLib (the
+# framebuffer port in DEBUG), so the existing panel diagnostics remain.
+#
+[PcdsFixedAtBuild]
+  gUniXNUPkgTokenSpaceGuid.PcdUniXNUDeviceModel|"peridot"
+
+[LibraryClasses]
+  AdvancedLoggerAccessLib|AdvLoggerPkg/Library/AdvancedLoggerAccessLib/AdvancedLoggerAccessLib.inf
+  AdvancedLoggerHdwPortLib|AdvLoggerPkg/Library/AdvancedLoggerHdwPortLib/AdvancedLoggerHdwPortLib.inf
+  QrEncoderLib|MsGraphicsPkg/Library/QrEncoderLib/QrEncoderLib.inf
+!if $(TARGET) == DEBUG
+  AssertLib|AdvLoggerPkg/Library/AssertLib/AssertLib.inf
+!endif
+
+[LibraryClasses.common.DXE_CORE]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/DxeCore/AdvancedLoggerLib.inf
+
+[LibraryClasses.common.DXE_DRIVER]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/Dxe/AdvancedLoggerLib.inf
+!if $(TARGET) == DEBUG
+  DebugLib|AdvLoggerPkg/Library/BaseDebugLibAdvancedLogger/BaseDebugLibAdvancedLogger.inf
+!endif
+
+[LibraryClasses.common.UEFI_DRIVER]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/Dxe/AdvancedLoggerLib.inf
+!if $(TARGET) == DEBUG
+  DebugLib|AdvLoggerPkg/Library/BaseDebugLibAdvancedLogger/BaseDebugLibAdvancedLogger.inf
+!endif
+
+[LibraryClasses.common.UEFI_APPLICATION]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/Dxe/AdvancedLoggerLib.inf
+!if $(TARGET) == DEBUG
+  DebugLib|AdvLoggerPkg/Library/BaseDebugLibAdvancedLogger/BaseDebugLibAdvancedLogger.inf
+!endif
+
+[LibraryClasses.common.DXE_RUNTIME_DRIVER]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/Runtime/AdvancedLoggerLib.inf
+!if $(TARGET) == DEBUG
+  DebugLib|AdvLoggerPkg/Library/BaseDebugLibAdvancedLogger/BaseDebugLibAdvancedLogger.inf
+!endif
+
+[Components]
+  # Tools -> Advanced Logger, exported as OneSend QR frames.
+  UniXNUPkg/Driver/AdvancedLogDxe/AdvancedLogDxe.inf
